@@ -3,7 +3,7 @@ package br.com.zg.acelera.model
 abstract class Pessoa implements IPessoa {
 
     String nome
-    String Email
+    String email
     String estado
     String cep
     String descricao

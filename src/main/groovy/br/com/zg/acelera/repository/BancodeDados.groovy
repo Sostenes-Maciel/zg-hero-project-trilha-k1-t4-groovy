@@ -6,8 +6,8 @@ import br.com.zg.acelera.model.Empresa
 
 class BancodeDados {
 
-    List<String> candidatos = []
-    List<String> empresas = []
+    List<Candidato> candidatos = []
+    List<Empresa> empresas = []
 
     BancodeDados() {
 
@@ -29,7 +29,7 @@ class BancodeDados {
         ))
         candidatos.add(new Candidato(
                 nome: "Vitor Pereira ", idade: 40, email: "vitor@hotmail.com", cpf: "333.666.768-00",
-                estado: "GO", cep: "65432-300", descricao: "Tutor acelera.", competencias: ["Java, Javascript, Infraestrutura"]
+                estado: "GO", cep: "65432-300", descricao: "Tutor acelera.", competencias: ["Java, Javascript, Angular"]
         ))
 
 
