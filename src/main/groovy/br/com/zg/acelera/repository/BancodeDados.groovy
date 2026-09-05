@@ -65,4 +65,12 @@ class BancodeDados {
 
 
     }
+
+    void cadastrarCandidato(Candidato candidato) {
+        candidatos.add(candidato)
+    }
+
+    void  cadastrarEmpresa(Empresa empresa) {
+        empresas.add(empresa)
+    }
 }
