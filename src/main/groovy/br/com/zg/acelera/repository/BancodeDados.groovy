@@ -1,13 +1,18 @@
 package br.com.zg.acelera.repository
 
 import br.com.zg.acelera.model.Candidato
+import br.com.zg.acelera.model.Curtidas
 import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.model.Vaga
 
 
 class BancodeDados {
 
-    List<Candidato> candidatos = []
-    List<Empresa> empresas = []
+    static List<Candidato> candidatos = []
+    static List<Empresa> empresas = []
+
+    static List<Vaga> vagas = []
+    static List<Curtidas> curtidas = []
 
     BancodeDados() {
 
@@ -70,7 +75,7 @@ class BancodeDados {
         candidatos.add(candidato)
     }
 
-    void  cadastrarEmpresa(Empresa empresa) {
+    void cadastrarEmpresa(Empresa empresa) {
         empresas.add(empresa)
     }
 }

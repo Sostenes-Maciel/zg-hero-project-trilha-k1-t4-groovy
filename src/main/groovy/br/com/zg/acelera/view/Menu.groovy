@@ -1,6 +1,7 @@
 package br.com.zg.acelera.view
 
 import br.com.zg.acelera.service.GerenciadorDePerfis
+import br.com.zg.acelera.service.GerenciadordeMatches
 
 class Menu {
 
@@ -11,11 +12,13 @@ class Menu {
         int opcao = 0
         println "Bem-vindo ao Linkertinder <3\n"
 
-        while (opcao != 4) {
+        while (opcao != 5) {
+
             println("1 - Listar candidatos")
             println("2 - Listar Empresas")
             println("3 - Cadastrar")
-            println("4 - Sair")
+            println("4 - Ver Resultados de Curtidas e Matches")
+            println("5 - Sair")
 
             try {
                 print "\nEscolha uma opção: "
@@ -33,6 +36,10 @@ class Menu {
                         gerenciador.cadastroNovo(sc)
                         break
                     case 4:
+                        GerenciadordeMatches.simularInteracoes()
+                        GerenciadordeMatches.exibirPainel()
+                        break
+                    case 5:
                         println("Saindo do Linketinder. Até logo!")
                         break
                     default:
