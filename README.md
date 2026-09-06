@@ -210,6 +210,17 @@ A opção **Cadastrar** permite escolher entre:
 
 ---
 
+##  Atualização : Sistema de Curtidas e Painel de Matches
+
+O projeto foi atualizado com a implementação do núcleo de interações (curtidas e matches) entre candidatos, empresas e vagas, garantindo uma visualização clara do status de relacionamento na plataforma.
+
+### Principais Alterações
+
+* **Nova Entidade `Curtida`:** Criada para atuar como o elo central do sistema[cite: 1], registrando o candidato, a vaga associada e o aceite da empresa.
+* **Lógica de Match Automatizada:** Implementação de método validador que confirma o *Match* apenas quando há reciprocidade — ou seja, quando o candidato curte a vaga e a respectiva empresa retribui a curtida na mesma instância de relacionamento[cite: 1].
+* **Isolamento de Dados (Amostra Segura):** Criação de um repositório dedicado na memória (`curtidasSimulacao`)[cite: 1] para gerenciar os dados de testes e demonstrações de forma isolada, evitando conflitos ou apagamentos indesejados no cadastro oficial de usuários e vagas do sistema.
+* **Painel Visual no Terminal:** Adicionada uma nova opção interativa no menu do console que exibe um relatório formatado em tempo real, diferenciando visualmente os status entre **[  MATCH! ]** e **[ PENDENTE ]**.
+
 
 ## Autor
 
