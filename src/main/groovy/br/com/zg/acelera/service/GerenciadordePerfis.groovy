@@ -4,6 +4,7 @@ import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.repository.BancodeDados
 
+
 class GerenciadorDePerfis {
     BancodeDados dados = new BancodeDados()
 
@@ -53,93 +54,136 @@ class GerenciadorDePerfis {
             if (opcaoadd == 1) {
                 try {
                     println "\n--- CADASTRAR NOVO CANDIDATO ---"
+
                     print "Nome: "
-                    String nome = sc.nextLine()
+                    String nome = sc.nextLine().trim()
+                    ValidarCandidato.validarNome(nome)
 
                     print "E-mail: "
-                    String email = sc.nextLine()
+                    String email = sc.nextLine().trim()
+                    ValidarCandidato.validarEmail(email)
 
                     print "CPF: "
-                    String cpf = sc.nextLine()
+                    String cpf = sc.nextLine().trim()
+                    ValidarCandidato.validarCpf(cpf)
 
                     print "Idade (apenas números): "
                     if (!sc.hasNextInt()) {
-                        println "Erro: A idade deve ser um número inteiro. Cadastro cancelado."
-                        sc.next()
-                        return
+                        sc.nextLine()
+                        throw new IllegalArgumentException("Idade deve ser um número inteiro.")
                     }
+
                     int idade = sc.nextInt()
                     sc.nextLine()
+                    ValidarCandidato.validarIdade(idade)
 
                     print "Estado: "
-                    String estado = sc.nextLine()
+                    String estado = sc.nextLine().trim()
+                    ValidarCandidato.validarEstado(estado)
 
                     print "CEP: "
-                    String cep = sc.nextLine()
+                    String cep = sc.nextLine().trim()
+                    ValidarCandidato.validarCep(cep)
 
                     print "Descrição pessoal: "
-                    String descricao = sc.nextLine()
+                    String descricao = sc.nextLine().trim()
+                    ValidarCandidato.validarDescricao(descricao)
 
-                    print "Competências (separadas por vírgula, ex: Java, Groovy, SQL): "
+                    print "Competências: "
                     String entradaComps = sc.nextLine()
-                    List<String> competencias = entradaComps.tokenize(',').collect { it.trim() }
+
+                    List<String> competencias = entradaComps
+                            .tokenize(',')
+                            .collect { it.trim() }
+
+                    ValidarCandidato.validarCompetencias(competencias)
 
                     Candidato novoCandidato = new Candidato(
-                            nome: nome, email: email, cpf: cpf, idade: idade,
-                            estado: estado, cep: cep, descricao: descricao, competencias: competencias
+                            nome: nome,
+                            email: email,
+                            cpf: cpf,
+                            idade: idade,
+                            estado: estado,
+                            cep: cep,
+                            descricao: descricao,
+                            competencias: competencias
                     )
 
                     dados.cadastrarCandidato(novoCandidato)
-                    println("Candidato cadastrado com sucesso!\n")
 
+                    println "Candidato cadastrado com sucesso!\n"
+
+                } catch (IllegalArgumentException e) {
+                    println "Erro: ${e.message}"
                 } catch (Exception e) {
-                    println "Erro ao cadastrar candidato: ${e.message}"
+                    println "Erro inesperado: ${e.message}"
                 }
 
             } else if (opcaoadd == 2) {
                 try {
                     println "\n--- CADASTRAR NOVA EMPRESA ---"
+
                     print "Nome da Empresa: "
-                    String nome = sc.nextLine()
+                    String nome = sc.nextLine().trim()
+                    ValidarEmpresa.validarNome(nome)
 
                     print "E-mail Corporativo: "
-                    String email = sc.nextLine()
+                    String email = sc.nextLine().trim()
+                    ValidarEmpresa.validarEmail(email)
 
                     print "CNPJ: "
-                    String cnpj = sc.nextLine()
+                    String cnpj = sc.nextLine().trim()
+                    ValidarEmpresa.validarCnpj(cnpj)
 
                     print "País: "
-                    String pais = sc.nextLine()
+                    String pais = sc.nextLine().trim()
+                    ValidarEmpresa.validarPais(pais)
 
                     print "Estado: "
-                    String estado = sc.nextLine()
+                    String estado = sc.nextLine().trim()
+                    ValidarEmpresa.validarEstado(estado)
 
                     print "CEP: "
-                    String cep = sc.nextLine()
+                    String cep = sc.nextLine().trim()
+                    ValidarEmpresa.validarCep(cep)
 
                     print "Descrição da empresa: "
-                    String descricao = sc.nextLine()
+                    String descricao = sc.nextLine().trim()
+                    ValidarEmpresa.validarDescricao(descricao)
 
-                    print "Competências desejadas (separadas por vírgula): "
+                    print "Competências desejadas: "
                     String entradaComps = sc.nextLine()
-                    List<String> competencias = entradaComps.tokenize(',').collect { it.trim() }
+
+                    List<String> competencias = entradaComps
+                            .tokenize(',')
+                            .collect { it.trim() }
+
+                    ValidarEmpresa.validarCompetencias(competencias)
 
                     Empresa novaEmpresa = new Empresa(
-                            nome: nome, email: email, cnpj: cnpj, pais: pais,
-                            estado: estado, cep: cep, descricao: descricao, competencias: competencias
+                            nome: nome,
+                            email: email,
+                            cnpj: cnpj,
+                            pais: pais,
+                            estado: estado,
+                            cep: cep,
+                            descricao: descricao,
+                            competencias: competencias
                     )
 
                     dados.cadastrarEmpresa(novaEmpresa)
-                    println("Empresa cadastrada com sucesso!\n")
+
+                    println "Empresa cadastrada com sucesso!\n"
+
+                } catch (IllegalArgumentException e) {
+                    println "Erro ao cadastrar empresa: ${e.message}"
 
                 } catch (Exception e) {
-                    println "Erro ao cadastrar empresa: ${e.message}"
+                    println "Erro no cadastro: ${e.message}"
                 }
-            } else {
-                println("Opção de cadastro inválida! Retornando ao menu.")
             }
         } catch (Exception e) {
-            println("Erro no cadastro: ${e.message}")
+            println "Erro ${e.message}"
         }
     }
 }
