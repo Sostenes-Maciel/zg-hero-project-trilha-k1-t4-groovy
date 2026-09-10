@@ -24,7 +24,7 @@ class ValidarCandidato {
     }
 
     static void validarIdade(int idade) {
-        if (idade < 16 || idade > 120) {
+        if (idade < 18 || idade > 120) {
             throw new IllegalArgumentException("Idade inválida.")
         }
     }

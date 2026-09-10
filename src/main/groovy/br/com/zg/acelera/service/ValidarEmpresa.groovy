@@ -15,8 +15,7 @@ class ValidarEmpresa {
     }
 
     static void validarCnpj(String cnpj) {
-        cnpj = cnpj.replaceAll(/[.-\/]/, '')
-
+        cnpj = cnpj.replaceAll(/[.\/-]/, '')
         if (!cnpj.matches(/\d{14}/)) {
             throw new IllegalArgumentException("CNPJ deve conter 14 números.")
         }
