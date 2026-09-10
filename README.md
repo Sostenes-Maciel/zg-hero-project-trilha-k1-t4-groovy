@@ -222,6 +222,20 @@ O projeto foi atualizado com a implementação do núcleo de interações (curti
 * **Painel Visual no Terminal:** Adicionada uma nova opção interativa no menu do console que exibe um relatório formatado em tempo real, diferenciando visualmente os status entre **[  MATCH! ]** e **[ PENDENTE ]**.
 
 
+* ## Atualização: Testes Unitários com Spock
+
+O projeto foi atualizado com a implementação de testes unitários utilizando o **Spock Framework** e **Groovy**, com foco no cadastro e validação de candidatos e empresas.
+
+### Principais Alterações
+
+* **Testes de Cadastro:** Implementados testes para verificar a inserção de novos candidatos e empresas nas listas do sistema, garantindo que o cadastro adicione corretamente os novos elementos.
+* **Testes de Criação de Objetos:** Adicionados testes para validar a criação das entidades `Candidato` e `Empresa`, verificando seus principais atributos.
+* **Testes de Validação:** Criados testes unitários para as regras de validação de candidatos e empresas, contemplando entradas válidas e inválidas.
+* **Testes de Fronteira:** Adicionados casos para verificar os limites das validações, como idade, CPF, CNPJ e CEP.
+* **Organização dos Testes:** Os testes foram separados em classes `Spec`, mantendo cada unidade do sistema testada de forma independente.
+
+
+
 ## Autor
 
 **Sóstenes Marques Maciel**
