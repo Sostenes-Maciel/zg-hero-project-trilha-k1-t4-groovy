@@ -34,7 +34,7 @@ class GerenciadordeMatches {
                 println "  -> ${nomeCandidato} curtiu a vaga '${tituloVaga}' de ${nomeEmpresaDonaDaVaga}."
                 println "  -> Aguardando a empresa curtir de volta..."
             }
-            println "───────────────────────────────────────────────────────────────"
+            println "--------------------------------------------------"
         }
 
         println "\nPressione [ENTER] para voltar ao menu..."
