@@ -1,3 +1,6 @@
+import type { Candidato } from '../model/Candidato'
+import { BancodeDados } from '../repository/BancodeDados'
+
 export function renderCadastroCandidato(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -6,6 +9,7 @@ export function renderCadastroCandidato(): void {
     }
 
     app.innerHTML = `
+    
         <section>
             <h1>Cadastro de Candidato</h1>
 
@@ -62,4 +66,30 @@ export function renderCadastroCandidato(): void {
             </form>
         </section>
     `
+
+    const formulario = document.querySelector<HTMLFormElement>('#form-candidato')
+
+    formulario?.addEventListener('submit', (evento) => {
+        evento.preventDefault()
+
+        const dados = new FormData(formulario)
+
+        const candidato: Candidato = {
+            nome: dados.get('nome') as string,
+            email: dados.get('email') as string,
+            idade: Number(dados.get('idade')),
+            cpf: dados.get('cpf') as string,
+            estado: dados.get('estado') as string,
+            cep: dados.get('cep') as string,
+            descricao: dados.get('descricao') as string,
+            competencias: (dados.get('competencias') as string)
+                .split(',')
+                .map(competencia => competencia.trim())
+                .filter(competencia => competencia.length > 0)
+        }
+
+        BancodeDados.cadastrarCandidato(candidato)
+
+        console.log('Candidato cadastrado:', candidato)
+    })
 }
