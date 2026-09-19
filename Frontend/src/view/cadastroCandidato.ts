@@ -63,6 +63,7 @@ export function renderCadastroCandidato(): void {
                 </div>
 
                 <button type="submit">Cadastrar</button>
+                <p id="mensagem"></p>
             </form>
         </section>
     `
@@ -89,6 +90,14 @@ export function renderCadastroCandidato(): void {
         }
 
         BancodeDados.cadastrarCandidato(candidato)
+
+        const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+        if (mensagem) {
+            mensagem.textContent = 'Candidato cadastrado com sucesso!'
+        }
+
+        formulario.reset()
 
         console.log('Candidato cadastrado:', candidato)
     })
