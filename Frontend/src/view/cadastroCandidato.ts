@@ -1,5 +1,5 @@
-import type { Candidato } from '../model/Candidato'
-import { BancodeDados } from '../repository/BancodeDados'
+import type {Candidato} from '../model/Candidato'
+import {BancodeDados} from '../repository/BancodeDados'
 
 export function renderCadastroCandidato(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -73,32 +73,44 @@ export function renderCadastroCandidato(): void {
     formulario?.addEventListener('submit', (evento) => {
         evento.preventDefault()
 
-        const dados = new FormData(formulario)
+        try {
 
-        const candidato: Candidato = {
-            nome: dados.get('nome') as string,
-            email: dados.get('email') as string,
-            idade: Number(dados.get('idade')),
-            cpf: dados.get('cpf') as string,
-            estado: dados.get('estado') as string,
-            cep: dados.get('cep') as string,
-            descricao: dados.get('descricao') as string,
-            competencias: (dados.get('competencias') as string)
-                .split(',')
-                .map(competencia => competencia.trim())
-                .filter(competencia => competencia.length > 0)
+            const dados = new FormData(formulario)
+
+            const candidato: Candidato = {
+                nome: dados.get('nome') as string,
+                email: dados.get('email') as string,
+                idade: Number(dados.get('idade')),
+                cpf: dados.get('cpf') as string,
+                estado: dados.get('estado') as string,
+                cep: dados.get('cep') as string,
+                descricao: dados.get('descricao') as string,
+                competencias: (dados.get('competencias') as string)
+                    .split(',')
+                    .map(competencia => competencia.trim())
+                    .filter(competencia => competencia.length > 0)
+            }
+
+            BancodeDados.cadastrarCandidato(candidato)
+
+            const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+            if (mensagem) {
+                mensagem.textContent = 'Candidato cadastrado com sucesso!'
+            }
+
+            formulario.reset()
+
+            console.log('Candidato cadastrado:', candidato)
+
+        } catch (erro) {
+            console.error('Erro ao cadastrar candidato:', erro)
+
+            const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+            if (mensagem) {
+                mensagem.textContent = 'Não foi possível cadastrar o candidato. Tente novamente.'
+            }
         }
-
-        BancodeDados.cadastrarCandidato(candidato)
-
-        const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
-
-        if (mensagem) {
-            mensagem.textContent = 'Candidato cadastrado com sucesso!'
-        }
-
-        formulario.reset()
-
-        console.log('Candidato cadastrado:', candidato)
     })
 }

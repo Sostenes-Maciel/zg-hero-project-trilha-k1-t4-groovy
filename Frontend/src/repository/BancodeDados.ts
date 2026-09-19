@@ -138,11 +138,26 @@ export class BancodeDados {
 
     static cadastrarCandidato(candidato: Candidato): void {
         this.candidatos.push(candidato)
-        this.salvarCandidatos()
+
+        try {
+            this.salvarCandidatos()
+        } catch (erro) {
+            this.candidatos.pop()
+            console.error('Erro ao salvar candidato:', erro)
+            throw new Error('Não foi possível salvar o candidato.')
+        }
     }
 
     static cadastrarEmpresa(empresa: Empresa): void {
         this.empresas.push(empresa)
+
+        try {
+            this.salvarEmpresas()
+        } catch (erro) {
+            this.empresas.pop()
+            console.error('Erro ao salvar empresa:', erro)
+            throw new Error('Não foi possível salvar a empresa.')
+        }
         this.salvarEmpresas()
     }
 
