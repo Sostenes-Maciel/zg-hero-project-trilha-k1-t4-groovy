@@ -171,7 +171,7 @@ Pacote:
 br.com.zg.acelera.repository
 ```
 
-Contém a classe `BancodeDados`, responsável pelo armazenamento e gerenciamento dos dados em memória.
+Contém a classe `BancodeDados.ts`, responsável pelo armazenamento e gerenciamento dos dados em memória.
 
 ### `model`
 
