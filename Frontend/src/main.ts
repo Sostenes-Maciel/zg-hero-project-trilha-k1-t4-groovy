@@ -1,12 +1,16 @@
-import  './style.css'
-import { BancodeDados } from './repository/BancodeDados'
-import {renderCadastroEmpresa} from "./view/cadastroEmpresa.ts";
+import './style.css'
+import {BancodeDados} from './repository/BancodeDados'
+import {renderPerfilEmpresa} from "./view/perfilEmpresa.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
     '<h1>LinkerTinder</h1>'
-    '<p>Frontend em TypeScript</p>'
+'<p>Frontend em TypeScript</p>'
 
 
 BancodeDados.inicializar()
 
-renderCadastroEmpresa()
+const empresa = BancodeDados.empresas[0]
+
+if (empresa) {
+    renderPerfilEmpresa(empresa)
+}
