@@ -22,8 +22,10 @@ export function renderListaCandidatos(): void {
                         <th>Idade</th>
                         <th>Estado</th>
                         <th>Competências</th>
+                        
                     </tr>
                 </thead>
+                
 
                 <tbody id="lista-candidatos">
                 </tbody>
@@ -46,7 +48,16 @@ export function renderListaCandidatos(): void {
             <td>${candidato.idade}</td>
             <td>${candidato.estado}</td>
             <td>${candidato.competencias.join(', ')}</td>
-        `
+                <td>
+                    <button class="btn-perfil" data-cpf="${candidato.cpf}">
+                        Ver perfil
+                    </button>
+                
+                    <button class="btn-excluir" data-cpf="${candidato.cpf}">
+                        Excluir
+                    </button>
+                </td>
+            `
 
         lista.appendChild(linha)
     })
@@ -69,6 +80,41 @@ export function renderListaCandidatos(): void {
             }
 
             renderPerfilCandidato(candidato)
+        })
+    })
+
+    const botoesExcluir = document.querySelectorAll<HTMLButtonElement>(
+        '.btn-excluir'
+    )
+
+    botoesExcluir.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const cpf = botao.dataset.cpf
+
+            if (!cpf) {
+                console.error('CPF do candidato não encontrado.')
+                return
+            }
+
+            const confirmar = window.confirm(
+                'Tem certeza que deseja excluir este candidato?'
+            )
+
+            if (!confirmar) {
+                return
+            }
+
+            try {
+                BancodeDados.excluirCandidato(cpf)
+
+                renderListaCandidatos()
+            } catch (erro) {
+                console.error('Erro ao excluir candidato:', erro)
+
+                window.alert(
+                    'Não foi possível excluir o candidato. Tente novamente.'
+                )
+            }
         })
     })
 }

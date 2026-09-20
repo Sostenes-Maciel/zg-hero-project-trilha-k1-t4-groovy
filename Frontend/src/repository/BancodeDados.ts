@@ -172,4 +172,44 @@ export class BancodeDados {
     private static salvarVagas(): void {
         localStorage.setItem('vagas', JSON.stringify(this.vagas))
     }
+
+    static excluirCandidato(cpf: string): void {
+        const indice = this.candidatos.findIndex(
+            candidato => candidato.cpf === cpf
+        )
+
+        if (indice === -1) {
+            throw new Error('Candidato não encontrado.')
+        }
+
+        const candidatoRemovido = this.candidatos.splice(indice, 1)[0]
+
+        try {
+            this.salvarCandidatos()
+        } catch (erro) {
+            this.candidatos.splice(indice, 0, candidatoRemovido)
+            console.error('Erro ao excluir candidato:', erro)
+            throw new Error('Não foi possível excluir o candidato.')
+        }
+    }
+
+    static excluirEmpresa(cnpj: string): void {
+        const indice = this.empresas.findIndex(
+            empresa => empresa.cnpj === cnpj
+        )
+
+        if (indice === -1) {
+            throw new Error('Empresa não encontrada.')
+        }
+
+        const empresaRemovida = this.empresas.splice(indice, 1)[0]
+
+        try {
+            this.salvarEmpresas()
+        } catch (erro) {
+            this.empresas.splice(indice, 0, empresaRemovida)
+            console.error('Erro ao excluir empresa:', erro)
+            throw new Error('Não foi possível excluir a empresa.')
+        }
+    }
 }

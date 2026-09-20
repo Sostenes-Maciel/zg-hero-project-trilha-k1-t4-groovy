@@ -50,6 +50,9 @@ export function renderListaEmpresas(): void {
                 <button class="btn-perfil-empresa" data-cnpj="${empresa.cnpj}">
                     Ver perfil
                 </button>
+                <button class="btn-excluir-empresa" data-cnpj="${empresa.cnpj}">
+                    Excluir
+                </button>
             </td>
         `
 
@@ -74,6 +77,39 @@ export function renderListaEmpresas(): void {
             }
 
             renderPerfilEmpresa(empresa)
+        })
+    })
+    const botoesExcluir = document.querySelectorAll<HTMLButtonElement>(
+        '.btn-excluir-empresa'
+    )
+
+    botoesExcluir.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const cnpj = botao.dataset.cnpj
+
+            if (!cnpj) {
+                console.error('CNPJ da empresa não encontrado.')
+                return
+            }
+
+            const confirmar = window.confirm(
+                'Tem certeza que deseja excluir esta empresa?'
+            )
+
+            if (!confirmar) {
+                return
+            }
+
+            try {
+                BancodeDados.excluirEmpresa(cnpj)
+                renderListaEmpresas()
+            } catch (erro) {
+                console.error('Erro ao excluir empresa:', erro)
+
+                window.alert(
+                    'Não foi possível excluir a empresa. Tente novamente.'
+                )
+            }
         })
     })
 }
