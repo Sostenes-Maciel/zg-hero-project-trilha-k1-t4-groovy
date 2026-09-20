@@ -1,8 +1,12 @@
 import type { Empresa } from '../model/Empresa.ts'
 import { BancodeDados } from '../repository/BancodeDados.ts'
 import { ValidarEmpresa } from '../service/validarEmpresa'
+import {
+    getCountries,
+    getStatesOfCountry
+} from '@countrystatecity/countries-browser'
 
-export function renderCadastroEmpresa(): void {
+export async function renderCadastroEmpresa(): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -31,12 +35,16 @@ export function renderCadastroEmpresa(): void {
 
                 <div>
                     <label for="pais">País</label>
-                    <input type="text" id="pais" name="pais" required>
+                    <select id="pais" name="pais" required>
+                        <option value="">Selecione um país</option>
+                    </select>
                 </div>
 
                 <div>
                     <label for="estado">Estado</label>
-                    <input type="text" id="estado" name="estado" required>
+                    <select id="estado" name="estado" required disabled>
+                        <option value="">Selecione um país primeiro</option>
+                    </select>
                 </div>
 
                 <div>
@@ -66,6 +74,59 @@ export function renderCadastroEmpresa(): void {
             </form>
         </section>
     `
+    const selectPais = document.querySelector<HTMLSelectElement>('#pais')
+    const selectEstado = document.querySelector<HTMLSelectElement>('#estado')
+
+    if (!selectPais || !selectEstado) {
+        return
+    }
+
+    try {
+        const paises = await getCountries()
+
+        paises.forEach(pais => {
+            const option = document.createElement('option')
+
+            option.value = pais.iso2
+            option.textContent = pais.name
+
+            selectPais.appendChild(option)
+        })
+    } catch (erro) {
+        console.error('Erro ao carregar países:', erro)
+    }
+
+    selectPais.addEventListener('change', async () => {
+        const codigoPais = selectPais.value
+
+        selectEstado.innerHTML = `
+        <option value="">Selecione um estado</option>
+    `
+
+        selectEstado.disabled = true
+
+        if (!codigoPais) {
+            return
+        }
+
+        try {
+            const estados = await getStatesOfCountry(codigoPais)
+
+            estados.forEach(estado => {
+                const option = document.createElement('option')
+
+                option.value = estado.name
+                option.textContent = estado.name
+
+                selectEstado.appendChild(option)
+            })
+
+            selectEstado.disabled = false
+
+        } catch (erro) {
+            console.error('Erro ao carregar estados:', erro)
+        }
+    })
 
     const formulario = document.querySelector<HTMLFormElement>('#form-empresa')
 
@@ -78,7 +139,7 @@ export function renderCadastroEmpresa(): void {
             const nome = dados.get('nome') as string
             const email = dados.get('email') as string
             const cnpj = dados.get('cnpj') as string
-            const pais = dados.get('pais') as string
+            const pais = selectPais.selectedOptions[0]?.textContent?.trim() ?? ''
             const estado = dados.get('estado') as string
             const cep = dados.get('cep') as string
             const descricao = dados.get('descricao') as string

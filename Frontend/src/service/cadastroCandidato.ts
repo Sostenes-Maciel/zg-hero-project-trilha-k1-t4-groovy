@@ -1,8 +1,9 @@
 import type {Candidato} from '../model/Candidato.ts'
 import {BancodeDados} from '../repository/BancodeDados.ts'
 import {ValidarCandidato} from '../service/validarCandidato'
+import { getStatesOfCountry } from '@countrystatecity/countries-browser'
 
-export function renderCadastroCandidato(): void {
+export async function renderCadastroCandidato(): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -39,7 +40,9 @@ export function renderCadastroCandidato(): void {
 
                 <div>
                     <label for="estado">Estado</label>
-                    <input type="text" id="estado" name="estado" required>
+                    <select id="estado" name="estado" required>
+                        <option value="">Carregando estados...</option>
+                    </select>
                 </div>
 
                 <div>
@@ -68,6 +71,35 @@ export function renderCadastroCandidato(): void {
             </form>
         </section>
     `
+
+    const selectEstado = document.querySelector<HTMLSelectElement>('#estado')
+
+    if (!selectEstado) {
+        return
+    }
+
+    try {
+        const estados = await getStatesOfCountry('BR')
+
+        selectEstado.innerHTML = `
+        <option value="">Selecione um estado</option>
+    `
+
+        estados.forEach(estado => {
+            const option = document.createElement('option')
+
+            option.value = estado.iso2
+            option.textContent = estado.name
+
+            selectEstado.appendChild(option)
+        })
+    } catch (erro) {
+        console.error('Erro ao carregar estados:', erro)
+
+        selectEstado.innerHTML = `
+        <option value="">Não foi possível carregar os estados</option>
+    `
+    }
 
     const formulario = document.querySelector<HTMLFormElement>('#form-candidato')
 
