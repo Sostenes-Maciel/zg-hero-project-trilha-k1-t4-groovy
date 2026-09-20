@@ -132,6 +132,34 @@ export class BancodeDados {
         if (vagasSalvas) {
             this.vagas = JSON.parse(vagasSalvas)
         } else {
+            this.vagas = [
+                {
+                    id: 1,
+                    titulo: 'Desenvolvedor Java Júnior',
+                    empresa: this.empresas[0]
+                },
+                {
+                    id: 2,
+                    titulo: 'Desenvolvedor Backend Node.js',
+                    empresa: this.empresas[1]
+                },
+                {
+                    id: 3,
+                    titulo: 'Desenvolvedor Java Spring Boot',
+                    empresa: this.empresas[2]
+                },
+                {
+                    id: 4,
+                    titulo: 'Desenvolvedor Python',
+                    empresa: this.empresas[3]
+                },
+                {
+                    id: 5,
+                    titulo: 'Desenvolvedor TypeScript',
+                    empresa: this.empresas[4]
+                }
+            ]
+
             this.salvarVagas()
         }
     }
