@@ -1,4 +1,5 @@
 import { BancodeDados } from '../repository/BancodeDados'
+import {renderPerfilCandidato} from "./perfilCandidato.ts";
 
 export function renderListaCandidatos(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -48,5 +49,26 @@ export function renderListaCandidatos(): void {
         `
 
         lista.appendChild(linha)
+    })
+
+    const botoesPerfil = document.querySelectorAll<HTMLButtonElement>(
+        '.btn-perfil'
+    )
+
+    botoesPerfil.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const cpf = botao.dataset.cpf
+
+            const candidato = BancodeDados.candidatos.find(
+                candidato => candidato.cpf === cpf
+            )
+
+            if (!candidato) {
+                console.error('Candidato não encontrado.')
+                return
+            }
+
+            renderPerfilCandidato(candidato)
+        })
     })
 }
