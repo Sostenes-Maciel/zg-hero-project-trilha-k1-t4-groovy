@@ -1,6 +1,6 @@
 import './style.css'
 import {BancodeDados} from './repository/BancodeDados'
-import {renderListaEmpresas} from "./view/listaEmpresa.ts";
+import { configurarMenu } from './components/menu'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
     '<h1>LinkerTinder</h1>'
@@ -9,4 +9,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
 
 BancodeDados.inicializar()
 
-renderListaEmpresas()
+configurarMenu()
