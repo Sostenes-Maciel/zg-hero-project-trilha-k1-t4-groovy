@@ -1,6 +1,6 @@
 import  './style.css'
 import { BancodeDados } from './repository/BancodeDados'
-import {renderCadastroCandidato} from "./view/cadastroCandidato.ts";
+import {renderListaCandidatos} from "./view/listaCandidatos.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
     '<h1>LinkerTinder</h1>'
@@ -9,4 +9,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
 
 BancodeDados.inicializar()
 
-renderCadastroCandidato()
+renderListaCandidatos()
