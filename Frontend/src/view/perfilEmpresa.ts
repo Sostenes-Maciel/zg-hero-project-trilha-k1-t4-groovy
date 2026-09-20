@@ -1,5 +1,6 @@
 import type { Empresa } from '../model/Empresa'
 import { BancodeDados } from '../repository/BancodeDados'
+import {Chart} from "chart.js/auto";
 
 export function renderPerfilEmpresa(empresa: Empresa): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -26,6 +27,12 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
                     ${empresa.competencias.join(', ')}
                 </p>
             </div>
+            
+            <h2>Candidatos por competência</h2>
+
+            <div>
+                <canvas id="grafico-competencias"></canvas>
+            </div>
 
             <h2>Candidatos disponíveis</h2>
 
@@ -44,6 +51,61 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
             <button id="voltar-empresa">Voltar</button>
         </section>
     `
+    try {
+        const quantidadePorCompetencia: Record<string, number> = {}
+
+        BancodeDados.candidatos.forEach(candidato => {
+            candidato.competencias.forEach(competencia => {
+                const chave = competencia.trim().toLowerCase()
+
+                quantidadePorCompetencia[chave] =
+                    (quantidadePorCompetencia[chave] || 0) + 1
+            })
+        })
+        const canvas = document.querySelector<HTMLCanvasElement>(
+            '#grafico-competencias'
+        )
+
+        if (!canvas) {
+            throw new Error('Canvas do gráfico não encontrado.')
+        }
+
+        new Chart(canvas, {
+            type: 'bar',
+
+            data: {
+                labels: Object.keys(quantidadePorCompetencia),
+
+                datasets: [
+                    {
+                        label: 'Quantidade de candidatos',
+                        data: Object.values(quantidadePorCompetencia)
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        })
+    } catch (erro) {
+        console.error('Erro ao criar gráfico:', erro)
+    }
 
     const lista = document.querySelector<HTMLTableSectionElement>(
         '#lista-candidatos-empresa'
