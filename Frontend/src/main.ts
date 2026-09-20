@@ -1,6 +1,6 @@
 import './style.css'
 import {BancodeDados} from './repository/BancodeDados'
-import {renderPerfilEmpresa} from "./view/perfilEmpresa.ts";
+import {renderListaVagas} from "./view/listaVagas.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
     '<h1>LinkerTinder</h1>'
@@ -9,8 +9,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = '' +
 
 BancodeDados.inicializar()
 
-const empresa = BancodeDados.empresas[0]
-
-if (empresa) {
-    renderPerfilEmpresa(empresa)
-}
+renderListaVagas()
