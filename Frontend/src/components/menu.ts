@@ -1,6 +1,6 @@
-import { renderCadastroCandidato } from '../view/cadastroCandidato'
+import { renderCadastroCandidato } from '../service/cadastroCandidato.ts'
 import { renderListaCandidatos } from '../view/listaCandidatos'
-import { renderCadastroEmpresa } from '../view/cadastroEmpresa'
+import { renderCadastroEmpresa } from '../service/cadastroEmpresa.ts'
 import { renderListaEmpresas } from '../view/listaEmpresas'
 import  { renderListaVagas } from '../view/listaVagas'
 

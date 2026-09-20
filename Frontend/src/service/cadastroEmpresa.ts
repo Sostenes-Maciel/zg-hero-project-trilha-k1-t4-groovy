@@ -1,5 +1,6 @@
-import type { Empresa } from '../model/Empresa'
-import { BancodeDados } from '../repository/BancodeDados'
+import type { Empresa } from '../model/Empresa.ts'
+import { BancodeDados } from '../repository/BancodeDados.ts'
+import { ValidarEmpresa } from '../service/validarEmpresa'
 
 export function renderCadastroEmpresa(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -74,18 +75,37 @@ export function renderCadastroEmpresa(): void {
         try {
             const dados = new FormData(formulario)
 
+            const nome = dados.get('nome') as string
+            const email = dados.get('email') as string
+            const cnpj = dados.get('cnpj') as string
+            const pais = dados.get('pais') as string
+            const estado = dados.get('estado') as string
+            const cep = dados.get('cep') as string
+            const descricao = dados.get('descricao') as string
+
+            const competencias = (dados.get('competencias') as string)
+                .split(',')
+                .map(competencia => competencia.trim())
+                .filter(competencia => competencia.length > 0)
+
+            ValidarEmpresa.validarNome(nome)
+            ValidarEmpresa.validarEmail(email)
+            ValidarEmpresa.validarCnpj(cnpj)
+            ValidarEmpresa.validarPais(pais)
+            ValidarEmpresa.validarEstado(estado)
+            ValidarEmpresa.validarCep(cep)
+            ValidarEmpresa.validarDescricao(descricao)
+            ValidarEmpresa.validarCompetencias(competencias)
+
             const empresa: Empresa = {
-                nome: dados.get('nome') as string,
-                email: dados.get('email') as string,
-                cnpj: dados.get('cnpj') as string,
-                pais: dados.get('pais') as string,
-                estado: dados.get('estado') as string,
-                cep: dados.get('cep') as string,
-                descricao: dados.get('descricao') as string,
-                competencias: (dados.get('competencias') as string)
-                    .split(',')
-                    .map(competencia => competencia.trim())
-                    .filter(competencia => competencia.length > 0)
+                nome,
+                email,
+                cnpj,
+                pais,
+                estado,
+                cep,
+                descricao,
+                competencias
             }
 
             BancodeDados.cadastrarEmpresa(empresa)
@@ -111,7 +131,9 @@ export function renderCadastroEmpresa(): void {
 
             if (mensagem) {
                 mensagem.textContent =
-                    'Não foi possível cadastrar a empresa. Tente novamente.'
+                    erro instanceof Error
+                        ? erro.message
+                        : 'Não foi possível cadastrar o candidato. Tente novamente.'
             }
         }
     })

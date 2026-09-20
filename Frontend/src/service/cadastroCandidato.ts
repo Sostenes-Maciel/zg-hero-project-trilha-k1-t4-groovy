@@ -1,5 +1,6 @@
-import type {Candidato} from '../model/Candidato'
-import {BancodeDados} from '../repository/BancodeDados'
+import type {Candidato} from '../model/Candidato.ts'
+import {BancodeDados} from '../repository/BancodeDados.ts'
+import {ValidarCandidato} from '../service/validarCandidato'
 
 export function renderCadastroCandidato(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -77,18 +78,37 @@ export function renderCadastroCandidato(): void {
 
             const dados = new FormData(formulario)
 
+            const nome = dados.get('nome') as string
+            const email = dados.get('email') as string
+            const idade = Number(dados.get('idade'))
+            const cpf = dados.get('cpf') as string
+            const estado = dados.get('estado') as string
+            const cep = dados.get('cep') as string
+            const descricao = dados.get('descricao') as string
+
+            const competencias = (dados.get('competencias') as string)
+                .split(',')
+                .map(competencia => competencia.trim())
+                .filter(competencia => competencia.length > 0)
+
+            ValidarCandidato.validarNome(nome)
+            ValidarCandidato.validarEmail(email)
+            ValidarCandidato.validarCpf(cpf)
+            ValidarCandidato.validarIdade(idade)
+            ValidarCandidato.validarEstado(estado)
+            ValidarCandidato.validarCep(cep)
+            ValidarCandidato.validarDescricao(descricao)
+            ValidarCandidato.validarCompetencias(competencias)
+
             const candidato: Candidato = {
-                nome: dados.get('nome') as string,
-                email: dados.get('email') as string,
-                idade: Number(dados.get('idade')),
-                cpf: dados.get('cpf') as string,
-                estado: dados.get('estado') as string,
-                cep: dados.get('cep') as string,
-                descricao: dados.get('descricao') as string,
-                competencias: (dados.get('competencias') as string)
-                    .split(',')
-                    .map(competencia => competencia.trim())
-                    .filter(competencia => competencia.length > 0)
+                nome,
+                email,
+                idade,
+                cpf,
+                estado,
+                cep,
+                descricao,
+                competencias
             }
 
             BancodeDados.cadastrarCandidato(candidato)
@@ -109,7 +129,10 @@ export function renderCadastroCandidato(): void {
             const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
 
             if (mensagem) {
-                mensagem.textContent = 'Não foi possível cadastrar o candidato. Tente novamente.'
+                mensagem.textContent =
+                    erro instanceof Error
+                        ? erro.message
+                        : 'Não foi possível cadastrar o candidato. Tente novamente.'
             }
         }
     })
