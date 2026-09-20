@@ -189,6 +189,18 @@ export class BancodeDados {
         this.salvarEmpresas()
     }
 
+    static cadastrarVaga(vaga: Vaga): void {
+        this.vagas.push(vaga)
+
+        try {
+            this.salvarVagas()
+        } catch (erro) {
+            this.vagas.pop()
+            console.error('Erro ao salvar vaga:', erro)
+            throw new Error('Não foi possível salvar a vaga.')
+        }
+    }
+
     private static salvarCandidatos(): void {
         localStorage.setItem('candidatos', JSON.stringify(this.candidatos))
     }

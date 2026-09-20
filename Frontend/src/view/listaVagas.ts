@@ -50,7 +50,11 @@ export function renderListaVagas(): void {
             <td>${vaga.id}</td>
             <td>${vaga.titulo}</td>
             <td>${vaga.empresa.nome}</td>
+            <button class="btn-perfil-vaga" data-id="${vaga.id}">
+                Ver vaga
+            </button>
         `
+
 
         lista.appendChild(linha)
     })
