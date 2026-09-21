@@ -625,3 +625,14 @@ body {
 .cadastro-container form > div {
     margin-bottom: 16px;
 }
+/* Botão dos formulários */
+
+.cadastro-container form > button[type="submit"] {
+    display: block;
+    width: 220px;
+    margin: 24px auto 0;
+}
+.cadastro-container #mensagem {
+    text-align: center;
+    margin-top: 16px !important;
+}
