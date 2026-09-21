@@ -13,7 +13,7 @@ export function renderListaVagas(): void {
             <h1>Vagas disponíveis</h1>
             
             <div class="filtro-vagas">
-                <label for="filtro-vagas">Buscar vaga ou empresa</label>
+                <label for="filtro-vagas">Buscar vaga</label>
             
                 <input
                     type="text"
@@ -60,7 +60,6 @@ export function renderListaVagas(): void {
         const linha = document.createElement('tr')
 
         linha.dataset.titulo = vaga.titulo.toLowerCase()
-        linha.dataset.empresa = vaga.empresa.nome.toLowerCase()
 
         linha.innerHTML = `
             <td>${vaga.titulo}</td>
@@ -85,11 +84,8 @@ export function renderListaVagas(): void {
 
         linhas.forEach(linha => {
             const titulo = linha.dataset.titulo ?? ''
-            const empresa = linha.dataset.empresa ?? ''
 
-            const encontrou =
-                titulo.includes(termo) ||
-                empresa.includes(termo)
+            const encontrou = titulo.includes(termo)
 
             linha.hidden = !encontrou
         })
