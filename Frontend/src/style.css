@@ -309,7 +309,6 @@ body {
     border-collapse: collapse;
 
     background: var(--surface);
-    overflow: hidden;
 }
 
 #app th,
@@ -692,4 +691,51 @@ body {
 .tabela-vagas th,
 .tabela-vagas td {
     width: auto !important;
+}
+/* =========================
+   HOVER - CANDIDATOS
+   ========================= */
+
+.nome-hover {
+    position: relative;
+    cursor: help;
+}
+
+.nome-hover::after {
+    content: "E-mail: " attr(data-email) "\A" "Descrição: " attr(data-descricao);
+
+    white-space: pre-line;
+
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+
+    width: 280px;
+    padding: 12px 14px;
+
+    background: #1e293b;
+    color: #ffffff;
+
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+            opacity 0.15s ease,
+            visibility 0.15s ease;
+
+    z-index: 20;
+}
+
+.nome-hover:hover::after {
+    opacity: 1;
+    visibility: visible;
 }

@@ -42,7 +42,13 @@ export function renderListaCandidatos(): void {
         const linha = document.createElement('tr')
 
         linha.innerHTML = `
-            <td>${candidato.nome}</td>
+            <td
+                class="nome-hover"
+                data-email="${candidato.email}"
+                data-descricao="${candidato.descricao}"
+            >
+                ${candidato.nome}
+            </td>
             <td>${candidato.estado}</td>
             <td>${candidato.competencias.join(', ')}</td>
                 <td>
