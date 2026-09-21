@@ -27,7 +27,7 @@ export class cadastroVagas {
     }
 }
 
-export function renderViewCadastroVaga(): void {
+export function renderViewCadastroVaga(nVoltar?: () => void): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -56,7 +56,8 @@ export function renderViewCadastroVaga(): void {
                     </select>
                 </div>
 
-                <button type="submit">Cadastrar</button>
+                <button type="submit">Cadastrar</button> 
+                <button type="button" id="btn-voltar-vaga">Voltar</button>
 
                 <p id="mensagem"></p>
             </form>
@@ -79,6 +80,14 @@ export function renderViewCadastroVaga(): void {
     })
 
     const formulario = document.querySelector<HTMLFormElement>('#form-vaga')
+
+    const botaoVoltar = document.querySelector<HTMLButtonElement>(
+        '#btn-voltar-vaga'
+    )
+
+    botaoVoltar?.addEventListener('click', () => {
+        nVoltar?.()
+    })
 
     formulario?.addEventListener('submit', evento => {
         evento.preventDefault()

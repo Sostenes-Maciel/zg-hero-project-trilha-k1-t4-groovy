@@ -949,3 +949,16 @@ body:has(#app > h1) #rodape {
 .filtro-candidatos input {
     width: 100%;
 }
+#form-vaga {
+    text-align: center;
+}
+
+#form-vaga > button {
+    display: inline-block;
+    width: 220px;
+    margin-top: 12px;
+}
+
+#form-vaga > button + button {
+    margin-left: 8px;
+}

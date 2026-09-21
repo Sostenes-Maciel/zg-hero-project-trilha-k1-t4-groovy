@@ -2,6 +2,7 @@ import type { Empresa } from '../model/Empresa'
 import { BancodeDados } from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./listaEmpresas.ts";
+import { renderViewCadastroVaga } from '../service/cadastroVaga'
 
 function renderPerfilEmpresa(empresa: Empresa): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -30,6 +31,7 @@ function renderPerfilEmpresa(empresa: Empresa): void {
             </div>
             
             <h2>Candidatos por competência</h2>
+            
 
             <div class="grafico-container">
                 <canvas id="grafico-competencias"></canvas>
@@ -60,8 +62,19 @@ function renderPerfilEmpresa(empresa: Empresa): void {
             </table>
 
             <button id="voltar-empresa">Voltar</button>
+            <button id="btn-cadastrar-vaga">Cadastrar vaga</button>
         </section>
     `
+    const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>(
+        '#btn-cadastrar-vaga'
+    )
+
+    botaoCadastrarVaga?.addEventListener('click', () => {
+        renderViewCadastroVaga(() => {
+            renderPerfilEmpresa(empresa); // Re-desenha o perfil desta mesma empresa
+        });
+
+    })
     try {
         const quantidadePorCompetencia: Record<string, number> = {}
 
