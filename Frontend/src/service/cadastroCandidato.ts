@@ -28,9 +28,19 @@ export async function renderCadastroCandidato(): Promise<void> {
                      required>
                 </div>
 
-                <div>
+                <div class="campo-idade">
                     <label for="idade">Idade</label>
-                    <input type="number" id="idade" name="idade" required>
+                
+                    <input
+                        type="number"
+                        id="idade"
+                        name="idade"
+                        min="18"
+                        max="120"
+                        inputmode="numeric"
+                        placeholder="Ex.: 29"
+                        required
+                    >
                 </div>
 
                 <div>

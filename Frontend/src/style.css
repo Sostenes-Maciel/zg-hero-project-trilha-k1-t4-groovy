@@ -583,3 +583,22 @@ body {
 .filtro-vagas input {
     width: 100%;
 }
+.campo-idade input {
+    max-width: 220px;
+}
+
+/* Remove as setas do campo de idade */
+.campo-idade input::-webkit-inner-spin-button,
+.campo-idade input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.campo-idade input[type="number"] {
+    -moz-appearance: textfield;
+}
+#app form input,
+#app form select,
+#app form textarea {
+    max-width: 420px;
+}
