@@ -14,7 +14,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
     }
 
     app.innerHTML = `
-        <section>
+        <section class="cadastro-container">
             <h1>Cadastro de Empresa</h1>
 
             <form id="form-empresa">

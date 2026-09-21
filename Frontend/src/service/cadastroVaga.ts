@@ -35,7 +35,7 @@ export function renderViewCadastroVaga(): void {
     }
 
     app.innerHTML = `
-        <section>
+        <section class="cadastro-container">
             <h1>Cadastro de Vaga</h1>
 
             <form id="form-vaga">

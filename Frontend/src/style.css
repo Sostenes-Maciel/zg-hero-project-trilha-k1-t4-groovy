@@ -600,5 +600,28 @@ body {
 #app form input,
 #app form select,
 #app form textarea {
-    max-width: 420px;
+    max-width: 520px;
+}
+/* =========================
+   CADASTROS
+   ========================= */
+
+.cadastro-container {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.cadastro-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.cadastro-container form {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.cadastro-container form > div {
+    margin-bottom: 16px;
 }
