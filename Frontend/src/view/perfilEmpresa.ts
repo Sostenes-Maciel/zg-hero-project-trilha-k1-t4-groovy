@@ -1,6 +1,7 @@
 import type { Empresa } from '../model/Empresa'
 import { BancodeDados } from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
+import {renderListaEmpresas} from "./listaEmpresas.ts";
 
 export function renderPerfilEmpresa(empresa: Empresa): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -131,6 +132,6 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
     )
 
     botaoVoltar?.addEventListener('click', () => {
-        window.location.reload()
+        renderListaEmpresas()
     })
 }
