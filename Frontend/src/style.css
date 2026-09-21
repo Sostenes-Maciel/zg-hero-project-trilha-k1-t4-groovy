@@ -388,14 +388,9 @@ body {
 }
 
 .card-vaga {
-    padding: 24px;
-
-    background: var(--surface-soft);
-
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-
-    box-shadow: var(--shadow);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .card-vaga h2 {
@@ -558,4 +553,19 @@ body {
 .grafico-container canvas {
     width: 100% !important;
     max-height: 380px;
+}
+.perfil-vaga .card-vaga h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: var(--primary);
+    font-size: 28px;
+}
+.perfil-vaga .card-vaga p {
+    margin-bottom: 14px;
+}
+
+.perfil-vaga .card-vaga hr {
+    margin: 24px 0;
+    border: 0;
+    border-top: 1px solid var(--border);
 }

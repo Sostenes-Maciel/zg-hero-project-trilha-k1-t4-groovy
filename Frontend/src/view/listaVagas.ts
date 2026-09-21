@@ -1,4 +1,5 @@
 import { BancodeDados } from '../repository/BancodeDados'
+import { renderPerfilVaga } from '../view/perfilVaga'
 
 export function renderListaVagas(): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -57,5 +58,16 @@ export function renderListaVagas(): void {
 
 
         lista.appendChild(linha)
+    })
+    const botoesPerfilVaga = document.querySelectorAll<HTMLButtonElement>(
+        '.btn-perfil-vaga'
+    )
+
+    botoesPerfilVaga.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const vagaId = Number(botao.dataset.id)
+
+            renderPerfilVaga(vagaId)
+        })
     })
 }
