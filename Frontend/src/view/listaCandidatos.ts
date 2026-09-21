@@ -1,7 +1,7 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import {renderPerfilCandidato} from "./perfilCandidato.ts";
 
-export function renderListaCandidatos(): void {
+export function renderListaCandidatos(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -11,8 +11,10 @@ export function renderListaCandidatos(): void {
     const candidatos = BancodeDados.candidatos
 
     app.innerHTML = `
+
         <section>
             <h1>Candidatos</h1>
+            <p id="mensagem"></p>
 
             <table>
                 <thead>
@@ -31,6 +33,11 @@ export function renderListaCandidatos(): void {
             </table>
         </section>
     `
+    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+    if (mensagemSucesso && mensagem) {
+        mensagem.textContent = mensagemSucesso
+    }
 
     const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos')
 
@@ -109,8 +116,8 @@ export function renderListaCandidatos(): void {
 
             try {
                 BancodeDados.excluirCandidato(cpf)
+                renderListaCandidatos('Candidato excluído com sucesso!')
 
-                renderListaCandidatos()
             } catch (erro) {
                 console.error('Erro ao excluir candidato:', erro)
 

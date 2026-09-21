@@ -1,7 +1,7 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import { renderPerfilEmpresa } from './perfilEmpresa'
 
-export function renderListaEmpresas(): void {
+export function renderListaEmpresas(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -13,6 +13,7 @@ export function renderListaEmpresas(): void {
     app.innerHTML = `
         <section>
             <h1>Empresas</h1>
+            <p id="mensagem"></p>
 
             <table>
                 <thead>
@@ -28,6 +29,11 @@ export function renderListaEmpresas(): void {
             </table>
         </section>
     `
+    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+    if (mensagemSucesso && mensagem) {
+        mensagem.textContent = mensagemSucesso
+    }
 
     const lista = document.querySelector<HTMLTableSectionElement>(
         '#lista-empresas'
@@ -100,7 +106,7 @@ export function renderListaEmpresas(): void {
 
             try {
                 BancodeDados.excluirEmpresa(cnpj)
-                renderListaEmpresas()
+                renderListaEmpresas('Empresa excluída com sucesso!')
             } catch (erro) {
                 console.error('Erro ao excluir empresa:', erro)
 
