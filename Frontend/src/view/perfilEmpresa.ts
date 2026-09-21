@@ -30,7 +30,7 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
             
             <h2>Candidatos por competência</h2>
 
-            <div>
+            <div class="grafico-container">
                 <canvas id="grafico-competencias"></canvas>
             </div>
 

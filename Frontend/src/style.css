@@ -1,7 +1,7 @@
 :root {
     --bg: #F3F7F0;
     --surface: #ffffff;
-    --surface-soft: #7FC8F8;
+    --surface-soft: #F4F3EE;
     --text: #1e293b;
     --text-secondary: #64748b;
     --border: #e4e7ec;
@@ -537,4 +537,25 @@ body {
 }
 #app table + button {
     margin-top: 24px;
+}
+/* =========================
+   GRÁFICO DE COMPETÊNCIAS
+   ========================= */
+
+.grafico-container {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 32px;
+    padding: 20px;
+
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    box-sizing: border-box;
+}
+
+.grafico-container canvas {
+    width: 100% !important;
+    max-height: 380px;
 }
