@@ -934,3 +934,7 @@ body:has(#app > h1) #rodape {
     color: var(--text-secondary);
     font-size: 12px;
 }
+#app table tbody tr:last-child .nome-hover::after {
+    top: auto;
+    bottom: calc(100% + 8px);
+}
