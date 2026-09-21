@@ -1,7 +1,7 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import { renderListaVagas } from './listaVagas'
 
-export function renderPerfilVaga(vagaId: number): void {
+export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -40,6 +40,6 @@ export function renderPerfilVaga(vagaId: number): void {
     `
 
     document.querySelector('#btn-voltar-lista')?.addEventListener('click', () => {
-        renderListaVagas()
+        renderListaVagas(onVoltar)
     })
 }

@@ -109,7 +109,7 @@ export function renderListaVagas(onVoltar?: () => void): void {
         botao.addEventListener('click', () => {
             const vagaId = Number(botao.dataset.id)
 
-            renderPerfilVaga(vagaId)
+            renderPerfilVaga(vagaId, onVoltar)
         })
     })
 }
