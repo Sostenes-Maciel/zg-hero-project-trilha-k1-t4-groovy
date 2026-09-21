@@ -3,7 +3,11 @@
 Projeto desenvolvido como parte do desafio técnico do **Acelera ZG**.
 
 O **Linketinder** é um sistema de conexões profissionais executado via terminal (CLI), permitindo o cadastro e a visualização de **candidatos e empresas**.
+# Atualização
 
+O Linketinder é uma plataforma voltada para a conexão entre candidatos e empresas, permitindo o cadastro e a visualização de perfis e oportunidades de trabalho.
+
+O projeto possui uma versão de backend desenvolvida em Groovy e um frontend web desenvolvido com TypeScript, com foco em uma interface simples, organizada e fácil de utilizar.
 O projeto foi desenvolvido com foco em:
 
 * Programação Orientada a Objetos (POO)
@@ -234,6 +238,102 @@ O projeto foi atualizado com a implementação de testes unitários utilizando o
 * **Testes de Fronteira:** Adicionados casos para verificar os limites das validações, como idade, CPF, CNPJ e CEP.
 * **Organização dos Testes:** Os testes foram separados em classes `Spec`, mantendo cada unidade do sistema testada de forma independente.
 
+## Atualização: Implementação FrontEnd
+
+**Privacidade**
+
+O sistema possui anonimização entre os dois lados da plataforma:
+
+Na visão da empresa, os candidatos são apresentados de forma anônima.
+Na visão do candidato, a empresa responsável pela vaga permanece confidencial.
+
+**Tecnologias utilizadas**
+
+Frontend
+
+* TypeScript — linguagem utilizada para a implementação da lógica da aplicação.
+* HTML5 — estrutura das páginas e formulários.
+* CSS3 — estilização, responsividade e organização visual da interface.
+* Vite — ferramenta utilizada para desenvolvimento e execução do frontend.
+* Chart.js — criação do gráfico de competências no perfil da empresa.
+* Country State City (@countrystatecity/countries-browser) — carregamento de países e estados no cadastro de empresas.
+* LocalStorage — persistência dos dados cadastrados no navegador.
+
+Backend
+
+* Groovy — linguagem utilizada na implementação do backend.
+* Gradle — gerenciamento e build do projeto.
+* JUnit — testes automatizados.
+* Git e GitHub — versionamento e hospedagem do código.
+
+**Arquitetura**
+
+O frontend utiliza uma organização baseada na separação de responsabilidades:
+
+* Model: representa as entidades utilizadas pela aplicação.
+* Repository: responsável pelo armazenamento dos dados.
+* Service: concentra regras de negócio e cadastros.
+* View: responsável pela apresentação das telas.
+* Components: concentra componentes reutilizáveis, como o menu principal.
+
+**Estrutura do frontend**
+
+Frontend/
+├── index.html
+├── package.json
+├── src/
+│   ├── main.ts
+│   ├── style.css
+│   │
+│   ├── components/
+│   │   └── menu.ts
+│   │
+│   ├── model/
+│   │   ├── Candidato.ts
+│   │   ├── Empresa.ts
+│   │   └── Vaga.ts
+│   │
+│   ├── repository/
+│   │   └── BancodeDados.ts
+│   │
+│   ├── service/
+│   │   ├── cadastroCandidato.ts
+│   │   ├── cadastroEmpresa.ts
+│   │   ├── cadastroVaga.ts
+│   │   ├── ValidarCandidato.ts
+│   │   └── ValidarEmpresa.ts
+│   │
+│   └── view/
+│       ├── listaCandidatos.ts
+│       ├── listaEmpresas.ts
+│       ├── listaVagas.ts
+│       ├── perfilCandidato.ts
+│       ├── perfilEmpresa.ts
+│       └── perfilVaga.ts
+
+**Como executar o frontend**
+
+Entre na pasta do frontend:
+
+cd Frontend
+
+Instale as dependências:
+
+npm install
+
+Execute o ambiente de desenvolvimento:
+
+npm run dev
+
+O Vite exibirá no terminal o endereço local para acessar a aplicação pelo navegador.
+
+Gerar a versão de produção
+
+Para verificar a compilação do projeto:
+
+npm run build
+
+O comando deve finalizar sem erros de TypeScript.
 
 
 ## Autor
