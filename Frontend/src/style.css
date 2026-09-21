@@ -569,3 +569,17 @@ body {
     border: 0;
     border-top: 1px solid var(--border);
 }
+.filtro-vagas {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 24px;
+}
+
+.filtro-vagas label {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.filtro-vagas input {
+    width: 100%;
+}

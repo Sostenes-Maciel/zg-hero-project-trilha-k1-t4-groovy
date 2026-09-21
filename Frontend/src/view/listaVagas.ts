@@ -11,6 +11,16 @@ export function renderListaVagas(): void {
     app.innerHTML = `
         <section>
             <h1>Vagas disponíveis</h1>
+            
+            <div class="filtro-vagas">
+                <label for="filtro-vagas">Buscar vaga ou empresa</label>
+            
+                <input
+                    type="text"
+                    id="filtro-vagas"
+                    placeholder="Ex.: Java, Python, Tech Global..."
+                >
+            </div>
 
             <table>
                 <thead>
@@ -47,6 +57,9 @@ export function renderListaVagas(): void {
     BancodeDados.vagas.forEach(vaga => {
         const linha = document.createElement('tr')
 
+        linha.dataset.titulo = vaga.titulo.toLowerCase()
+        linha.dataset.empresa = vaga.empresa.nome.toLowerCase()
+
         linha.innerHTML = `
             <td>${vaga.id}</td>
             <td>${vaga.titulo}</td>
@@ -59,6 +72,28 @@ export function renderListaVagas(): void {
 
         lista.appendChild(linha)
     })
+
+    const filtroVagas = document.querySelector<HTMLInputElement>(
+        '#filtro-vagas'
+    )
+
+    filtroVagas?.addEventListener('input', () => {
+        const termo = filtroVagas.value.trim().toLowerCase()
+
+        const linhas = lista.querySelectorAll<HTMLTableRowElement>('tr')
+
+        linhas.forEach(linha => {
+            const titulo = linha.dataset.titulo ?? ''
+            const empresa = linha.dataset.empresa ?? ''
+
+            const encontrou =
+                titulo.includes(termo) ||
+                empresa.includes(termo)
+
+            linha.hidden = !encontrou
+        })
+    })
+
     const botoesPerfilVaga = document.querySelectorAll<HTMLButtonElement>(
         '.btn-perfil-vaga'
     )

@@ -35,19 +35,22 @@ export async function renderCadastroCandidato(): Promise<void> {
 
                 <div>
                     <label for="cpf">CPF</label>
-                    <input type="text" id="cpf" name="cpf" required>
+                    <input type="text" id="cpf" name="cpf" 
+                    placeholder="Ex.: 111.222.333-44"
+                    required>
                 </div>
 
                 <div>
                     <label for="estado">Estado</label>
                     <select id="estado" name="estado" required>
-                        <option value="">Carregando estados...</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="cep">CEP</label>
-                    <input type="text" id="cep" name="cep" required>
+                    <input type="text" id="cep" name="cep" 
+                    placeholder="Ex.: 11222-333"
+                    required>
                 </div>
 
                 <div>
