@@ -936,3 +936,16 @@ body:has(#app > h1) #rodape {
     top: auto;
     bottom: calc(100% + 8px);
 }
+.filtro-candidatos {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 24px;
+}
+
+.filtro-candidatos label {
+    text-align: center;
+}
+
+.filtro-candidatos input {
+    width: 100%;
+}

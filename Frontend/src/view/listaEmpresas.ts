@@ -1,5 +1,5 @@
 import { BancodeDados } from '../repository/BancodeDados'
-import { renderPerfilEmpresa } from './perfilEmpresa'
+import renderPerfilEmpresa from './perfilEmpresa'
 
 export function renderListaEmpresas(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')

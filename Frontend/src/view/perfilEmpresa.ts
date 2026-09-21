@@ -3,7 +3,7 @@ import { BancodeDados } from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./listaEmpresas.ts";
 
-export function renderPerfilEmpresa(empresa: Empresa): void {
+function renderPerfilEmpresa(empresa: Empresa): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -36,6 +36,16 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
             </div>
 
             <h2>Candidatos disponíveis</h2>
+            
+            <div class="filtro-candidatos">
+                <label for="filtro-competencia">Buscar por competência</label>
+            
+                <input
+                    type="text"
+                    id="filtro-competencia"
+                    placeholder="Ex.: Java, Python, React..."
+                >
+            </div>
 
             <table>
                 <thead>
@@ -119,12 +129,32 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
     BancodeDados.candidatos.forEach((candidato) => {
         const linha = document.createElement('tr')
 
+        linha.dataset.competencias = candidato.competencias
+            .join(' ')
+            .toLowerCase()
+
         linha.innerHTML = `
-            <p>Match necessário para visualização</p>
-            <td>${candidato.competencias.join(', ')}</td>
-        `
+        <td>Match necessário para visualização</td>
+        <td>${candidato.competencias.join(', ')}</td>
+    `
 
         lista.appendChild(linha)
+    })
+
+    const filtroCompetencia = document.querySelector<HTMLInputElement>(
+        '#filtro-competencia'
+    )
+
+    filtroCompetencia?.addEventListener('input', () => {
+        const termo = filtroCompetencia.value.trim().toLowerCase()
+
+        const linhas = lista.querySelectorAll<HTMLTableRowElement>('tr')
+
+        linhas.forEach(linha => {
+            const competencias = linha.dataset.competencias ?? ''
+
+            linha.hidden = !competencias.includes(termo)
+        })
     })
 
     const botaoVoltar = document.querySelector<HTMLButtonElement>(
@@ -135,3 +165,5 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
         renderListaEmpresas()
     })
 }
+
+export default renderPerfilEmpresa
