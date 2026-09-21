@@ -1,49 +1,48 @@
 :root {
-  --bg: #f6f8fb;
-  --surface: #ffffff;
-  --surface-soft: #f8fafc;
-  --text: #1f2937;
-  --text-secondary: #667085;
-  --border: #e4e7ec;
+    --bg: #F3F7F0;
+    --surface: #ffffff;
+    --surface-soft: #7FC8F8;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e4e7ec;
 
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
 
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
 
-  --radius: 10px;
-  --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --radius: 10px;
+    --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 
-  color-scheme: light;
-  font-family:
-          Inter,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
+    color-scheme: light;
+    font-family: Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--text);
-  background: var(--bg);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  background: var(--bg);
-  color: var(--text);
+    margin: 0;
+    min-width: 320px;
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* =========================
@@ -51,52 +50,51 @@ body {
    ========================= */
 
 #menu-principal {
-  width: 100%;
-  padding: 18px 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+    width: 100%;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 #menu-principal button {
-  width: 180px;
-  min-width: 180px;
-  max-width: 180px;
-  height: 42px;
-  flex: 0 0 180px;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    height: 42px;
+    flex: 0 0 180px;
 
-  padding: 0 14px;
-  border: 1px solid var(--primary);
-  border-radius: 8px;
+    padding: 0 14px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
 
-  background: var(--primary);
-  color: #ffffff;
+    background: var(--primary);
+    color: #ffffff;
 
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  transition:
-          background-color 0.2s ease,
-          border-color 0.2s ease,
-          transform 0.1s ease;
+    transition: background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 #menu-principal button:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 #menu-principal button:active {
-  transform: translateY(1px);
+    transform: translateY(1px);
 }
 
 /* =========================
@@ -104,18 +102,18 @@ body {
    ========================= */
 
 #app {
-  width: min(1200px, calc(100% - 32px));
-  min-height: calc(100vh - 100px);
+    width: min(1200px, calc(100% - 32px));
+    min-height: calc(100vh - 100px);
 
-  margin: 28px auto;
-  padding: 32px;
+    margin: 28px auto;
+    padding: 32px;
 
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 
-  text-align: left;
+    text-align: left;
 }
 
 /* =========================
@@ -123,33 +121,33 @@ body {
    ========================= */
 
 #app h1 {
-  margin: 0 0 28px;
+    margin: 0 0 28px;
 
-  color: var(--text);
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.2;
+    color: var(--text);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 #app h2 {
-  margin: 28px 0 16px;
+    margin: 28px 0 16px;
 
-  color: var(--text);
-  font-size: 22px;
-  font-weight: 650;
-  line-height: 1.3;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 650;
+    line-height: 1.3;
 }
 
 #app h3 {
-  margin: 20px 0 10px;
+    margin: 20px 0 10px;
 
-  color: var(--text);
-  font-size: 18px;
+    color: var(--text);
+    font-size: 18px;
 }
 
 #app p {
-  margin: 0 0 12px;
-  color: var(--text-secondary);
+    margin: 0 0 12px;
+    color: var(--text-secondary);
 }
 
 /* =========================
@@ -157,71 +155,69 @@ body {
    ========================= */
 
 #app form {
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
 }
 
 #app form > div {
-  margin-bottom: 18px;
+    margin-bottom: 18px;
 }
 
 #app label {
-  display: block;
+    display: block;
 
-  margin-bottom: 7px;
+    margin-bottom: 7px;
 
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
 }
 
 #app input,
 #app select,
 #app textarea {
-  width: 100%;
+    width: 100%;
 
-  padding: 11px 13px;
+    padding: 11px 13px;
 
-  border: 1px solid var(--border);
-  border-radius: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
 
-  background: var(--surface);
-  color: var(--text);
+    background: var(--surface);
+    color: var(--text);
 
-  font: inherit;
+    font: inherit;
 
-  outline: none;
+    outline: none;
 
-  transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          background-color 0.2s ease;
+    transition: border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 #app textarea {
-  min-height: 120px;
-  resize: vertical;
+    min-height: 120px;
+    resize: vertical;
 }
 
 #app input::placeholder,
 #app textarea::placeholder {
-  color: #98a2b3;
+    color: #98a2b3;
 }
 
 #app input:focus,
 #app select:focus,
 #app textarea:focus {
-  border-color: var(--primary);
+    border-color: var(--primary);
 
-  box-shadow:
-          0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 #app select:disabled {
-  background: var(--surface-soft);
-  color: #98a2b3;
-  cursor: not-allowed;
+    background: var(--surface-soft);
+    color: #98a2b3;
+    cursor: not-allowed;
 }
 
 /* =========================
@@ -229,34 +225,33 @@ body {
    ========================= */
 
 #app button {
-  min-height: 42px;
+    min-height: 42px;
 
-  padding: 10px 16px;
+    padding: 10px 16px;
 
-  border: 1px solid var(--primary);
-  border-radius: 8px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
 
-  background: var(--primary);
-  color: #ffffff;
+    background: var(--primary);
+    color: #ffffff;
 
-  font: inherit;
-  font-weight: 600;
+    font: inherit;
+    font-weight: 600;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  transition:
-          background-color 0.2s ease,
-          border-color 0.2s ease,
-          transform 0.1s ease;
+    transition: background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 #app button:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 #app button:active {
-  transform: translateY(1px);
+    transform: translateY(1px);
 }
 
 /* Botões secundários */
@@ -267,9 +262,9 @@ body {
 #app #btn-voltar-lista,
 #app .btn-perfil,
 #app .btn-perfil-empresa {
-  background: var(--surface);
-  color: var(--primary);
-  border-color: var(--primary);
+    background: var(--surface);
+    color: var(--primary);
+    border-color: var(--primary);
 }
 
 #app #voltar-candidatos:hover,
@@ -278,28 +273,28 @@ body {
 #app #btn-voltar-lista:hover,
 #app .btn-perfil:hover,
 #app .btn-perfil-empresa:hover {
-  background: #eff6ff;
+    background: #CAF0F8;
 }
 
 /* Botões de exclusão */
 
 #app .btn-excluir,
 #app .btn-excluir-empresa {
-  background: var(--danger);
-  color: #ffffff;
-  border-color: var(--danger);
+    background: var(--danger);
+    color: #ffffff;
+    border-color: var(--danger);
 }
 
 #app .btn-excluir:hover,
 #app .btn-excluir-empresa:hover {
-  background: var(--danger-hover);
-  border-color: var(--danger-hover);
+    background: var(--danger-hover);
+    border-color: var(--danger-hover);
 }
 
 /* Espaçamento entre botões */
 
 #app button + button {
-  margin-left: 6px;
+    margin-left: 6px;
 }
 
 /* =========================
@@ -307,48 +302,48 @@ body {
    ========================= */
 
 #app table {
-  width: 100%;
+    width: 100%;
 
-  margin-top: 10px;
+    margin-top: 10px;
 
-  border-collapse: collapse;
+    border-collapse: collapse;
 
-  background: var(--surface);
-  overflow: hidden;
+    background: var(--surface);
+    overflow: hidden;
 }
 
 #app th,
 #app td {
-  padding: 13px 14px;
+    padding: 13px 14px;
 
-  border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 
-  text-align: left;
-  vertical-align: middle;
+    text-align: left;
+    vertical-align: middle;
 }
 
 #app th {
-  background: var(--surface-soft);
+    background: var(--surface-soft);
 
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 700;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
 }
 
 #app td {
-  color: var(--text-secondary);
+    color: var(--text-secondary);
 }
 
 #app tbody tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 #app tbody tr:hover {
-  background: #f8fafc;
+    background: #f8fafc;
 }
 
 #app td button {
-  margin-bottom: 4px;
+    margin-bottom: 4px;
 }
 
 /* =========================
@@ -356,12 +351,12 @@ body {
    ========================= */
 
 #mensagem {
-  min-height: 24px;
+    min-height: 24px;
 
-  margin-top: 14px !important;
+    margin-top: 14px !important;
 
-  color: var(--text-secondary);
-  font-weight: 600;
+    color: var(--text-secondary);
+    font-weight: 600;
 }
 
 /* =========================
@@ -369,17 +364,17 @@ body {
    ========================= */
 
 #app img {
-  display: block;
+    display: block;
 
-  width: 120px;
-  height: 120px;
+    width: 120px;
+    height: 120px;
 
-  object-fit: cover;
+    object-fit: cover;
 
-  margin: 0 auto 22px;
+    margin: 0 auto 22px;
 
-  border-radius: 12px;
-  border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1px solid var(--border);
 }
 
 /* =========================
@@ -387,31 +382,31 @@ body {
    ========================= */
 
 .perfil-vaga {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .card-vaga {
-  padding: 24px;
+    padding: 24px;
 
-  background: var(--surface-soft);
+    background: var(--surface-soft);
 
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
 
-  box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
 }
 
 .card-vaga h2 {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .card-vaga hr {
-  margin: 20px 0;
+    margin: 20px 0;
 
-  border: 0;
-  border-top: 1px solid var(--border);
+    border: 0;
+    border-top: 1px solid var(--border);
 }
 
 /* =========================
@@ -419,12 +414,12 @@ body {
    ========================= */
 
 #app canvas {
-  display: block;
+    display: block;
 
-  width: 100% !important;
-  max-height: 420px;
+    width: 100% !important;
+    max-height: 420px;
 
-  margin: 0 auto 24px;
+    margin: 0 auto 24px;
 }
 
 /* =========================
@@ -432,76 +427,114 @@ body {
    ========================= */
 
 @media (max-width: 768px) {
-  #menu-principal {
-    padding: 14px 12px;
-  }
+    #menu-principal {
+        padding: 14px 12px;
+    }
 
-  #app {
-    width: calc(100% - 20px);
+    #app {
+        width: calc(100% - 20px);
 
-    margin: 10px auto;
-    padding: 22px 18px;
-  }
+        margin: 10px auto;
+        padding: 22px 18px;
+    }
 
-  #app h1 {
-    font-size: 28px;
-    margin-bottom: 22px;
-  }
+    #app h1 {
+        font-size: 28px;
+        margin-bottom: 22px;
+    }
 
-  #app h2 {
-    font-size: 20px;
-  }
+    #app h2 {
+        font-size: 20px;
+    }
 
-  #app table {
-    display: block;
+    #app table {
+        display: block;
 
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+        overflow-x: auto;
+        white-space: nowrap;
+    }
 
-  #menu-principal button {
-    width: 180px;
-    min-width: 180px;
-    max-width: 180px;
-    flex: 0 0 180px;
-  }
+    #menu-principal button {
+        width: 180px;
+        min-width: 180px;
+        max-width: 180px;
+        flex: 0 0 180px;
+    }
 
-  #app form {
-    max-width: 100%;
-  }
+    #app form {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 400px) {
-  #menu-principal button {
-    width: 100%;
-    max-width: 100%;
-    flex-basis: 100%;
-  }
+    #menu-principal button {
+        width: 100%;
+        max-width: 100%;
+        flex-basis: 100%;
+    }
 }
+
 #menu-cadastro-vaga {
-  width: 180px;
-  min-width: 180px;
-  max-width: 180px;
-  height: 42px;
-  flex: 0 0 180px;
-  box-sizing: border-box;
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    height: 42px;
+    flex: 0 0 180px;
+    box-sizing: border-box;
 
-  padding: 0 14px;
+    padding: 0 14px;
 
-  background: var(--primary);
-  color: #ffffff;
+    background: var(--primary);
+    color: #ffffff;
 
-  border: 1px solid var(--primary);
-  border-radius: 8px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
 
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
 
-  cursor: pointer;
+    cursor: pointer;
 }
 
 #menu-cadastro-vaga:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-hover);
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* =========================
+   PERFIL DO CANDIDATO
+   ========================= */
+
+.perfil-candidato {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.perfil-candidato .card-perfil {
+    padding: 28px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.perfil-candidato .card-perfil h2 {
+    margin-top: 0;
+    margin-bottom: 22px;
+    font-size: 26px;
+}
+
+.perfil-candidato .card-perfil p {
+    margin-bottom: 14px;
+}
+#app h1 {
+    color: var(--text);
+}
+
+#app h2 {
+    color: var(--primary);
+}
+#app table + button {
+    margin-top: 24px;
 }

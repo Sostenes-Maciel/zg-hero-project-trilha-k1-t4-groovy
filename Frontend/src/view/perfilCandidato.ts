@@ -10,10 +10,10 @@ export function renderPerfilCandidato(candidato: Candidato): void {
     }
 
     app.innerHTML = `
-        <section>
+        <section class="perfil-candidato">
             <h1>Perfil do Candidato</h1>
 
-            <div>
+            <div class="card-perfil">
                 <h2>${candidato.nome}</h2>
 
                 <p><strong>E-mail:</strong> ${candidato.email}</p>
@@ -26,7 +26,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
                     <strong>Competências:</strong>
                     ${candidato.competencias.join(', ')}
                 </p>
-            </div>
+            </>
             <h2>Vagas disponíveis</h2>
 
                 <table>
@@ -43,7 +43,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
                 
 
             <button id="voltar-candidatos">Voltar</button>
-        </section>
+        </>
     `
     const listaVagas = document.querySelector<HTMLTableSectionElement>(
         '#lista-vagas-candidato'
