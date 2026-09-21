@@ -19,7 +19,6 @@ export function renderListaEmpresas(): void {
                     <tr>
                         <th>Empresa</th>
                         <th>País</th>
-                        <th>Estado</th>
                         <th>Competências</th>
                         <th>Ação</th>
                     </tr>
@@ -44,7 +43,6 @@ export function renderListaEmpresas(): void {
         linha.innerHTML = `
             <td>${empresa.nome}</td>
             <td>${empresa.pais}</td>
-            <td>${empresa.estado}</td>
             <td>${empresa.competencias.join(', ')}</td>
             <td>
                 <button class="btn-perfil-empresa" data-cnpj="${empresa.cnpj}">

@@ -18,10 +18,9 @@ export function renderListaCandidatos(): void {
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Idade</th>
                         <th>Estado</th>
                         <th>Competências</th>
+                        <th>Ação</th>
                         
                     </tr>
                 </thead>
@@ -44,8 +43,6 @@ export function renderListaCandidatos(): void {
 
         linha.innerHTML = `
             <td>${candidato.nome}</td>
-            <td>${candidato.email}</td>
-            <td>${candidato.idade}</td>
             <td>${candidato.estado}</td>
             <td>${candidato.competencias.join(', ')}</td>
                 <td>

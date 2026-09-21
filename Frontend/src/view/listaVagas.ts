@@ -22,12 +22,15 @@ export function renderListaVagas(): void {
                 >
             </div>
 
-            <table>
+            <table class="tabela-vagas">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Vaga</th>
                         <th>Empresa</th>
+                         <th>Ação</th>
+
+                        
                     </tr>
                 </thead>
 

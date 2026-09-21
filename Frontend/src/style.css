@@ -636,3 +636,60 @@ body {
     text-align: center;
     margin-top: 16px !important;
 }
+/* =========================
+   LISTAGENS
+   ========================= */
+
+#app table {
+    table-layout: fixed;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#app th,
+#app td {
+    padding: 14px 16px;
+    line-height: 1.4;
+}
+
+#app tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+#app tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+#app tbody tr:hover {
+    background: #f1f5f9;
+}
+
+#app td:last-child {
+    white-space: nowrap;
+}
+
+#app th:last-child,
+#app td:last-child {
+    text-align: center;
+}
+#app table th:nth-child(1),
+#app table td:nth-child(1) {
+    width: 180px;
+}
+#app table th:nth-child(2),
+#app table td:nth-child(2) {
+    width: 100px;
+}
+
+#app table th:nth-child(3),
+#app table td:nth-child(3) {
+    width: 370px;
+}
+.tabela-vagas {
+    table-layout: auto !important;
+}
+
+.tabela-vagas th,
+.tabela-vagas td {
+    width: auto !important;
+}
