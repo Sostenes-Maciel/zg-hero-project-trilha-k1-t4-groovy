@@ -116,11 +116,11 @@ export function renderPerfilEmpresa(empresa: Empresa): void {
         return
     }
 
-    BancodeDados.candidatos.forEach((candidato, indice) => {
+    BancodeDados.candidatos.forEach((candidato) => {
         const linha = document.createElement('tr')
 
         linha.innerHTML = `
-            <td>Candidato #${indice + 1}</td>
+            <p>Match necessário para visualização</p>
             <td>${candidato.competencias.join(', ')}</td>
         `
 

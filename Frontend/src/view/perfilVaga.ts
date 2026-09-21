@@ -14,7 +14,7 @@ export function renderPerfilVaga(vagaId: number): void {
         app.innerHTML = `
             <section>
                 <h2>Vaga não encontrada!</h2>
-                <button id="btn-voltar">Voltar para a lista</button>
+                <button id="btn-voltar">Voltar para vagas</button>
             </section>
         `
         document.querySelector('#btn-voltar')?.addEventListener('click', () => {
@@ -29,11 +29,9 @@ export function renderPerfilVaga(vagaId: number): void {
             
             <div class="card-vaga">
                 <h2>${vagaEncontrada.titulo}</h2>
-                <p><strong>Código da Vaga:</strong> #${vagaEncontrada.id}</p>
                 <hr>
                 <h3>Informações da Empresa</h3>
-                <p><strong>Empresa:</strong> ${vagaEncontrada.empresa.nome}</p>
-                <p><strong>CNPJ:</strong> ${vagaEncontrada.empresa.cnpj}</p>
+                <p><strong>Empresa:</strong> Match necessário para visualização</p>
             </div>
 
             <br>

@@ -25,7 +25,6 @@ export function renderListaVagas(): void {
             <table class="tabela-vagas">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Vaga</th>
                         <th>Empresa</th>
                          <th>Ação</th>
@@ -50,7 +49,7 @@ export function renderListaVagas(): void {
     if (BancodeDados.vagas.length === 0) {
         lista.innerHTML = `
             <tr>
-                <td colspan="3">Nenhuma vaga cadastrada.</td>
+                <td colspan="4">Nenhuma vaga cadastrada.</td>
             </tr>
         `
 
@@ -64,9 +63,8 @@ export function renderListaVagas(): void {
         linha.dataset.empresa = vaga.empresa.nome.toLowerCase()
 
         linha.innerHTML = `
-            <td>${vaga.id}</td>
             <td>${vaga.titulo}</td>
-            <td>${vaga.empresa.nome}</td>
+            <td>Match necessário para visualização</td>
             <button class="btn-perfil-vaga" data-id="${vaga.id}">
                 Ver vaga
             </button>
