@@ -278,6 +278,9 @@ O frontend utiliza uma organização baseada na separação de responsabilidades
 
 **Estrutura do frontend**
 
+### Estrutura do Frontend
+
+```text
 Frontend/
 ├── index.html
 ├── package.json
@@ -300,8 +303,8 @@ Frontend/
 │   │   ├── cadastroCandidato.ts
 │   │   ├── cadastroEmpresa.ts
 │   │   ├── cadastroVaga.ts
-│   │   ├── ValidarCandidato.ts
-│   │   └── ValidarEmpresa.ts
+│   │   ├── validarCandidato.ts
+│   │   └── validarEmpresa.ts
 │   │
 │   └── view/
 │       ├── listaCandidatos.ts
@@ -310,29 +313,32 @@ Frontend/
 │       ├── perfilCandidato.ts
 │       ├── perfilEmpresa.ts
 │       └── perfilVaga.ts
+```
+
 
 **Como executar o frontend**
 
 Entre na pasta do frontend:
-
+```text
 cd Frontend
+```
 
 Instale as dependências:
-
+```text
 npm install
-
+```
 Execute o ambiente de desenvolvimento:
-
+```text
 npm run dev
-
+```
 O Vite exibirá no terminal o endereço local para acessar a aplicação pelo navegador.
 
 Gerar a versão de produção
 
 Para verificar a compilação do projeto:
-
+```text
 npm run build
-
+```
 O comando deve finalizar sem erros de TypeScript.
 
 
