@@ -1,5 +1,6 @@
 import type { Candidato } from '../model/Candidato'
 import {renderListaCandidatos} from "./listaCandidatos.ts";
+import {renderListaVagas} from "./listaVagas.ts";
 
 export function renderPerfilCandidato(candidato: Candidato): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -27,8 +28,20 @@ export function renderPerfilCandidato(candidato: Candidato): void {
                 </p>
             </>
             <button id="voltar-candidatos">Voltar</button>
+            <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
         </>
     `
+
+    const botaoVagas = document.querySelector<HTMLButtonElement>(
+        '#btn-vagas-disponiveis'
+    )
+
+    botaoVagas?.addEventListener('click', () => {
+        renderListaVagas(() => {
+            renderPerfilCandidato(candidato)
+        })
+    })
+
     const botaoVoltar = document.querySelector<HTMLButtonElement>(
         '#voltar-candidatos'
     )

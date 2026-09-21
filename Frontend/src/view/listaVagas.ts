@@ -1,7 +1,7 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import { renderPerfilVaga } from '../view/perfilVaga'
 
-export function renderListaVagas(): void {
+export function renderListaVagas(onVoltar?: () => void): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -28,6 +28,7 @@ export function renderListaVagas(): void {
                         <th>Vaga</th>
                         <th>Empresa</th>
                          <th>Ação</th>
+                         <button id="btn-voltar-candidato">Voltar</button>
 
                         
                     </tr>
@@ -71,6 +72,15 @@ export function renderListaVagas(): void {
 
 
         lista.appendChild(linha)
+
+    })
+
+    const botaoVoltarCandidato = document.querySelector<HTMLButtonElement>(
+        '#btn-voltar-candidato'
+    )
+
+    botaoVoltarCandidato?.addEventListener('click', () => {
+        onVoltar?.()
     })
 
     const filtroVagas = document.querySelector<HTMLInputElement>(
