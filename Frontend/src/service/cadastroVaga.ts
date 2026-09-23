@@ -1,5 +1,4 @@
 import { BancodeDados } from '../repository/BancodeDados'
-import { renderPerfilVaga } from '../view/perfilVaga'
 import type { Empresa } from '../model/Empresa.ts'
 import type {Vaga} from "../model/Vaga.ts";
 
@@ -27,7 +26,7 @@ export class cadastroVagas {
     }
 }
 
-export function renderViewCadastroVaga(nVoltar?: () => void): void {
+export function renderViewCadastroVaga(onVoltar?: (mensagem?: string) => void): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -86,7 +85,7 @@ export function renderViewCadastroVaga(nVoltar?: () => void): void {
     )
 
     botaoVoltar?.addEventListener('click', () => {
-        nVoltar?.()
+        onVoltar?.()
     })
 
     formulario?.addEventListener('submit', evento => {
@@ -103,27 +102,22 @@ export function renderViewCadastroVaga(nVoltar?: () => void): void {
             )
 
             if (!empresa) {
-                throw new Error('Empresa não encontrada.')
+                const mensagem = document.querySelector<HTMLParagraphElement>(
+                    '#mensagem'
+                )
+
+                if (mensagem) {
+                    mensagem.textContent = 'Empresa não encontrada.'
+                }
+
+                return
             }
 
-            // 1. SALVA a vaga usando a classe do Service
             const vaga = cadastroVagas.cadastrar(titulo, empresa)
-
-            const mensagem = document.querySelector<HTMLParagraphElement>(
-                '#mensagem'
-            )
-
-            if (mensagem) {
-                mensagem.textContent = 'Vaga cadastrada com sucesso!'
-            }
-
-            formulario.reset()
 
             console.log('Vaga cadastrada:', vaga)
 
-            // 2. AQUI ENTRA A SUA IDEIA: Redireciona para o Perfil da Vaga!
-            // Passamos o vaga.id, que acabou de ser gerado, para desenhar a tela
-            renderPerfilVaga(vaga.id)
+            onVoltar?.('Vaga cadastrada com sucesso!')
 
         } catch (erro) {
             console.error('Erro ao cadastrar vaga:', erro)

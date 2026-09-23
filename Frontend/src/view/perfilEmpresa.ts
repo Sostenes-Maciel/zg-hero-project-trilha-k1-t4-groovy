@@ -4,7 +4,7 @@ import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./listaEmpresas.ts";
 import { renderViewCadastroVaga } from '../service/cadastroVaga'
 
-function renderPerfilEmpresa(empresa: Empresa): void {
+function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -14,6 +14,7 @@ function renderPerfilEmpresa(empresa: Empresa): void {
     app.innerHTML = `
         <section>
             <h1>Perfil da Empresa</h1>
+            <p id = "mensagem"></p>
 
             <div>
                 <h2>${empresa.nome}</h2>
@@ -65,6 +66,11 @@ function renderPerfilEmpresa(empresa: Empresa): void {
             <button id="btn-cadastrar-vaga">Cadastrar vaga</button>
         </section>
     `
+    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+
+    if (mensagemSucesso && mensagem) {
+        mensagem.textContent = mensagemSucesso
+    }
     const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>(
         '#btn-cadastrar-vaga'
     )
