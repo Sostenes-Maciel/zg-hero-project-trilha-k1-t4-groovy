@@ -3,6 +3,7 @@ import { BancodeDados } from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./listaEmpresas.ts";
 import { renderViewCadastroVaga } from '../service/cadastroVaga'
+import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 
 function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -54,7 +55,8 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                 <thead>
                     <tr>
                         <th>Candidato</th>
-                        <th>Competências</th>
+                        <th>Competência</th>
+                        <th>Afinidade</th>
                     </tr>
                 </thead>
 
@@ -152,9 +154,12 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
             .join(' ')
             .toLowerCase()
 
+        const afinidade = calcularAfinidade(candidato, empresa)
+
         linha.innerHTML = `
         <td>Match necessário para visualização</td>
         <td>${candidato.competencias.join(', ')}</td>
+        <td>${afinidade}%</td>
     `
 
         lista.appendChild(linha)

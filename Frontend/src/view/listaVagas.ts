@@ -1,7 +1,9 @@
 import { BancodeDados } from '../repository/BancodeDados'
-import { renderPerfilVaga } from '../view/perfilVaga'
+import { renderPerfilVaga } from './perfilVaga.ts'
+import type {Candidato} from "../model/Candidato.ts";
+import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 
-export function renderListaVagas(onVoltar?: () => void): void {
+export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -27,6 +29,7 @@ export function renderListaVagas(onVoltar?: () => void): void {
                     <tr>
                         <th>Vaga</th>
                         <th>Empresa</th>
+                        <th>Afinidade</th>
                          <th>Ação</th>
                          <button id="btn-voltar-candidato">Voltar</button>
 
@@ -62,12 +65,19 @@ export function renderListaVagas(onVoltar?: () => void): void {
 
         linha.dataset.titulo = vaga.titulo.toLowerCase()
 
+        const afinidade = candidato
+            ? calcularAfinidade(candidato, vaga.empresa)
+            : null
+
         linha.innerHTML = `
             <td>${vaga.titulo}</td>
             <td>Match necessário para visualização</td>
-            <button class="btn-perfil-vaga" data-id="${vaga.id}">
-                Ver vaga
-            </button>
+            <td>${afinidade !== null ? `${afinidade}%` : '—'}</td>
+            <td>
+                <button class="btn-perfil-vaga" data-id="${vaga.id}">
+                    Ver vaga
+                </button>
+            </td>
         `
 
 

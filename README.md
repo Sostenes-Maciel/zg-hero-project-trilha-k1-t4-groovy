@@ -341,6 +341,44 @@ npm run build
 ```
 O comando deve finalizar sem erros de TypeScript.
 
+## Atualização: Índice de Afinidade
+
+Foi implementado um índice de afinidade entre candidatos e empresas com base nas competências cadastradas.
+
+Na lista de vagas, o candidato consegue visualizar o percentual de afinidade com a empresa responsável pela vaga, sem que a identidade da empresa seja revelada.
+
+Também foi adicionada, de forma opcional, a exibição do percentual de afinidade na lista de candidatos do perfil da empresa, mantendo a identidade dos candidatos anônima.
+
+### Como funciona
+
+O percentual é calculado pela quantidade de competências em comum entre candidato e empresa, dividida pela quantidade total de competências do candidato:
+
+```text
+Afinidade = (competências em comum / competências do candidato) × 100
+```
+
+Exemplo:
+
+```text
+Candidato: Java, Groovy, Python, Git
+Empresa: Java, Python, React
+
+Competências em comum: Java e Python
+Afinidade: 2 / 4 × 100 = 50%
+```
+
+O sistema também normaliza as competências, ignorando diferenças de maiúsculas, minúsculas e espaços.
+
+### Implementação
+
+A regra de cálculo foi centralizada na função:
+
+```text
+src/service/calcularAfinidade.ts
+```
+
+Essa função é reutilizada tanto na lista de vagas quanto na lista de candidatos do perfil da empresa.
+
 
 ## Autor
 

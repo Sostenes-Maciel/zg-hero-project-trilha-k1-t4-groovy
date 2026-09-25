@@ -39,7 +39,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
     botaoVagas?.addEventListener('click', () => {
         renderListaVagas(() => {
             renderPerfilCandidato(candidato)
-        })
+        }, candidato)
     })
 
     const botaoVoltar = document.querySelector<HTMLButtonElement>(
