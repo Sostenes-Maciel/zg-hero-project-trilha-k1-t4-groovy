@@ -469,4 +469,41 @@ export class BancodeDados {
             match => match.empresa.cnpj === empresa.cnpj
         )
     }
+    static getCurtidasPendentesDoCandidato(
+        candidato: Candidato
+    ): Curtida[] {
+        return this.curtidas.filter(curtida => {
+            if (
+                !curtida.vaga ||
+                curtida.candidato.cpf !== candidato.cpf
+            ) {
+                return false
+            }
+
+            return !this.matches.some(
+                match =>
+                    match.candidato.cpf === candidato.cpf &&
+                    match.vaga.id === curtida.vaga!.id
+            )
+        })
+    }
+
+    static getCurtidasPendentesDaEmpresa(
+        empresa: Empresa
+    ): Curtida[] {
+        return this.curtidas.filter(curtida => {
+            if (
+                !curtida.empresa ||
+                curtida.empresa.cnpj !== empresa.cnpj
+            ) {
+                return false
+            }
+
+            return !this.matches.some(
+                match =>
+                    match.empresa.cnpj === empresa.cnpj &&
+                    match.candidato.cpf === curtida.candidato.cpf
+            )
+        })
+    }
 }

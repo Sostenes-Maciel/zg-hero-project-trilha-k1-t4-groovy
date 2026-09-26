@@ -13,36 +13,69 @@ export function renderListaMatchesEmpresa(
 
     const matches = BancodeDados.getMatchesDaEmpresa(empresa)
 
+    const curtidasPendentes =
+        BancodeDados.getCurtidasPendentesDaEmpresa(empresa)
+
     app.innerHTML = `
         <section class="lista-matches">
             <h1>Meus Matches</h1>
 
-            ${
-        matches.length === 0
-            ? `
-                        <p>A empresa ainda não possui Matches.</p>
-                    `
-            : `
-                        <div class="cards-matches">
-                            ${matches.map(match => `
-                                <div class="card-match">
-                                    <h2>🤝 ${match.candidato.nome}</h2>
+            <h2>Curtidas aguardando Match</h2>
 
-                                    <p>
-                                        <strong>Vaga:</strong>
-                                        ${match.vaga.titulo}
-                                    </p>
-
-                                    <p>
-                                        <strong>Local:</strong>
-                                        ${match.vaga.pais} -
-                                        ${match.vaga.estado}
-                                    </p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `
-    }
+                ${
+                        curtidasPendentes.length === 0
+                            ? `
+                            <p>Nenhuma curtida aguardando Match.</p>
+                        `
+                            : `
+                            <div class="cards-matches">
+                               ${curtidasPendentes.map(curtida => `
+                                    <div class="card-match">
+                                        <h3>♥ Match pendente</h3>
+                                
+                                        <p>
+                                            <strong>Candidato:</strong>
+                                            Match necessário para visualização
+                                        </p>
+                                
+                                        <p>
+                                            <strong>Competências:</strong>
+                                            ${curtida.candidato.competencias.join(', ')}
+                                        </p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `
+                    }
+                
+                <h2>Meus Matches</h2>
+                
+                ${
+                        matches.length === 0
+                            ? `
+                            <p>A empresa ainda não possui Matches.</p>
+                        `
+                            : `
+                            <div class="cards-matches">
+                                ${matches.map(match => `
+                                    <div class="card-match">
+                                        <h3>🤝 ${match.candidato.nome}</h3>
+                
+                                        <p>
+                                            <strong>Vaga:</strong>
+                                            ${match.vaga.titulo}
+                                        </p>
+                
+                                        <p>
+                                            <strong>Local:</strong>
+                                            ${match.vaga.pais} -
+                                            ${match.vaga.estado}
+                                        </p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `
+                    }
 
             <button id="btn-voltar-matches">
                 Voltar

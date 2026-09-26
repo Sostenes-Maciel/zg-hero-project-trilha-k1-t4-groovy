@@ -4,6 +4,7 @@ import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./ListaEmpresas.ts";
 import {renderViewCadastroVaga} from '../service/CadastroVaga.ts'
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
+import {renderListaMatchesEmpresa} from "./ListaMatchesEmpresa.ts";
 
 function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -67,6 +68,8 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
 
             <button id="voltar-empresa">Voltar</button>
             <button id="btn-cadastrar-vaga">Cadastrar vaga</button>
+            <button id="btn-meus-matches">Meus Matches</button>
+            
         </section>
     `
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
@@ -252,6 +255,16 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
             const competencias = linha.dataset.competencias ?? ''
 
             linha.hidden = !competencias.includes(termo)
+        })
+    })
+
+    const botaoMatches = document.querySelector<HTMLButtonElement>(
+        '#btn-meus-matches'
+    )
+
+    botaoMatches?.addEventListener('click', () => {
+        renderListaMatchesEmpresa(empresa, () => {
+            renderPerfilEmpresa(empresa)
         })
     })
 

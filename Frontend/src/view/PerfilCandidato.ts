@@ -1,6 +1,7 @@
 import type { Candidato } from '../model/Candidato'
 import {renderListaCandidatos} from "./ListaCandidatos.ts";
 import {renderListaVagas} from "./ListaVagas.ts";
+import {renderListaMatchesCandidato} from "./ListaMatchesCandidato.ts";
 
 export function renderPerfilCandidato(candidato: Candidato): void {
     console.log("Dados do candidato:", candidato);
@@ -31,6 +32,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
             </>
             <button id="voltar-candidatos">Voltar</button>
             <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
+            <button id="btn-meus-matches">Meus Matches</button>
         </>
     `
 
@@ -42,6 +44,16 @@ export function renderPerfilCandidato(candidato: Candidato): void {
         renderListaVagas(() => {
             renderPerfilCandidato(candidato)
         }, candidato)
+    })
+
+    const botaoMatches = document.querySelector<HTMLButtonElement>(
+        '#btn-meus-matches'
+    )
+
+    botaoMatches?.addEventListener('click', () => {
+        renderListaMatchesCandidato(candidato, () => {
+            renderPerfilCandidato(candidato)
+        })
     })
 
     const botaoVoltar = document.querySelector<HTMLButtonElement>(
