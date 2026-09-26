@@ -9,6 +9,7 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
     }
 
     const vagaEncontrada = BancodeDados.vagas.find(v => v.id === vagaId)
+    console.log('Vaga encontrada:', vagaEncontrada)
 
     if (!vagaEncontrada) {
         app.innerHTML = `
@@ -29,11 +30,35 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
             
             <div class="card-vaga">
                 <h2>${vagaEncontrada.titulo}</h2>
+            
                 <hr>
+            
+                <h3>Informações da Vaga</h3>
+            
+                <p>
+                    <strong>Descrição:</strong>
+                    ${vagaEncontrada.descricao}
+                </p>
+            
+                <p>
+                    <strong>Local:</strong>
+                    ${vagaEncontrada.pais} - ${vagaEncontrada.estado}
+                </p>
+            
+               <p>
+                    <strong>Competências:</strong>
+                    ${vagaEncontrada.competencias?.join(', ') || 'Nenhuma competência especificada'}
+                </p>
+            
+                <hr>
+            
                 <h3>Informações da Empresa</h3>
-                <p><strong>Empresa:</strong> Match necessário para visualização</p>
+            
+                <p>
+                    <strong>Empresa:</strong>
+                    Match necessário para visualização
+                </p>
             </div>
-
             <br>
             <button id="btn-voltar-lista">Voltar para Vagas</button>
         </section>

@@ -139,30 +139,61 @@ export class BancodeDados {
         } else {
             this.vagas = [
                 {
+                    id: 0,
+                    titulo: 'Desenvolvedor Full Stack',
+                    descricao: 'Atuação no desenvolvimento de aplicações web, trabalhando tanto no backend quanto no frontend, integração com APIs, bancos de dados e manutenção das funcionalidades do sistema.',
+                    pais: 'Brasil',
+                    estado: 'PE',
+                    competencias: ['Java', 'TypeScript', 'Git', 'SQL'],
+                    empresa: this.empresas[0]
+                },
+                {
                     id: 1,
                     titulo: 'Desenvolvedor Java Júnior',
+                    pais: 'Brasil',
+                    estado: 'SP',
+                    descricao: 'profissional em início de carreira focado em criar, corrigir e manter sistemas back-end utilizando a linguagem Java, sempre com o suporte de desenvolvedores mais experientes.Principais ResponsabilidadesDesenvolvimento de rotinas: Implementar pequenas funcionalidades e componentes definidos pela equipe sênior.Correção de bugs: Identificar e resolver falhas simples no código existente.Testes e depuração: Realizar testes unitários e validar se o código funciona corretamente.Documentação: Escrever registros básicos sobre as alterações e funcionalidades desenvolvidas.',
+                    competencias: ['Java', 'Angular', 'React', 'English'],
                     empresa: this.empresas[0]
                 },
                 {
                     id: 2,
                     titulo: 'Desenvolvedor Backend Node.js',
+                    descricao: 'Atuação no desenvolvimento e manutenção de aplicações backend, criação de APIs, integração com serviços e implementação de novas funcionalidades utilizando Node.js.',
+                    pais: 'Brasil',
+                    estado: 'PE',
+                    competencias: ['Node.js', 'JavaScript', 'Git'],
                     empresa: this.empresas[1]
+
                 },
                 {
                     id: 3,
                     titulo: 'Desenvolvedor Java Spring Boot',
+                    descricao: 'Desenvolvimento e manutenção de aplicações backend utilizando Java e Spring Boot, criação de APIs, integração com bancos de dados e implementação de novas funcionalidades.',
+                    pais: 'Brasil',
+                    estado: 'PE',
+                    competencias: ['Java', 'Spring Boot', 'Git'],
                     empresa: this.empresas[2]
                 },
                 {
                     id: 4,
                     titulo: 'Desenvolvedor Python',
+                    descricao: 'Desenvolvimento de aplicações e soluções utilizando Python, trabalhando na criação de funcionalidades, integração com serviços e manutenção do código da aplicação.',
+                    pais: 'Brasil',
+                    estado: 'PE',
+                    competencias: ['Python', 'Git', 'SQL'],
                     empresa: this.empresas[3]
                 },
                 {
                     id: 5,
                     titulo: 'Desenvolvedor TypeScript',
+                    descricao: 'Desenvolvimento de aplicações utilizando TypeScript e JavaScript, criação de funcionalidades, integração com APIs e manutenção da estrutura do projeto.',
+                    pais: 'Brasil',
+                    estado: 'PE',
+                    competencias: ['TypeScript', 'JavaScript', 'Git'],
                     empresa: this.empresas[4]
-                }
+                },
+
             ]
 
             this.salvarVagas()
