@@ -1,5 +1,6 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import {renderPerfilCandidato} from "./PerfilCandidato.ts";
+import {confirmarExclusao} from "../components/Confirmacao.ts";
 
 export function renderListaCandidatos(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -98,7 +99,7 @@ export function renderListaCandidatos(mensagemSucesso?: string): void {
     )
 
     botoesExcluir.forEach(botao => {
-        botao.addEventListener('click', () => {
+        botao.addEventListener('click', async () => {
             const cpf = botao.dataset.cpf
 
             if (!cpf) {
@@ -106,8 +107,9 @@ export function renderListaCandidatos(mensagemSucesso?: string): void {
                 return
             }
 
-            const confirmar = window.confirm(
-                'Tem certeza que deseja excluir este candidato?'
+            const confirmar = await confirmarExclusao(
+                'Excluir candidato?',
+                'Essa ação não poderá ser desfeita.'
             )
 
             if (!confirmar) {

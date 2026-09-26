@@ -1,137 +1,199 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <nav id="menu-principal">
-    <div class="logo-linketinder">
-      <span>LINKETINDER</span>
+  <meta
+          name="description"
+          content="Linketinder: conectando candidatos e empresas através de interesses e Matches."
+  />
+
+  <title>Linketinder</title>
+</head>
+
+<body>
+
+<nav id="menu-principal">
+
+  <div class="logo-linketinder">
+    LINKETINDER
+  </div>
+
+  <div class="menu-links">
+
+    <button id="menu-candidatos">
+      Candidatos
+    </button>
+
+    <button id="menu-empresas">
+      Empresas
+    </button>
+
+  </div>
+
+</nav>
+
+
+<main id="pagina-inicial">
+
+  <section class="hero-linketinder">
+
+    <div class="hero-conteudo">
+
+            <span class="hero-tag">
+                CONECTANDO TALENTOS E OPORTUNIDADES
+            </span>
+
+      <h1>
+        Encontre a oportunidade
+        <span>que combina com você.</span>
+      </h1>
+
+      <p>
+        O Linketinder aproxima candidatos e empresas
+        através de interesses e Matches.
+      </p>
+
+      <div class="hero-botoes">
+
+        <button id="menu-cadastro-candidato-hero">
+          Sou candidato
+        </button>
+
+        <button id="menu-cadastro-empresa-hero">
+          Sou empresa
+        </button>
+
+      </div>
+
     </div>
 
-    <div class="menu-acoes">
-      <button id="menu-cadastro-candidato">Sou candidato</button>
-      <button id="menu-cadastro-empresa">Sou empresa</button>
+  </section>
+
+
+  <section class="como-funciona revelar-scroll">
+
+    <div class="secao-titulo">
+
+      <span>COMO FUNCIONA</span>
+
+      <h2>
+        Do interesse ao Match
+      </h2>
+
+      <p>
+        Uma forma simples de conectar quem procura
+        oportunidades com quem procura talentos.
+      </p>
+
     </div>
-  </nav>
 
-  <main id="pagina-inicial">
 
-    <section class="hero-linketinder">
-      <div class="hero-conteudo">
+    <div class="etapas-linketinder">
 
-        <span class="hero-tag">Conectando talentos e oportunidades</span>
+      <article class="etapa-linketinder">
 
-        <h1>
-          Encontre a oportunidade
-          <span>que combina com você.</span>
-        </h1>
-
-        <p>
-          O Linketinder aproxima candidatos e empresas
-          através de interesses e Matches.
-        </p>
-
-        <div class="hero-botoes">
-          <button id="menu-cadastro-candidato-hero">
-            Sou candidato
-          </button>
-
-          <button id="menu-cadastro-empresa-hero">
-            Sou empresa
-          </button>
+        <div class="etapa-icone">
+          👤
         </div>
 
-      </div>
-    </section>
+        <span>01</span>
 
-    <section class="como-funciona">
-
-      <div class="secao-titulo">
-        <span>COMO FUNCIONA</span>
-        <h2>Do interesse ao Match</h2>
-        <p>
-          Uma forma simples de conectar quem procura
-          oportunidades com quem procura talentos.
-        </p>
-      </div>
-
-      <div class="etapas-linketinder">
-
-        <article class="etapa-linketinder">
-          <div class="etapa-icone">👤</div>
-
-          <span>01</span>
-
-          <h3>Crie seu perfil</h3>
-
-          <p>
-            Apresente as suas competências ou as oportunidades
-            da sua empresa.
-          </p>
-        </article>
-
-        <article class="etapa-linketinder">
-          <div class="etapa-icone">♥</div>
-
-          <span>02</span>
-
-          <h3>Demonstre interesse</h3>
-
-          <p>
-            Encontre uma oportunidade ou um candidato
-            que combine com o que você procura.
-          </p>
-        </article>
-
-        <article class="etapa-linketinder">
-          <div class="etapa-icone">🤝</div>
-
-          <span>03</span>
-
-          <h3>É Match</h3>
-
-          <p>
-            Quando o interesse é recíproco, o Match acontece
-            e as identidades são reveladas.
-          </p>
-        </article>
-
-      </div>
-
-    </section>
-
-    <section class="destaque-anonimato">
-
-      <div>
-        <span class="hero-tag">Um diferencial do Linketinder</span>
-
-        <h2>
-          Primeiro o interesse.
-          <span>Depois a identidade.</span>
-        </h2>
+        <h3>
+          Crie seu perfil
+        </h3>
 
         <p>
-          Candidatos e empresas permanecem anônimos
-          até que exista interesse dos dois lados.
+          Apresente suas competências ou as
+          oportunidades da sua empresa.
         </p>
-      </div>
 
-    </section>
+      </article>
 
-    <div id="app"></div>
 
-  </main>
+      <article class="etapa-linketinder">
 
-  <footer id="rodape">
-    <p>Linketinder · Plataforma de conexão entre candidatos e empresas</p>
-  </footer>
+        <div class="etapa-icone">
+          ♥
+        </div>
 
-  <script type="module" src="./src/main.ts"></script>
+        <span>02</span>
 
-  </body>
+        <h3>
+          Demonstre interesse
+        </h3>
+
+        <p>
+          Encontre uma oportunidade ou um candidato
+          que combine com o que você procura.
+        </p>
+
+      </article>
+
+
+      <article class="etapa-linketinder">
+
+        <div class="etapa-icone">
+          🤝
+        </div>
+
+        <span>03</span>
+
+        <h3>
+          É Match
+        </h3>
+
+        <p>
+          Quando o interesse é recíproco,
+          o Match acontece.
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <section class="destaque-anonimato revelar-scroll">
+
+    <div class="destaque-conteudo">
+
+            <span class="hero-tag">
+                UM DIFERENCIAL DO LINKETINDER
+            </span>
+
+      <h2>
+        Primeiro o interesse.
+        <span>Depois a identidade.</span>
+      </h2>
+
+      <p>
+        Candidatos e empresas permanecem anônimos
+        até que exista interesse dos dois lados.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <div id="app"></div>
+
+</main>
+
+
+<footer id="rodape">
+  <p>
+    Linketinder · Plataforma de conexão entre candidatos e empresas
+  </p>
+</footer>
+
+
+<script type="module" src="./src/main.ts"></script>
+<script type="module" src="./src/components/AnimacaoLanding.ts"></script>
+
+</body>
 </html>

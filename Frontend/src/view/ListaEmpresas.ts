@@ -1,5 +1,6 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import renderPerfilEmpresa from './PerfilEmpresa.ts'
+import {confirmarExclusao} from "../components/Confirmacao.ts";
 
 export function renderListaEmpresas(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -88,7 +89,7 @@ export function renderListaEmpresas(mensagemSucesso?: string): void {
     )
 
     botoesExcluir.forEach(botao => {
-        botao.addEventListener('click', () => {
+        botao.addEventListener('click', async () => {
             const cnpj = botao.dataset.cnpj
 
             if (!cnpj) {
@@ -96,8 +97,9 @@ export function renderListaEmpresas(mensagemSucesso?: string): void {
                 return
             }
 
-            const confirmar = window.confirm(
-                'Tem certeza que deseja excluir esta empresa?'
+            const confirmar = await confirmarExclusao(
+                'Excluir candidato?',
+                'Essa ação não poderá ser desfeita.'
             )
 
             if (!confirmar) {
