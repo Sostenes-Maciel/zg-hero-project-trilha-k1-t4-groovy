@@ -205,6 +205,7 @@ export async function renderCadastroCandidato(): Promise<void> {
 
             if (mensagem) {
                 mensagem.textContent = 'Candidato cadastrado com sucesso!'
+                mensagem.classList.add('mensagem-sucesso')
             }
 
             formulario.reset()
@@ -221,6 +222,7 @@ export async function renderCadastroCandidato(): Promise<void> {
                     erro instanceof Error
                         ? erro.message
                         : 'Não foi possível cadastrar o candidato. Tente novamente.'
+                        mensagem.classList.add('mensagem-erro')
             }
         }
     })

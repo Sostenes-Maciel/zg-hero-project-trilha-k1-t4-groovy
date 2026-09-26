@@ -63,7 +63,7 @@ export async function renderViewCadastroVaga(onVoltar?: (mensagem?: string) => v
     }
 
     app.innerHTML = `
-        <section class="cadastro-container">
+        <section class="cadastro-container tela-com-transicao">
             <h1>Cadastro de Vaga</h1>
 
             <form id="form-vaga">
@@ -227,6 +227,7 @@ export async function renderViewCadastroVaga(onVoltar?: (mensagem?: string) => v
 
                 if (mensagem) {
                     mensagem.textContent = 'Empresa não encontrada.'
+                    mensagem.classList.add('mensagem-erro')
                 }
 
                 return
@@ -256,6 +257,7 @@ export async function renderViewCadastroVaga(onVoltar?: (mensagem?: string) => v
                     erro instanceof Error
                         ? erro.message
                         : 'Não foi possível cadastrar a vaga. Tente novamente.'
+                        mensagem.classList.add('mensagem-erro')
             }
         }
     })

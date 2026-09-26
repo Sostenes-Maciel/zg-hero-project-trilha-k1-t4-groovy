@@ -184,6 +184,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
 
             if (mensagem) {
                 mensagem.textContent = 'Empresa cadastrada com sucesso!'
+                mensagem.classList.add('mensagem-sucesso')
             }
 
             formulario.reset()
@@ -202,6 +203,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
                     erro instanceof Error
                         ? erro.message
                         : 'Não foi possível cadastrar o candidato. Tente novamente.'
+                        mensagem.classList.add('mensagem-erro')
             }
         }
     })
