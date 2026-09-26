@@ -25,7 +25,11 @@ export function renderListaMatchesEmpresa(
                 ${
                         curtidasPendentes.length === 0
                             ? `
-                            <p>Nenhuma curtida aguardando Match.</p>
+                            <div class="estado-vazio">
+                                <span class="estado-vazio-icone">♥</span>
+                                <h3>Nenhuma curtida aguardando Match</h3>
+                                <p>Os candidatos que demonstrarem interesse e ainda não tiverem reciprocidade aparecerão aqui.</p>
+                            </div>
                         `
                             : `
                             <div class="cards-matches">
@@ -53,7 +57,11 @@ export function renderListaMatchesEmpresa(
                 ${
                         matches.length === 0
                             ? `
-                            <p>A empresa ainda não possui Matches.</p>
+                           <div class="estado-vazio">
+                                <span class="estado-vazio-icone">🤝</span>
+                                <h3>Nenhum Match ainda</h3>
+                                <p>Quando um candidato demonstrar interesse recíproco, o Match aparecerá aqui.</p>
+                           </div>
                         `
                             : `
                             <div class="cards-matches">

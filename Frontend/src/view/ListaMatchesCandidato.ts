@@ -25,7 +25,11 @@ export function renderListaMatchesCandidato(
                 ${
                         curtidasPendentes.length === 0
                             ? `
-                            <p>Nenhuma curtida aguardando Match.</p>
+                            <div class="estado-vazio">
+                                <span class="estado-vazio-icone">♥</span>
+                                <h3>Nenhuma curtida aguardando Match</h3>
+                                <p>As vagas que você curtir e ainda não tiverem reciprocidade aparecerão aqui.</p>
+                            </div>
                         `
                             : `
                             <div class="cards-matches">
@@ -48,7 +52,11 @@ export function renderListaMatchesCandidato(
                 ${
                         matches.length === 0
                             ? `
-                            <p>Você ainda não possui Matches.</p>
+                            <div class="estado-vazio">
+                                <span class="estado-vazio-icone">🤝</span>
+                                <h3>Nenhum Match ainda</h3>
+                                <p>Quando houver interesse dos dois lados, o seu Match aparecerá aqui.</p>
+                            </div>
                         `
                             : `
                             <div class="cards-matches">
