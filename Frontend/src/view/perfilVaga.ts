@@ -40,6 +40,6 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
     `
 
     document.querySelector('#btn-voltar-lista')?.addEventListener('click', () => {
-        renderListaVagas(onVoltar)
+        onVoltar?.()
     })
 }

@@ -1,6 +1,6 @@
 import type { Empresa } from '../model/Empresa.ts'
 import { BancodeDados } from '../repository/BancodeDados.ts'
-import { ValidarEmpresa } from '../service/validarEmpresa'
+import { ValidarEmpresa } from './validarEmpresa.ts'
 import {
     getCountries,
     getStatesOfCountry
@@ -47,10 +47,14 @@ export async function renderCadastroEmpresa(): Promise<void> {
                     </select>
                 </div>
 
-                <div>
-                    <label for="cep">CEP</label>
-                    <input type="text" id="cep" name="cep" required>
-                </div>
+                <label for="codigoPostal">Código Postal</label>
+                    <input
+                        type="text"
+                        id="codigoPostal"
+                        name="codigoPostal"
+                        placeholder="Ex.: 55299-300"
+                        required
+                    >
 
                 <div>
                     <label for="descricao">Descrição</label>
@@ -141,7 +145,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
             const cnpj = dados.get('cnpj') as string
             const pais = selectPais.selectedOptions[0]?.textContent?.trim() ?? ''
             const estado = dados.get('estado') as string
-            const cep = dados.get('cep') as string
+            const codigoPostal = dados.get('codigoPostal') as string
             const descricao = dados.get('descricao') as string
 
             const competencias = (dados.get('competencias') as string)
@@ -154,7 +158,10 @@ export async function renderCadastroEmpresa(): Promise<void> {
             ValidarEmpresa.validarCnpj(cnpj)
             ValidarEmpresa.validarPais(pais)
             ValidarEmpresa.validarEstado(estado)
-            ValidarEmpresa.validarCep(cep)
+            ValidarEmpresa.validarCodigoPostal(
+                codigoPostal,
+                selectPais.value
+            )
             ValidarEmpresa.validarDescricao(descricao)
             ValidarEmpresa.validarCompetencias(competencias)
 
@@ -164,7 +171,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
                 cnpj,
                 pais,
                 estado,
-                cep,
+                cep: codigoPostal,
                 descricao,
                 competencias
             }

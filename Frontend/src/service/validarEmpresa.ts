@@ -32,14 +32,6 @@ export class ValidarEmpresa {
         }
     }
 
-    static validarCep(cep: string): void {
-        const cepLimpo = cep.replace(/[.-]/g, '')
-
-        if (!/^\d{8}$/.test(cepLimpo)) {
-            throw new Error('CEP deve conter 8 números.')
-        }
-    }
-
     static validarDescricao(descricao: string): void {
         if (!descricao) {
             throw new Error('Descrição não pode estar vazia.')
@@ -51,6 +43,31 @@ export class ValidarEmpresa {
             throw new Error(
                 'Informe pelo menos uma competência.'
             )
+        }
+    }
+
+    static validarCodigoPostal(
+        codigoPostal: string,
+        codigoPais: string
+    ): void {
+        const valor = codigoPostal.trim()
+
+        if (valor.length === 0) {
+            throw new Error('O código postal é obrigatório.')
+        }
+
+        if (codigoPais === 'BR') {
+            const codigoLimpo = valor.replace('-', '')
+
+            if (!/^\d{8}$/.test(codigoLimpo)) {
+                throw new Error('No Brasil, o código postal deve conter 8 números.')
+            }
+
+            return
+        }
+
+        if (!/^[A-Za-z0-9][A-Za-z0-9 -]{2,14}$/.test(valor)) {
+            throw new Error('Código postal inválido.')
         }
     }
 }

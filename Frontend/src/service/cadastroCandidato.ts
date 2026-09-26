@@ -1,8 +1,10 @@
 import type {Candidato} from '../model/Candidato.ts'
 import {BancodeDados} from '../repository/BancodeDados.ts'
-import {ValidarCandidato} from '../service/validarCandidato'
-import { getStatesOfCountry } from '@countrystatecity/countries-browser'
-
+import {ValidarCandidato} from './validarCandidato.ts'
+import {
+    getCountries,
+    getStatesOfCountry
+} from '@countrystatecity/countries-browser'
 export async function renderCadastroCandidato(): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -51,17 +53,27 @@ export async function renderCadastroCandidato(): Promise<void> {
                 </div>
 
                 <div>
+                    <label for="pais">País</label>
+                    <select id="pais" name="pais" required>
+                        <option value="">Selecione um país</option>
+                    </select>
+                </div>
+                
+                <div>
                     <label for="estado">Estado</label>
-                    <select id="estado" name="estado" required>
+                    <select id="estado" name="estado" required disabled>
+                        <option value="">Selecione um país primeiro</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="cep">CEP</label>
-                    <input type="text" id="cep" name="cep" 
-                    placeholder="Ex.: 11222-333"
-                    required>
-                </div>
+                <label for="codigoPostal">Código Postal</label>
+                    <input
+                        type="text"
+                        id="codigoPostal"
+                        name="codigoPostal"
+                        placeholder="Ex.: 55299-300"
+                        required
+                    >
 
                 <div>
                     <label for="descricao">Descrição</label>
@@ -85,34 +97,59 @@ export async function renderCadastroCandidato(): Promise<void> {
         </section>
     `
 
+    const selectPais = document.querySelector<HTMLSelectElement>('#pais')
     const selectEstado = document.querySelector<HTMLSelectElement>('#estado')
 
-    if (!selectEstado) {
+    if (!selectPais || !selectEstado) {
         return
     }
 
     try {
-        const estados = await getStatesOfCountry('BR')
+        const paises = await getCountries()
+
+        paises.forEach(pais => {
+            const option = document.createElement('option')
+
+            option.value = pais.iso2
+            option.textContent = pais.name
+
+            selectPais.appendChild(option)
+        })
+    } catch (erro) {
+        console.error('Erro ao carregar países:', erro)
+    }
+
+    selectPais.addEventListener('change', async () => {
+        const codigoPais = selectPais.value
 
         selectEstado.innerHTML = `
         <option value="">Selecione um estado</option>
     `
 
-        estados.forEach(estado => {
-            const option = document.createElement('option')
+        selectEstado.disabled = true
 
-            option.value = estado.iso2
-            option.textContent = estado.name
+        if (!codigoPais) {
+            return
+        }
 
-            selectEstado.appendChild(option)
-        })
-    } catch (erro) {
-        console.error('Erro ao carregar estados:', erro)
+        try {
+            const estados = await getStatesOfCountry(codigoPais)
 
-        selectEstado.innerHTML = `
-        <option value="">Não foi possível carregar os estados</option>
-    `
-    }
+            estados.forEach(estado => {
+                const option = document.createElement('option')
+
+                option.value = estado.name
+                option.textContent = estado.name
+
+                selectEstado.appendChild(option)
+            })
+
+            selectEstado.disabled = false
+
+        } catch (erro) {
+            console.error('Erro ao carregar estados:', erro)
+        }
+    })
 
     const formulario = document.querySelector<HTMLFormElement>('#form-candidato')
 
@@ -127,8 +164,9 @@ export async function renderCadastroCandidato(): Promise<void> {
             const email = dados.get('email') as string
             const idade = Number(dados.get('idade'))
             const cpf = dados.get('cpf') as string
+            const pais = selectPais.selectedOptions[0]?.textContent?.trim() ?? ''
             const estado = dados.get('estado') as string
-            const cep = dados.get('cep') as string
+            const codigoPostal = dados.get('codigoPostal') as string
             const descricao = dados.get('descricao') as string
 
             const competencias = (dados.get('competencias') as string)
@@ -139,9 +177,13 @@ export async function renderCadastroCandidato(): Promise<void> {
             ValidarCandidato.validarNome(nome)
             ValidarCandidato.validarEmail(email)
             ValidarCandidato.validarCpf(cpf)
+            ValidarCandidato.validarPais(pais)
             ValidarCandidato.validarIdade(idade)
             ValidarCandidato.validarEstado(estado)
-            ValidarCandidato.validarCep(cep)
+            ValidarCandidato.validarCodigoPostal(
+                codigoPostal,
+                selectPais.value
+            )
             ValidarCandidato.validarDescricao(descricao)
             ValidarCandidato.validarCompetencias(competencias)
 
@@ -150,8 +192,9 @@ export async function renderCadastroCandidato(): Promise<void> {
                 email,
                 idade,
                 cpf,
+                pais,
                 estado,
-                cep,
+                cep: codigoPostal,
                 descricao,
                 competencias
             }

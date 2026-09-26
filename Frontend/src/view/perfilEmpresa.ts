@@ -24,7 +24,7 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                 <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
                 <p><strong>País:</strong> ${empresa.pais}</p>
                 <p><strong>Estado:</strong> ${empresa.estado}</p>
-                <p><strong>CEP:</strong> ${empresa.cep}</p>
+                <p><strong>Código Postal:</strong> ${empresa.cep}</p>
                 <p><strong>Descrição:</strong> ${empresa.descricao}</p>
                 <p>
                     <strong>Competências:</strong>

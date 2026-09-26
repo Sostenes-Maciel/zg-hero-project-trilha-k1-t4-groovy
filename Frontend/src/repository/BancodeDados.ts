@@ -8,6 +8,7 @@ export class BancodeDados {
         {
             nome: 'Sóstenes Maciel',
             email: 'sosmarques@hotmail.com',
+            pais: 'Brasil',
             estado: 'PE',
             cep: '55299-300',
             descricao: 'Estagiário ZG.',
@@ -18,6 +19,7 @@ export class BancodeDados {
         {
             nome: 'José da Silva',
             email: 'jose@outlook.com',
+            pais: 'Brasil',
             estado: 'SP',
             cep: '11222-333',
             descricao: 'Estudante de ciências da computação',
@@ -28,6 +30,7 @@ export class BancodeDados {
         {
             nome: 'Paulo André',
             email: 'paulo@hotmail.com',
+            pais: 'Brasil',
             estado: 'RJ',
             cep: '55210-300',
             descricao: 'Estagiário de TI.',
@@ -38,6 +41,7 @@ export class BancodeDados {
         {
             nome: 'Ana Julia',
             email: 'anajj@hotmail.com',
+            pais: 'Brasil',
             estado: 'BA',
             cep: '88855-000',
             descricao: 'Recém formada em redes.',
@@ -48,6 +52,7 @@ export class BancodeDados {
         {
             nome: 'Vitor Pereira',
             email: 'vitor@hotmail.com',
+            pais: 'Brasil',
             estado: 'GO',
             cep: '65432-300',
             descricao: 'Tutor acelera.',

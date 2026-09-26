@@ -3,6 +3,7 @@ import {renderListaCandidatos} from "./listaCandidatos.ts";
 import {renderListaVagas} from "./listaVagas.ts";
 
 export function renderPerfilCandidato(candidato: Candidato): void {
+    console.log("Dados do candidato:", candidato);
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -19,6 +20,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
                 <p><strong>E-mail:</strong> ${candidato.email}</p>
                 <p><strong>Idade:</strong> ${candidato.idade}</p>
                 <p><strong>CPF:</strong> ${candidato.cpf}</p>
+                <p><strong>Pais:</strong> ${candidato.pais}</p>
                 <p><strong>Estado:</strong> ${candidato.estado}</p>
                 <p><strong>CEP:</strong> ${candidato.cep}</p>
                 <p><strong>Descrição:</strong> ${candidato.descricao}</p>
