@@ -69,11 +69,40 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
             ? calcularAfinidade(candidato, vaga.empresa)
             : null
 
+        const curtiu = candidato
+            ? BancodeDados.candidatoCurtiuVaga(candidato, vaga)
+            : false
+
+        const temMatch = candidato
+            ? BancodeDados.candidatoTemMatchComVaga(candidato, vaga)
+            : false
+
+        const iconeCurtida = temMatch
+            ? '🤝'
+            : curtiu
+                ? '♥'
+                : '♡'
+
         linha.innerHTML = `
             <td>${vaga.titulo}</td>
             <td>Match necessário para visualização</td>
             <td>${afinidade !== null ? `${afinidade}%` : '—'}</td>
             <td>
+                <button
+                    class="btn-curtir-vaga"
+                    data-id="${vaga.id}"
+                    title="${
+                            temMatch
+                                ? 'Match confirmado!'
+                                : curtiu
+                                    ? 'Vaga curtida'
+                                    : 'Curtir vaga'
+                        }"
+                    ${temMatch ? 'disabled' : ''}
+                >
+                    ${iconeCurtida}
+                </button>
+            
                 <button class="btn-perfil-vaga" data-id="${vaga.id}">
                     Ver vaga
                 </button>
@@ -108,6 +137,32 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
             const encontrou = titulo.includes(termo)
 
             linha.hidden = !encontrou
+        })
+    })
+
+    const botoesCurtirVaga = document.querySelectorAll<HTMLButtonElement>(
+        '.btn-curtir-vaga'
+    )
+
+    botoesCurtirVaga.forEach(botao => {
+        botao.addEventListener('click', () => {
+            if (!candidato) {
+                return
+            }
+
+            const vagaId = Number(botao.dataset.id)
+
+            const vaga = BancodeDados.vagas.find(
+                vaga => vaga.id === vagaId
+            )
+
+            if (!vaga) {
+                return
+            }
+
+            BancodeDados.curtirVaga(candidato, vaga)
+
+            renderListaVagas(onVoltar, candidato)
         })
     })
 

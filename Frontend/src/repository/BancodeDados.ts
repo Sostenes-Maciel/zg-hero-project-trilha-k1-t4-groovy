@@ -1,6 +1,8 @@
 import type {Candidato} from "../model/Candidato.ts";
 import type {Empresa} from "../model/Empresa.ts";
 import type {Vaga} from "../model/Vaga.ts";
+import type {Curtida} from "../model/Curtida.ts";
+import type {Match} from "../model/Match.ts";
 
 export class BancodeDados {
 
@@ -116,6 +118,8 @@ export class BancodeDados {
     ]
 
     static vagas: Vaga[] = []
+    static curtidas: Curtida[] = []
+    static matches: Match[] = []
 
     static inicializar(): void {
         const candidatosSalvos = localStorage.getItem('candidatos')
@@ -154,7 +158,7 @@ export class BancodeDados {
                     estado: 'SP',
                     descricao: 'profissional em início de carreira focado em criar, corrigir e manter sistemas back-end utilizando a linguagem Java, sempre com o suporte de desenvolvedores mais experientes.Principais ResponsabilidadesDesenvolvimento de rotinas: Implementar pequenas funcionalidades e componentes definidos pela equipe sênior.Correção de bugs: Identificar e resolver falhas simples no código existente.Testes e depuração: Realizar testes unitários e validar se o código funciona corretamente.Documentação: Escrever registros básicos sobre as alterações e funcionalidades desenvolvidas.',
                     competencias: ['Java', 'Angular', 'React', 'English'],
-                    empresa: this.empresas[0]
+                    empresa: this.empresas[1]
                 },
                 {
                     id: 2,
@@ -163,7 +167,7 @@ export class BancodeDados {
                     pais: 'Brasil',
                     estado: 'PE',
                     competencias: ['Node.js', 'JavaScript', 'Git'],
-                    empresa: this.empresas[1]
+                    empresa: this.empresas[2]
 
                 },
                 {
@@ -173,7 +177,7 @@ export class BancodeDados {
                     pais: 'Brasil',
                     estado: 'PE',
                     competencias: ['Java', 'Spring Boot', 'Git'],
-                    empresa: this.empresas[2]
+                    empresa: this.empresas[3]
                 },
                 {
                     id: 4,
@@ -182,7 +186,7 @@ export class BancodeDados {
                     pais: 'Brasil',
                     estado: 'PE',
                     competencias: ['Python', 'Git', 'SQL'],
-                    empresa: this.empresas[3]
+                    empresa: this.empresas[4]
                 },
                 {
                     id: 5,
@@ -191,7 +195,7 @@ export class BancodeDados {
                     pais: 'Brasil',
                     estado: 'PE',
                     competencias: ['TypeScript', 'JavaScript', 'Git'],
-                    empresa: this.empresas[4]
+                    empresa: this.empresas[5]
                 },
 
             ]
@@ -287,5 +291,167 @@ export class BancodeDados {
             console.error('Erro ao excluir empresa:', erro)
             throw new Error('Não foi possível excluir a empresa.')
         }
+    }
+
+    static curtirVaga(
+        candidato: Candidato,
+        vaga: Vaga
+    ): void {
+        const matchExistente = this.matches.some(
+            match =>
+                match.candidato.cpf === candidato.cpf &&
+                match.vaga.id === vaga.id
+        )
+
+        if (matchExistente) {
+            return
+        }
+
+        const indiceCurtida = this.curtidas.findIndex(
+            curtida =>
+                curtida.candidato.cpf === candidato.cpf &&
+                curtida.vaga?.id === vaga.id
+        )
+
+        if (indiceCurtida !== -1) {
+            this.curtidas.splice(indiceCurtida, 1)
+            return
+        }
+
+        this.curtidas.push({
+            candidato,
+            vaga
+        })
+
+        this.verificarMatch(candidato, vaga)
+    }
+
+    static curtirCandidato(
+        empresa: Empresa,
+        candidato: Candidato
+    ): void {
+        const matchExistente = this.matches.some(
+            match =>
+                match.empresa.cnpj === empresa.cnpj &&
+                match.candidato.cpf === candidato.cpf
+        )
+
+        if (matchExistente) {
+            return
+        }
+
+        const indiceCurtida = this.curtidas.findIndex(
+            curtida =>
+                curtida.empresa?.cnpj === empresa.cnpj &&
+                curtida.candidato.cpf === candidato.cpf
+        )
+
+        if (indiceCurtida !== -1) {
+            this.curtidas.splice(indiceCurtida, 1)
+            return
+        }
+
+        this.curtidas.push({
+            candidato,
+            empresa
+        })
+
+        const vagasCurtidas = this.curtidas
+            .filter(
+                curtida =>
+                    curtida.candidato.cpf === candidato.cpf &&
+                    curtida.vaga?.empresa.cnpj === empresa.cnpj
+            )
+            .map(curtida => curtida.vaga)
+
+        vagasCurtidas.forEach(vaga => {
+            if (vaga) {
+                this.verificarMatch(candidato, vaga)
+            }
+        })
+    }
+
+    static verificarMatch(
+        candidato: Candidato,
+        vaga: Vaga
+    ): void {
+        const empresa = vaga.empresa
+
+        const candidatoCurtiuVaga = this.curtidas.some(
+            curtida =>
+                curtida.candidato.cpf === candidato.cpf &&
+                curtida.vaga?.id === vaga.id
+        )
+
+        const empresaCurtiuCandidato = this.curtidas.some(
+            curtida =>
+                curtida.empresa?.cnpj === empresa.cnpj &&
+                curtida.candidato.cpf === candidato.cpf
+        )
+
+        if (!candidatoCurtiuVaga || !empresaCurtiuCandidato) {
+            return
+        }
+
+        const matchExistente = this.matches.some(
+            match =>
+                match.candidato.cpf === candidato.cpf &&
+                match.empresa.cnpj === empresa.cnpj &&
+                match.vaga.id === vaga.id
+        )
+
+        if (matchExistente) {
+            return
+        }
+
+        this.matches.push({
+            candidato,
+            empresa,
+            vaga
+        })
+    }
+
+    static candidatoCurtiuVaga(
+        candidato: Candidato,
+        vaga: Vaga
+    ): boolean {
+        return this.curtidas.some(
+            curtida =>
+                curtida.candidato.cpf === candidato.cpf &&
+                curtida.vaga?.id === vaga.id
+        )
+    }
+
+    static candidatoTemMatchComVaga(
+        candidato: Candidato,
+        vaga: Vaga
+    ): boolean {
+        return this.matches.some(
+            match =>
+                match.candidato.cpf === candidato.cpf &&
+                match.vaga.id === vaga.id
+        )
+    }
+
+    static empresaCurtiuCandidato(
+        empresa: Empresa,
+        candidato: Candidato
+    ): boolean {
+        return this.curtidas.some(
+            curtida =>
+                curtida.empresa?.cnpj === empresa.cnpj &&
+                curtida.candidato.cpf === candidato.cpf
+        )
+    }
+
+    static empresaTemMatchComCandidato(
+        empresa: Empresa,
+        candidato: Candidato
+    ): boolean {
+        return this.matches.some(
+            match =>
+                match.empresa.cnpj === empresa.cnpj &&
+                match.candidato.cpf === candidato.cpf
+        )
     }
 }

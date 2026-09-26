@@ -1,8 +1,8 @@
-import type { Empresa } from '../model/Empresa'
-import { BancodeDados } from '../repository/BancodeDados'
+import type {Empresa} from '../model/Empresa'
+import {BancodeDados} from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./listaEmpresas.ts";
-import { renderViewCadastroVaga } from '../service/cadastroVaga'
+import {renderViewCadastroVaga} from '../service/cadastroVaga'
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 
 function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
@@ -56,7 +56,9 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                     <tr>
                         <th>Candidato</th>
                         <th>Competência</th>
+                        <th>ação</th
                         <th>Afinidade</th>
+                        
                     </tr>
                 </thead>
 
@@ -154,15 +156,80 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
             .join(' ')
             .toLowerCase()
 
+        const curtiu = BancodeDados.empresaCurtiuCandidato(
+            empresa,
+            candidato
+        )
+
+        const temMatch = BancodeDados.empresaTemMatchComCandidato(
+            empresa,
+            candidato
+        )
+
+        const iconeCurtida = temMatch
+            ? '🤝'
+            : curtiu
+                ? '♥'
+                : '♡'
+
         const afinidade = calcularAfinidade(candidato, empresa)
 
         linha.innerHTML = `
-        <td>Match necessário para visualização</td>
-        <td>${candidato.competencias.join(', ')}</td>
-        <td>${afinidade}%</td>
-    `
+            <td>Match necessário para visualização</td>
+            <td>${candidato.competencias.join(', ')}</td>
+            <td>
+                <button
+                    class="btn-curtir-candidato"
+                    data-cpf="${candidato.cpf}"
+                    title="${
+            temMatch
+                ? 'Match confirmado'
+                : curtiu
+                    ? 'Candidato curtido'
+                    : 'Curtir candidato'
+        }"
+                    ${temMatch ? 'disabled' : ''}
+                >
+                    ${iconeCurtida}
+                </button>
+            </td>
+            <td>${afinidade}%</td>
+        `
 
         lista.appendChild(linha)
+    })
+
+    const botoesCurtirCandidato =
+        document.querySelectorAll<HTMLButtonElement>(
+            '.btn-curtir-candidato'
+        )
+
+    botoesCurtirCandidato.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const cpf = botao.dataset.cpf
+
+            if (!cpf) {
+                return
+            }
+
+            const candidato = BancodeDados.candidatos.find(
+                candidato => candidato.cpf === cpf
+            )
+
+            if (!candidato) {
+                return
+            }
+
+            const posicaoScroll = window.scrollY
+
+            BancodeDados.curtirCandidato(empresa, candidato)
+
+            renderPerfilEmpresa(empresa)
+
+            requestAnimationFrame(() => {
+                window.scrollTo(0, posicaoScroll)
+            })
+        })
     })
 
     const filtroCompetencia = document.querySelector<HTMLInputElement>(
