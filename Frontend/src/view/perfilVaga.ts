@@ -1,7 +1,8 @@
 import { BancodeDados } from '../repository/BancodeDados'
 import { renderListaVagas } from './listaVagas'
+import type {Candidato} from "../model/Candidato.ts";
 
-export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
+export function renderPerfilVaga(vagaId: number, onVoltar?: () => void, candidato?: Candidato): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -23,6 +24,10 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
         })
         return
     }
+
+    const temMatch = candidato
+        ? BancodeDados.candidatoTemMatchComVaga(candidato, vagaEncontrada)
+        : false
 
     app.innerHTML = `
         <section class="perfil-vaga">
@@ -56,7 +61,9 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void): void {
             
                 <p>
                     <strong>Empresa:</strong>
-                    Match necessário para visualização
+                    ${temMatch
+                        ? vagaEncontrada.empresa.nome
+                        : 'Match necessário para visualização'}
                 </p>
             </div>
             <br>

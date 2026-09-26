@@ -51,17 +51,16 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                 >
             </div>
 
-            <table>
+            <table class="tabela-candidatos">
                 <thead>
                     <tr>
-                        <th>Candidato</th>
-                        <th>Competência</th>
-                        <th>ação</th
-                        <th>Afinidade</th>
-                        
+                        <th class="coluna-candidato">Candidato</th>
+                        <th class="coluna-competencias">Competências</th>
+                        <th class="coluna-afinidade">Afinidade</th>
+                        <th class="coluna-acao">Ação</th>
                     </tr>
                 </thead>
-
+            
                 <tbody id="lista-candidatos-empresa">
                 </tbody>
             </table>
@@ -172,28 +171,35 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                 ? '♥'
                 : '♡'
 
-        const afinidade = calcularAfinidade(candidato, empresa)
-
         linha.innerHTML = `
-            <td>Match necessário para visualização</td>
-            <td>${candidato.competencias.join(', ')}</td>
-            <td>
+            <td class="coluna-candidato">
+                ${temMatch ? candidato.nome : 'Match necessário para visualização'}
+            </td>
+        
+            <td class="coluna-competencias">
+                ${candidato.competencias.join(', ')}
+            </td>
+        
+            <td class="coluna-afinidade">
+                ${calcularAfinidade(candidato, empresa)}%
+            </td>
+        
+            <td class="coluna-acao">
                 <button
                     class="btn-curtir-candidato"
                     data-cpf="${candidato.cpf}"
                     title="${
-            temMatch
-                ? 'Match confirmado'
-                : curtiu
-                    ? 'Candidato curtido'
-                    : 'Curtir candidato'
-        }"
+                    temMatch
+                        ? 'Match confirmado'
+                        : curtiu
+                            ? 'Candidato curtido'
+                            : 'Curtir candidato'
+                }"
                     ${temMatch ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
                 </button>
             </td>
-            <td>${afinidade}%</td>
         `
 
         lista.appendChild(linha)

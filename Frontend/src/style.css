@@ -962,3 +962,25 @@ body:has(#app > h1) #rodape {
 #form-vaga > button + button {
     margin-left: 8px;
 }
+.tabela-candidatos {
+    table-layout: auto !important;
+}
+
+.tabela-candidatos th,
+.tabela-candidatos td {
+    width: auto !important;
+    padding: 12px 20px;
+    vertical-align: middle;
+}
+
+.tabela-candidatos .coluna-afinidade {
+    white-space: nowrap;
+    text-align: center;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.tabela-candidatos .coluna-acao {
+    white-space: nowrap;
+    text-align: center;
+}

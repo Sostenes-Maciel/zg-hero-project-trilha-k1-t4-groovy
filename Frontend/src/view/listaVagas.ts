@@ -1,5 +1,5 @@
-import { BancodeDados } from '../repository/BancodeDados'
-import { renderPerfilVaga } from './perfilVaga.ts'
+import {BancodeDados} from '../repository/BancodeDados'
+import {renderPerfilVaga} from './perfilVaga.ts'
 import type {Candidato} from "../model/Candidato.ts";
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 
@@ -85,19 +85,23 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
 
         linha.innerHTML = `
             <td>${vaga.titulo}</td>
-            <td>Match necessário para visualização</td>
+            <td>
+                ${temMatch
+            ? vaga.empresa.nome
+            : 'Match necessário para visualização'}
+            </td>
             <td>${afinidade !== null ? `${afinidade}%` : '—'}</td>
             <td>
                 <button
                     class="btn-curtir-vaga"
                     data-id="${vaga.id}"
                     title="${
-                            temMatch
-                                ? 'Match confirmado!'
-                                : curtiu
-                                    ? 'Vaga curtida'
-                                    : 'Curtir vaga'
-                        }"
+            temMatch
+                ? 'Match confirmado!'
+                : curtiu
+                    ? 'Vaga curtida'
+                    : 'Curtir vaga'
+        }"
                     ${temMatch ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
@@ -176,7 +180,7 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
 
             renderPerfilVaga(vagaId, () => {
                 renderListaVagas(onVoltar, candidato)
-            })
+            }, candidato)
         })
     })
 }
