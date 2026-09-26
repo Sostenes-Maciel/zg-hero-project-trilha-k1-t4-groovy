@@ -1,4 +1,4 @@
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 import type { Empresa } from '../model/Empresa.ts'
 import type {Vaga} from "../model/Vaga.ts";
 import {getCountries, getStatesOfCountry} from "@countrystatecity/countries-browser";

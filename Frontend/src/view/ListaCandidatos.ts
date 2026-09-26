@@ -1,4 +1,4 @@
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 import {renderPerfilCandidato} from "./PerfilCandidato.ts";
 import {confirmarExclusao} from "../components/Confirmacao.ts";
 

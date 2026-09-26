@@ -1,5 +1,5 @@
 import type { Empresa } from '../model/Empresa'
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 
 export function renderListaMatchesEmpresa(
     empresa: Empresa,

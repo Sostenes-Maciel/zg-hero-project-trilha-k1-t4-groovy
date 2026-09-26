@@ -1,5 +1,5 @@
 import './style.css'
-import {BancodeDados} from './repository/BancodeDados'
+import {BancodeDados} from './dao/BancodeDados'
 import { configurarMenu } from './components/Menu.ts'
 
 

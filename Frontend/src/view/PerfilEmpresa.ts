@@ -1,5 +1,5 @@
 import type {Empresa} from '../model/Empresa'
-import {BancodeDados} from '../repository/BancodeDados'
+import {BancodeDados} from '../dao/BancodeDados'
 import {Chart} from "chart.js/auto";
 import {renderListaEmpresas} from "./ListaEmpresas.ts";
 import {renderViewCadastroVaga} from '../service/CadastroVaga.ts'

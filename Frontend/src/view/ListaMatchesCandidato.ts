@@ -1,5 +1,5 @@
 import type { Candidato } from '../model/Candidato'
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 
 export function renderListaMatchesCandidato(
     candidato: Candidato,

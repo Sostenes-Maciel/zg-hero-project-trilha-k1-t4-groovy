@@ -1,4 +1,4 @@
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 import { renderListaVagas } from './ListaVagas.ts'
 import type {Candidato} from "../model/Candidato.ts";
 

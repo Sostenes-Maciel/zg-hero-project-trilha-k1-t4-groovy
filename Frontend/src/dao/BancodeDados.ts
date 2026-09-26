@@ -195,7 +195,7 @@ export class BancodeDados {
                     pais: 'Brasil',
                     estado: 'PE',
                     competencias: ['TypeScript', 'JavaScript', 'Git'],
-                    empresa: this.empresas[5]
+                    empresa: this.empresas[4]
                 },
 
             ]

@@ -1,4 +1,4 @@
-import {BancodeDados} from '../repository/BancodeDados'
+import {BancodeDados} from '../dao/BancodeDados'
 import {renderPerfilVaga} from './PerfilVaga.ts'
 import type {Candidato} from "../model/Candidato.ts";
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";

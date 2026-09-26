@@ -167,7 +167,7 @@ br.com.zg.acelera.service
 
 Contém o `GerenciadorDePerfis`, responsável pela **lógica de negócio** e pelo gerenciamento dos fluxos relacionados aos cadastros.
 
-### `repository`
+### `dao`
 
 Pacote:
 
@@ -258,13 +258,6 @@ Frontend
 * Chart.js — criação do gráfico de competências no perfil da empresa.
 * Country State City (@countrystatecity/countries-browser) — carregamento de países e estados no cadastro de empresas.
 * LocalStorage — persistência dos dados cadastrados no navegador.
-
-Backend
-
-* Groovy — linguagem utilizada na implementação do backend.
-* Gradle — gerenciamento e build do projeto.
-* JUnit — testes automatizados.
-* Git e GitHub — versionamento e hospedagem do código.
 
 **Arquitetura**
 
@@ -379,6 +372,37 @@ src/service/calcularAfinidade.ts
 
 Essa função é reutilizada tanto na lista de vagas quanto na lista de candidatos do perfil da empresa.
 
+# Atualização - Modelagem de Banco de Dados (Parte 1)
+
+Este repositório contém a primeira parte do desenvolvimento da aplicação LinkeTinder (projeto ZG-HERO), focada na modelagem e criação do Banco de Dados Relacional.
+
+## O que foi feito
+- Criação do Diagrama Entidade-Relacionamento (DER).
+- Criação do script `.sql` para geração do banco de dados no PostgreSQL.
+- Inserção de dados para testes baseados nos modelos reais da aplicação (5 candidatos, 5 empresas, vagas e competências).
+- Criação de Queries SQL para validação dos relacionamentos.
+
+## Ferramentas Utilizadas
+- **Banco de Dados:** PostgreSQL
+- **Modelagem do DER:** Foi utilizado o software [erddocs.com](https://erddocs.com) para a criação do diagrama.
+
+## Estrutura do Banco de Dados (Tabelas)
+O banco foi modelado atendendo aos requisitos da aplicação:
+1. `candidato`: Armazena os dados dos candidatos (CPF como PK).
+2. `empresa`: Armazena os dados das empresas (CNPJ como PK).
+3. `competencia`: Tabela de habilidades/tecnologias.
+4. `vaga`: Vagas publicadas pelas empresas.
+   *Tabelas auxiliares:* `candidato_competencia`, `empresa_competencia`, `vaga_competencia`, `curtida` e `match` para lidar com os relacionamentos N:N e regras de negócio.
+
+## Modelo DER
+
+![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.jpg)
+
+## Como executar
+1. Clone este repositório.
+2. Abra o seu servidor PostgreSQL (via pgAdmin, DBeaver ou terminal).
+3. Crie um banco de dados vazio chamado `linketinder`.
+4. Execute o arquivo `linketinder_db.sql` contido neste repositório para criar a estrutura e inserir os dados.
 
 ## Autor
 

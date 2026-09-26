@@ -1,4 +1,4 @@
-import { BancodeDados } from '../repository/BancodeDados'
+import { BancodeDados } from '../dao/BancodeDados'
 import renderPerfilEmpresa from './PerfilEmpresa.ts'
 import {confirmarExclusao} from "../components/Confirmacao.ts";
 

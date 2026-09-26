@@ -1,5 +1,5 @@
 import type {Candidato} from '../model/Candidato.ts'
-import {BancodeDados} from '../repository/BancodeDados.ts'
+import {BancodeDados} from '../dao/BancodeDados.ts'
 import {ValidarCandidato} from './ValidarCandidato.ts'
 import {
     getCountries,
