@@ -1,6 +1,6 @@
 import type { Candidato } from '../model/Candidato'
-import {renderListaCandidatos} from "./listaCandidatos.ts";
-import {renderListaVagas} from "./listaVagas.ts";
+import {renderListaCandidatos} from "./ListaCandidatos.ts";
+import {renderListaVagas} from "./ListaVagas.ts";
 
 export function renderPerfilCandidato(candidato: Candidato): void {
     console.log("Dados do candidato:", candidato);

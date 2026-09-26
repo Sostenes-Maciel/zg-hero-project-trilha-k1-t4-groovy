@@ -1,5 +1,5 @@
 import { BancodeDados } from '../repository/BancodeDados'
-import {renderPerfilCandidato} from "./perfilCandidato.ts";
+import {renderPerfilCandidato} from "./PerfilCandidato.ts";
 
 export function renderListaCandidatos(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')

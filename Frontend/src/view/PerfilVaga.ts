@@ -1,5 +1,5 @@
 import { BancodeDados } from '../repository/BancodeDados'
-import { renderListaVagas } from './listaVagas'
+import { renderListaVagas } from './ListaVagas.ts'
 import type {Candidato} from "../model/Candidato.ts";
 
 export function renderPerfilVaga(vagaId: number, onVoltar?: () => void, candidato?: Candidato): void {

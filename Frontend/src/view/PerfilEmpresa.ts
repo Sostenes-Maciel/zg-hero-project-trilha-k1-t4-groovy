@@ -1,8 +1,8 @@
 import type {Empresa} from '../model/Empresa'
 import {BancodeDados} from '../repository/BancodeDados'
 import {Chart} from "chart.js/auto";
-import {renderListaEmpresas} from "./listaEmpresas.ts";
-import {renderViewCadastroVaga} from '../service/cadastroVaga'
+import {renderListaEmpresas} from "./ListaEmpresas.ts";
+import {renderViewCadastroVaga} from '../service/CadastroVaga.ts'
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 
 function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
@@ -79,8 +79,8 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     )
 
     botaoCadastrarVaga?.addEventListener('click', () => {
-        renderViewCadastroVaga(() => {
-            renderPerfilEmpresa(empresa); // Re-desenha o perfil desta mesma empresa
+        void renderViewCadastroVaga(() => {
+            renderPerfilEmpresa(empresa);
         });
 
     })
@@ -100,7 +100,8 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
         )
 
         if (!canvas) {
-            throw new Error('Canvas do gráfico não encontrado.')
+            console.error('Canvas do gráfico não encontrado.')
+            return
         }
 
         new Chart(canvas, {

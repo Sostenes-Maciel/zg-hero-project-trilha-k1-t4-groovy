@@ -1,6 +1,6 @@
 import type { Empresa } from '../model/Empresa.ts'
 import { BancodeDados } from '../repository/BancodeDados.ts'
-import { ValidarEmpresa } from './validarEmpresa.ts'
+import { ValidarEmpresa } from './ValidarEmpresa.ts'
 import {
     getCountries,
     getStatesOfCountry

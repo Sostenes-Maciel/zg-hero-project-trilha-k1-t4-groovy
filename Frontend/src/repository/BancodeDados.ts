@@ -454,4 +454,19 @@ export class BancodeDados {
                 match.candidato.cpf === candidato.cpf
         )
     }
+    static getMatchesDoCandidato(
+        candidato: Candidato
+    ): Match[] {
+        return this.matches.filter(
+            match => match.candidato.cpf === candidato.cpf
+        )
+    }
+
+    static getMatchesDaEmpresa(
+        empresa: Empresa
+    ): Match[] {
+        return this.matches.filter(
+            match => match.empresa.cnpj === empresa.cnpj
+        )
+    }
 }

@@ -1,7 +1,7 @@
-import { renderCadastroCandidato } from '../service/cadastroCandidato.ts'
-import { renderListaCandidatos } from '../view/listaCandidatos'
-import { renderCadastroEmpresa } from '../service/cadastroEmpresa.ts'
-import { renderListaEmpresas } from '../view/listaEmpresas'
+import { renderCadastroCandidato } from '../service/CadastroCandidato.ts'
+import { renderListaCandidatos } from '../view/ListaCandidatos.ts'
+import { renderCadastroEmpresa } from '../service/CadastroEmpresa.ts'
+import { renderListaEmpresas } from '../view/ListaEmpresas.ts'
 
 export function configurarMenu(): void {
     document.querySelector<HTMLButtonElement>(

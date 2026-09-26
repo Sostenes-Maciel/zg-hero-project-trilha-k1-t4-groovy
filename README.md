@@ -289,7 +289,7 @@ Frontend/
 │   ├── style.css
 │   │
 │   ├── components/
-│   │   └── menu.ts
+│   │   └── Menu.ts
 │   │
 │   ├── model/
 │   │   ├── Candidato.ts
@@ -300,19 +300,19 @@ Frontend/
 │   │   └── BancodeDados.ts
 │   │
 │   ├── service/
-│   │   ├── cadastroCandidato.ts
-│   │   ├── cadastroEmpresa.ts
-│   │   ├── cadastroVaga.ts
-│   │   ├── validarCandidato.ts
-│   │   └── validarEmpresa.ts
+│   │   ├── CadastroCandidato.ts
+│   │   ├── CadastroEmpresa.ts
+│   │   ├── CadastroVaga.ts
+│   │   ├── ValidarCandidato.ts
+│   │   └── ValidarEmpresa.ts
 │   │
 │   └── view/
-│       ├── listaCandidatos.ts
-│       ├── listaEmpresas.ts
-│       ├── listaVagas.ts
-│       ├── perfilCandidato.ts
-│       ├── perfilEmpresa.ts
-│       └── perfilVaga.ts
+│       ├── ListaCandidatos.ts
+│       ├── ListaEmpresas.ts
+│       ├── ListaVagas.ts
+│       ├── PerfilCandidato.ts
+│       ├── PerfilEmpresa.ts
+│       └── PerfilVaga.ts
 ```
 
 
