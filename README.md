@@ -396,7 +396,7 @@ O banco foi modelado atendendo aos requisitos da aplicação:
 
 ## Modelo DER
 
-![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.jpg)
+![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.png)
 
 ## Como executar
 1. Clone este repositório.
