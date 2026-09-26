@@ -175,6 +175,16 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
 
             renderListaVagas(onVoltar, candidato)
 
+            if (!criouMatch) {
+                requestAnimationFrame(() => {
+                    const botaoAtual = document.querySelector<HTMLButtonElement>(
+                        `.btn-curtir-vaga[data-id="${vaga.id}"]`
+                    )
+
+                    botaoAtual?.classList.add('curtida-animada')
+                })
+            }
+
             if (criouMatch) {
                 mostrarAnimacaoMatch()
             }

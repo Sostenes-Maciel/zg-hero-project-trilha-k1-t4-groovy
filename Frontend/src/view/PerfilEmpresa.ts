@@ -243,6 +243,17 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
 
             renderPerfilEmpresa(empresa)
 
+            if (!criouMatch) {
+                requestAnimationFrame(() => {
+                    const botaoAtual =
+                        document.querySelector<HTMLButtonElement>(
+                            `.btn-curtir-candidato[data-cpf="${candidato.cpf}"]`
+                        )
+
+                    botaoAtual?.classList.add('curtida-animada')
+                })
+            }
+
             if (criouMatch) {
                 mostrarAnimacaoMatch()
             }
