@@ -4,7 +4,7 @@ import type {Candidato} from "../model/Candidato.ts";
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 import {mostrarAnimacaoMatch} from "./AnimacaoMatch.ts";
 
-export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,): void {
+export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,animarTransicao: boolean = true): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -12,7 +12,7 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
     }
 
     app.innerHTML = `
-        <section>
+        <section class="lista-vagas ${animarTransicao ? 'tela-com-transicao' : ''}">
             <h1>Vagas disponíveis</h1>
             
             <div class="filtro-vagas">
@@ -40,7 +40,7 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
 
                 <tbody id="lista-vagas"></tbody>
             </table>
-        </section>
+        </>
     `
 
     const lista = document.querySelector<HTMLTableSectionElement>(
@@ -172,8 +172,15 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
                     candidato,
                     vaga
                 )
+            const app = document.querySelector<HTMLDivElement>('#app')
 
-            renderListaVagas(onVoltar, candidato)
+            app?.classList.add('sem-transicao')
+
+            renderListaVagas(onVoltar, candidato, false)
+
+            requestAnimationFrame(() => {
+                app?.classList.remove('sem-transicao')
+            })
 
             if (!criouMatch) {
                 requestAnimationFrame(() => {

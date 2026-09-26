@@ -12,7 +12,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
     }
 
     app.innerHTML = `
-        <section class="perfil-candidato">
+        <section class="perfil-candidato tela-com-transicao">            
             <h1>Perfil do Candidato</h1>
 
             <div class="card-perfil">

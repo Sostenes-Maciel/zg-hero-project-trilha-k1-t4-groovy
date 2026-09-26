@@ -7,7 +7,7 @@ import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 import {renderListaMatchesEmpresa} from "./ListaMatchesEmpresa.ts";
 import {mostrarAnimacaoMatch} from "./AnimacaoMatch.ts";
 
-function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
+function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
     const app = document.querySelector<HTMLDivElement>('#app')
 
     if (!app) {
@@ -15,7 +15,7 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     }
 
     app.innerHTML = `
-        <section>
+        <section class="perfil-empresa ${animarTransicao ? 'tela-com-transicao' : ''}">
             <h1>Perfil da Empresa</h1>
             <p id = "mensagem"></p>
 
@@ -77,6 +77,7 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
 
     if (mensagemSucesso && mensagem) {
         mensagem.textContent = mensagemSucesso
+        mensagem.classList.add('mensagem-sucesso')
     }
     const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>(
         '#btn-cadastrar-vaga'
@@ -84,7 +85,7 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
 
     botaoCadastrarVaga?.addEventListener('click', () => {
         void renderViewCadastroVaga(() => {
-            renderPerfilEmpresa(empresa);
+            renderPerfilEmpresa(empresa)
         });
 
     })
@@ -241,7 +242,7 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
                     candidato
                 )
 
-            renderPerfilEmpresa(empresa)
+            renderPerfilEmpresa(empresa, undefined, false)
 
             if (!criouMatch) {
                 requestAnimationFrame(() => {

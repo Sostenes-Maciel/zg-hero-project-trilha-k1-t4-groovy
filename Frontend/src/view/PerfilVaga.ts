@@ -30,7 +30,7 @@ export function renderPerfilVaga(vagaId: number, onVoltar?: () => void, candidat
         : false
 
     app.innerHTML = `
-        <section class="perfil-vaga">
+        <section class="perfil-vaga tela-com-transicao">
             <h1>Detalhes da Vaga</h1>
             
             <div class="card-vaga">

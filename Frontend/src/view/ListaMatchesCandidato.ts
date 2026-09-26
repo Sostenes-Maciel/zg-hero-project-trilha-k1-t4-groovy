@@ -17,7 +17,7 @@ export function renderListaMatchesCandidato(
         BancodeDados.getCurtidasPendentesDoCandidato(candidato)
 
     app.innerHTML = `
-        <section class="lista-matches">
+        <section class="lista-matches tela-com-transicao">
             <h1>Meus Matches</h1>
             
             <h2>Curtidas aguardando Match</h2>
