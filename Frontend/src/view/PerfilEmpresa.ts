@@ -5,6 +5,7 @@ import {renderListaEmpresas} from "./ListaEmpresas.ts";
 import {renderViewCadastroVaga} from '../service/CadastroVaga.ts'
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
 import {renderListaMatchesEmpresa} from "./ListaMatchesEmpresa.ts";
+import {mostrarAnimacaoMatch} from "./AnimacaoMatch.ts";
 
 function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -234,7 +235,17 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string): void {
 
             BancodeDados.curtirCandidato(empresa, candidato)
 
+            const criouMatch =
+                BancodeDados.empresaTemMatchComCandidato(
+                    empresa,
+                    candidato
+                )
+
             renderPerfilEmpresa(empresa)
+
+            if (criouMatch) {
+                mostrarAnimacaoMatch()
+            }
 
             requestAnimationFrame(() => {
                 window.scrollTo(0, posicaoScroll)

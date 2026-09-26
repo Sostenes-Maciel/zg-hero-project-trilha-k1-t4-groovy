@@ -2,6 +2,7 @@ import {BancodeDados} from '../repository/BancodeDados'
 import {renderPerfilVaga} from './PerfilVaga.ts'
 import type {Candidato} from "../model/Candidato.ts";
 import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
+import {mostrarAnimacaoMatch} from "./AnimacaoMatch.ts";
 
 export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,): void {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -166,7 +167,17 @@ export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato,):
 
             BancodeDados.curtirVaga(candidato, vaga)
 
+            const criouMatch =
+                BancodeDados.candidatoTemMatchComVaga(
+                    candidato,
+                    vaga
+                )
+
             renderListaVagas(onVoltar, candidato)
+
+            if (criouMatch) {
+                mostrarAnimacaoMatch()
+            }
         })
     })
 

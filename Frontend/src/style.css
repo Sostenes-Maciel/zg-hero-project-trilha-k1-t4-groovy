@@ -984,3 +984,181 @@ body:has(#app > h1) #rodape {
     white-space: nowrap;
     text-align: center;
 }
+.overlay-match {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    animation: aparecer-overlay-match 0.25s ease-out;
+}
+
+.celebracao-match {
+    position: relative;
+    width: min(90%, 420px);
+    padding: 40px 30px;
+    text-align: center;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    animation: entrar-match 0.45s ease-out;
+    overflow: hidden;
+}
+
+.icone-celebracao {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 15px;
+    animation: pulsar-match 0.8s ease-in-out infinite alternate;
+}
+
+.celebracao-match h2 {
+    margin: 0 0 10px;
+    font-size: 32px;
+}
+
+.celebracao-match p {
+    margin: 0 0 25px;
+    font-size: 17px;
+}
+
+.celebracao-match button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.confetes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.confetes span {
+    position: absolute;
+    top: -10px;
+    font-size: 28px;
+    animation: cair-confete 1.8s linear infinite;
+}
+
+.confetes span:nth-child(1) {
+    left: 8%;
+    animation-delay: 0s;
+}
+
+.confetes span:nth-child(2) {
+    left: 20%;
+    animation-delay: 0.2s;
+}
+
+.confetes span:nth-child(3) {
+    left: 32%;
+    animation-delay: 0.5s;
+}
+
+.confetes span:nth-child(4) {
+    left: 45%;
+    animation-delay: 0.1s;
+}
+
+.confetes span:nth-child(5) {
+    left: 58%;
+    animation-delay: 0.4s;
+}
+
+.confetes span:nth-child(6) {
+    left: 70%;
+    animation-delay: 0.7s;
+}
+
+.confetes span:nth-child(7) {
+    left: 82%;
+    animation-delay: 0.3s;
+}
+
+.confetes span:nth-child(8) {
+    left: 92%;
+    animation-delay: 0.6s;
+}
+
+.overlay-match.saindo {
+    animation: desaparecer-overlay-match 0.25s ease-in forwards;
+}
+
+@keyframes aparecer-overlay-match {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes desaparecer-overlay-match {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes entrar-match {
+    from {
+        opacity: 0;
+        transform: scale(0.75);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulsar-match {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.12);
+    }
+}
+
+@keyframes cair-confete {
+    from {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(430px) rotate(180deg);
+        opacity: 0;
+    }
+}
+.curtida-animada {
+    animation: pulsar-curtida 0.35s ease-out;
+}
+
+@keyframes pulsar-curtida {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.35);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
