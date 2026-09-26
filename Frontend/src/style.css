@@ -1308,3 +1308,75 @@ body:has(#app > h1) #rodape {
     margin: 5px 0;
     text-align: center;
 }
+button {
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+.btn-curtir-vaga:hover:not(:disabled),
+.btn-curtir-candidato:hover:not(:disabled) {
+    transform: scale(1.12);
+}
+
+.btn-curtir-vaga:active:not(:disabled),
+.btn-curtir-candidato:active:not(:disabled) {
+    transform: scale(0.95);
+}
+.filtro-candidatos,
+.filtro-vagas {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 15px 18px;
+    border-radius: 10px;
+    background: #f8f8f8;
+}
+
+.filtro-candidatos label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.filtro-candidatos input {
+    flex: 1;
+    min-width: 200px;
+}
+@media (max-width: 600px) {
+    .filtro-candidatos {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtro-candidatos label {
+        white-space: normal;
+    }
+}
