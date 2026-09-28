@@ -5,7 +5,7 @@ FROM candidato c
 JOIN candidato_competencia cc ON c.cpf = cc.cpf_candidato
 JOIN competencia comp ON cc.id_competencia = comp.id_competencia;
 
--- Variação query 1: Todas as competências respectivas ao condidato na mesma linha
+-- Variação query 1: Todas as competências respectivas ao candidato na mesma linha
 SELECT
     c.nome AS candidato,
     STRING_AGG(comp.nome, ', ') AS competencias
@@ -33,3 +33,5 @@ FROM match m
 JOIN candidato c ON m.cpf_candidato = c.cpf
 JOIN empresa e ON m.cnpj_empresa = e.cnpj
 JOIN vaga v ON m.id_vaga = v.id_vaga;
+
+

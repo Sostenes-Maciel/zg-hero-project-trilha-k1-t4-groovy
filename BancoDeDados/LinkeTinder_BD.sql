@@ -124,35 +124,51 @@ INSERT INTO vaga (titulo, pais, estado, descricao, cnpj_empresa) VALUES
 
 -- Vinculando Candidatos e Competências
 INSERT INTO candidato_competencia (cpf_candidato, id_competencia) VALUES
-('123.456.789-00', 1), ('123.456.789-00', 2), ('123.456.789-00', 3), -- Sóstenes: Java, Groovy, Python
-('111.222.333-49', 4), ('111.222.333-49', 5), ('111.222.333-49', 6), -- José: Web design, BD, JS
-('123.222.433-00', 1), ('123.222.433-00', 7), ('123.222.433-00', 8), -- Paulo: Java, Gradle, Ágil
-('333.444.789-00', 3), ('333.444.789-00', 2), ('333.444.789-00', 9), -- Ana: Python, Groovy, Web
-('333.666.768-00', 1), ('333.666.768-00', 6), ('333.666.768-00', 10);-- Vitor: Java, JS, Angular
+('123.456.789-00', 1), ('123.456.789-00', 2), ('123.456.789-00', 3),
+('111.222.333-49', 4), ('111.222.333-49', 5), ('111.222.333-49', 6),
+('123.222.433-00', 1), ('123.222.433-00', 7), ('123.222.433-00', 8),
+('333.444.789-00', 3), ('333.444.789-00', 2), ('333.444.789-00', 9),
+('333.666.768-00', 1), ('333.666.768-00', 6), ('333.666.768-00', 10);
 
 -- Vinculando Empresas e Competências
 INSERT INTO empresa_competencia (cnpj_empresa, id_competencia) VALUES
-('98.765.432/0001-11', 10), ('98.765.432/0001-11', 6), ('98.765.432/0001-11', 11), -- Tech Global
-('22.344.543/0001-11', 12), ('22.344.543/0001-11', 1), ('22.344.543/0001-11', 13), -- S.O.S
-('45.678.901/0001-34', 1), ('45.678.901/0001-34', 14), ('45.678.901/0001-34', 15), -- BlueSky
-('56.789.012/0001-45', 3), ('56.789.012/0001-45', 16), ('56.789.012/0001-45', 17), -- GreenCode
-('67.890.123/0001-56', 6), ('67.890.123/0001-56', 11), ('67.890.123/0001-56', 18); -- Tokyo
+('98.765.432/0001-11', 10), ('98.765.432/0001-11', 6), ('98.765.432/0001-11', 11),
+('22.344.543/0001-11', 12), ('22.344.543/0001-11', 1), ('22.344.543/0001-11', 13),
+('45.678.901/0001-34', 1), ('45.678.901/0001-34', 14), ('45.678.901/0001-34', 15),
+('56.789.012/0001-45', 3), ('56.789.012/0001-45', 16), ('56.789.012/0001-45', 17),
+('67.890.123/0001-56', 6), ('67.890.123/0001-56', 11), ('67.890.123/0001-56', 18);
 
 -- Vinculando Vagas e Competências Exigidas
 INSERT INTO vaga_competencia (id_vaga, id_competencia) VALUES
-(1, 1), (1, 11), (1, 19), (1, 20), -- Vaga Full Stack (Tech Global)
-(2, 1), (2, 10), (2, 17), (2, 21), -- Vaga Java Jr (S.O.S)
-(3, 12), (3, 6), (3, 19),          -- Vaga Node.js (BlueSky)
-(4, 1), (4, 14), (4, 19),          -- Vaga Spring Boot (GreenCode)
-(5, 3), (5, 19), (5, 20),          -- Vaga Python (Tokyo)
-(6, 11), (6, 6), (6, 19);          -- Vaga TS (Tokyo)
+(1, 1), (1, 11), (1, 19), (1, 20),
+(2, 1), (2, 10), (2, 17), (2, 21),
+(3, 12), (3, 6), (3, 19),
+(4, 1), (4, 14), (4, 19),
+(5, 3), (5, 19), (5, 20),
+(6, 11), (6, 6), (6, 19);
 
 -- Testando interações: Algumas curtidas e matches para validação
-INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa) VALUES 
-('123.456.789-00', 1, NULL), -- Sóstenes curtiu a vaga Full Stack
-('333.444.789-00', NULL, '45.678.901/0001-34'); -- Ana curtiu a empresa BlueSky
+-- 1. Sóstenes curte a vaga Full Stack (ID 1)
+INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
+VALUES ('123.456.789-00', 1, NULL);
 
-INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga) VALUES
-('123.456.789-00', '98.765.432/0001-11', 1); -- Match entre Sóstenes e Tech Global na vaga 1
+-- 2. A empresa dona da vaga (98.765.432/0001-11) vê o perfil do Sóstenes e curte
+INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
+VALUES ('123.456.789-00', NULL, '98.765.432/0001-11');
 
+-- 3. MATCH! Como houve interesse mútuo, o match é consolidado
+INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga)
+VALUES ('123.456.789-00', '98.765.432/0001-11', 1);
+
+-- 4. A empresa BlueSky (45.678.901/0001-34) curtiu a candidata Ana ('333.444.789-00')
+INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
+VALUES ('333.444.789-00', NULL, '45.678.901/0001-34');
+
+-- 5. A candidata Ana abre o app e curte uma vaga (vamos supor a Vaga ID 2, que pertence à BlueSky)
+INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
+VALUES ('333.444.789-00', 3, NULL);
+
+-- 6. MATCH! O sistema vê que a BlueSky já tinha curtido ela no Passo 4 e consolida o Match
+INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga)
+VALUES ('333.444.789-00', '45.678.901/0001-34', 3);
 

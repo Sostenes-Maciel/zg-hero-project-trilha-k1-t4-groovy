@@ -404,6 +404,18 @@ O banco foi modelado atendendo aos requisitos da aplicação:
 3. Crie um banco de dados vazio chamado `linketinder`.
 4. Execute o arquivo `linketinder_db.sql` contido neste repositório para criar a estrutura e inserir os dados.
 
+## Lógica de Match no Banco de Dados (Desafio Bônus)
+
+Para suportar o principal caso de uso do LinkeTinder (o "Match"), o banco de dados foi modelado introduzindo duas tabelas estratégicas: `curtida` e `match`.
+
+**Como funciona o fluxo de dados:**
+1. **Registro da Curtida do Candidato:** Quando um candidato curte uma vaga, um registro é inserido na tabela `curtida` preenchendo as chaves `candidato_id` e `vaga_id`.
+2. **Registro da Curtida da Empresa:** Quando a empresa, através do recrutador, curte o perfil de um candidato, um novo registro é inserido na tabela `curtida`, desta vez preenchendo as chaves `empresa_id` e `candidato_id`.
+3. **Validação e Integridade:** A tabela `curtida` possui uma `CHECK CONSTRAINT` que garante que uma curtida seja *ou* de um candidato para uma vaga, *ou* de uma empresa para um candidato, nunca ambos na mesma tupla.
+4. **O Evento de Match:** A aplicação (backend) é responsável por consultar o banco e verificar a intersecção de interesses (Candidato curtiu a Vaga X `AND` Empresa dona da Vaga X curtiu o Candidato). Ao identificar essa condição verdadeira, um registro final é inserido na tabela `match`, consolidando a conexão e permitindo o contato entre as partes.
+
+As queries de inserção e simulação desta lógica encontram-se no arquivo SQL principal do repositório.
+
 ## Autor
 
 **Sóstenes Marques Maciel**
