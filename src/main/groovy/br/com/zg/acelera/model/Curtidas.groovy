@@ -6,7 +6,4 @@ class Curtidas {
     Vaga vaga
     Empresa empresa
 
-    boolean Match() {
-        return candidato != null && vaga != null && empresa != null
-    }
 }

@@ -1,8 +1,9 @@
-package br.com.zg.acelera.repository
+package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Curtidas
 import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.model.Match
 import br.com.zg.acelera.model.Vaga
 
 
@@ -13,6 +14,7 @@ class BancodeDados {
 
     static List<Vaga> vagas = []
     static List<Curtidas> curtidas = []
+    static List<Match> matches = []
 
     BancodeDados() {
 

@@ -4,5 +4,9 @@ class Vaga {
 
     Integer id
     String titulo
+    String pais
+    String estado
+    String descricao
+    List<String> competencia = []
     Empresa empresa
 }

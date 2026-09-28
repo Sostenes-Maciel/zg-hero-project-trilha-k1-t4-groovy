@@ -2,7 +2,7 @@ package br.com.zg.aceleraspec
 
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
-import br.com.zg.acelera.repository.BancodeDados
+import br.com.zg.acelera.dao.BancodeDados
 import spock.lang.Specification
 
 class BancodeDadosSpec extends Specification {

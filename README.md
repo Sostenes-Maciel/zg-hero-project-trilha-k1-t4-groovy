@@ -172,7 +172,7 @@ Contém o `GerenciadorDePerfis`, responsável pela **lógica de negócio** e pel
 Pacote:
 
 ```text
-br.com.zg.acelera.repository
+br.com.zg.acelera.dao
 ```
 
 Contém a classe `BancodeDados.ts`, responsável pelo armazenamento e gerenciamento dos dados em memória.
