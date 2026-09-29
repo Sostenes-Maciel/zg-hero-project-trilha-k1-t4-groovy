@@ -120,14 +120,6 @@ class GerenciadorDePerfis {
                     String descricao = sc.nextLine().trim()
                     ValidarCandidato.validarDescricao(descricao)
 
-                    print "Competências: "
-                    String entradaComps = sc.nextLine()
-
-                    List<String> competencias = entradaComps
-                            .tokenize(',')
-                            .collect { it.trim() }
-
-                    ValidarCandidato.validarCompetencias(competencias)
 
                     Candidato novoCandidato = new Candidato(
                             nome: nome,
@@ -138,7 +130,6 @@ class GerenciadorDePerfis {
                             estado: estado,
                             cep: cep,
                             descricao: descricao,
-                            competencias: competencias
                     )
 
                     candidatoDAO.cadastrar(novoCandidato)
@@ -364,9 +355,6 @@ class GerenciadorDePerfis {
 
         String cpf = candidato.cpf
 
-        List<String> competenciasAntigas =
-                new ArrayList<>(competenciaDAO.listarDoCandidato(cpf))
-
         print "Novo nome: "
         String nome = sc.nextLine().trim()
         ValidarCandidato.validarNome(nome)
@@ -401,16 +389,6 @@ class GerenciadorDePerfis {
         String descricao = sc.nextLine().trim()
         ValidarCandidato.validarDescricao(descricao)
 
-        print "Novas competências: "
-        String entradaComps = sc.nextLine()
-
-        List<String> competencias = entradaComps
-                .tokenize(',')
-                .collect { it.trim() }
-                .findAll { it }
-
-        ValidarCandidato.validarCompetencias(competencias)
-
         candidato.nome = nome
         candidato.email = email
         candidato.idade = idade
@@ -418,18 +396,8 @@ class GerenciadorDePerfis {
         candidato.estado = estado
         candidato.cep = cep
         candidato.descricao = descricao
-        candidato.competencias = competencias
 
         candidatoDAO.atualizar(candidato)
-
-        competenciasAntigas.each { competencia ->
-            competenciaDAO.removerDoCandidato(cpf, competencia)
-        }
-
-        competencias.each { competencia ->
-            competenciaDAO.garantirCompetencia(competencia)
-            competenciaDAO.adicionarAoCandidato(cpf, competencia)
-        }
 
         println "Candidato atualizado com sucesso!"
     }
@@ -558,6 +526,30 @@ class GerenciadorDePerfis {
         empresaDAO.excluir(empresa.cnpj)
 
         println "Empresa excluída com sucesso!"
+    }
+    List<String> listarCompetenciasDoCandidato(Candidato candidato) {
+
+        return competenciaDAO.listarDoCandidato(candidato.cpf)
+    }
+    void adicionarCompetenciaAoCandidato(
+            Candidato candidato,
+            String competencia) {
+
+        competenciaDAO.garantirCompetencia(competencia)
+
+        competenciaDAO.adicionarAoCandidato(
+                candidato.cpf,
+                competencia
+        )
+    }
+    void removerCompetenciaDoCandidato(
+            Candidato candidato,
+            String competencia) {
+
+        competenciaDAO.removerDoCandidato(
+                candidato.cpf,
+                competencia
+        )
     }
 
 }
