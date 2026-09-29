@@ -6,6 +6,10 @@ import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Match
 import br.com.zg.acelera.model.Vaga
 
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+
 
 class BancodeDados {
 
@@ -79,5 +83,73 @@ class BancodeDados {
 
     void cadastrarEmpresa(Empresa empresa) {
         empresas.add(empresa)
+    }
+
+    static class CompetenciaDAO {
+
+        void cadastrar(String nome) {
+            String sql = """
+                INSERT INTO competencia (nome)
+                VALUES (?)
+            """
+
+            try (Connection conexao = ConexaoBD.conectar();
+                 PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+                stmt.setString(1, nome)
+                stmt.executeUpdate()
+            }
+        }
+
+        List<String> listarTodos() {
+            String sql = """
+                SELECT nome
+                FROM competencia
+                ORDER BY nome
+            """
+
+            List<String> competencias = []
+
+            try (Connection conexao = ConexaoBD.conectar();
+                 PreparedStatement stmt = conexao.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    competencias.add(rs.getString("nome"))
+                }
+            }
+
+            return competencias
+        }
+
+        void atualizar(String nomeAtual, String novoNome) {
+            String sql = """
+                UPDATE competencia
+                SET nome = ?
+                WHERE nome = ?
+            """
+
+            try (Connection conexao = ConexaoBD.conectar();
+                 PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+                stmt.setString(1, novoNome)
+                stmt.setString(2, nomeAtual)
+                stmt.executeUpdate()
+            }
+        }
+
+        void excluir(String nome) {
+            String sql = """
+                DELETE FROM competencia
+                WHERE nome = ?
+            """
+
+            try (Connection conexao = ConexaoBD.conectar();
+                 PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+                stmt.setString(1, nome)
+                stmt.executeUpdate()
+            }
+        }
     }
 }
