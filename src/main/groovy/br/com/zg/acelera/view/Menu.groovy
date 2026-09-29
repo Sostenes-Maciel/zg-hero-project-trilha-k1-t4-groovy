@@ -1,6 +1,7 @@
 package br.com.zg.acelera.view
 
 import br.com.zg.acelera.model.Candidato
+import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfis
 import br.com.zg.acelera.service.GerenciadordeMatches
 
@@ -111,13 +112,14 @@ class Menu {
 
         int opcao = 0
 
-        while (opcao != 4) {
+        while (opcao != 5) {
 
             println "\n--- EMPRESAS ---"
             println "1 - Listar empresas"
             println "2 - Atualizar empresa"
-            println "3 - Excluir empresa"
-            println "4 - Voltar"
+            println "3 - Gerenciar competências desejadas"
+            println "4 - Excluir empresa"
+            println "5 - Voltar"
 
             print "Escolha uma opção: "
 
@@ -138,12 +140,13 @@ class Menu {
                 case 2:
                     gerenciador.atualizarEmpresaPeloTerminal(sc)
                     break
-
                 case 3:
+                    gerenciarCompetenciasEmpresa(sc)
+                    break
+                case 4:
                     gerenciador.excluirEmpresaPeloTerminal(sc)
                     break
-
-                case 4:
+                case 5:
                     println "Voltando..."
                     break
 
@@ -245,6 +248,115 @@ class Menu {
 
                     gerenciador.removerCompetenciaDoCandidato(
                             candidato,
+                            competenciasParaRemover[indice - 1]
+                    )
+
+                    println "Competência removida com sucesso!"
+                    break
+
+                case 4:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
+            }
+        }
+    }
+    void gerenciarCompetenciasEmpresa(Scanner sc) {
+
+        Empresa empresa = gerenciador.selecionarEmpresaParaEdicao(sc)
+
+        if (empresa == null) {
+            return
+        }
+
+        int opcao = 0
+
+        while (opcao != 4) {
+
+            println "\n--- COMPETÊNCIAS DESEJADAS: ${empresa.nome} ---"
+            println "1 - Listar competências"
+            println "2 - Adicionar competência"
+            println "3 - Remover competência"
+            println "4 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+
+                case 1:
+                    List<String> competencias =
+                            gerenciador.listarCompetenciasDaEmpresa(empresa)
+
+                    if (competencias.isEmpty()) {
+                        println "Nenhuma competência desejada cadastrada."
+                    } else {
+                        competencias.eachWithIndex { competencia, indice ->
+                            println "${indice + 1} - ${competencia}"
+                        }
+                    }
+                    break
+
+                case 2:
+                    print "Nome da competência: "
+                    String competencia = sc.nextLine().trim()
+
+                    if (competencia.isEmpty()) {
+                        println "Competência inválida."
+                        break
+                    }
+
+                    gerenciador.adicionarCompetenciaAEmpresa(
+                            empresa,
+                            competencia
+                    )
+
+                    println "Competência adicionada com sucesso!"
+                    break
+
+                case 3:
+                    List<String> competenciasParaRemover =
+                            gerenciador.listarCompetenciasDaEmpresa(empresa)
+
+                    if (competenciasParaRemover.isEmpty()) {
+                        println "Nenhuma competência desejada cadastrada."
+                        break
+                    }
+
+                    println "\nCompetências desejadas:"
+                    competenciasParaRemover.eachWithIndex { competencia, indice ->
+                        println "${indice + 1} - ${competencia}"
+                    }
+
+                    print "Selecione a competência: "
+
+                    if (!sc.hasNextInt()) {
+                        println "Opção inválida."
+                        sc.nextLine()
+                        break
+                    }
+
+                    int indice = sc.nextInt()
+                    sc.nextLine()
+
+                    if (indice < 1 ||
+                            indice > competenciasParaRemover.size()) {
+                        println "Competência inválida."
+                        break
+                    }
+
+                    gerenciador.removerCompetenciaDaEmpresa(
+                            empresa,
                             competenciasParaRemover[indice - 1]
                     )
 
