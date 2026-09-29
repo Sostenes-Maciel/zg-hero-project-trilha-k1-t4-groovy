@@ -14,6 +14,7 @@ class GerenciadorDePerfis {
     CandidatoDAO candidatoDAO = new CandidatoDAO()
     CompetenciaDAO competenciaDAO = new CompetenciaDAO()
     EmpresaDAO empresaDAO = new EmpresaDAO()
+    GerenciadorDeVagas gerenciadorDeVagas = new GerenciadorDeVagas()
 
     void listarCandidatos() {
         println("\n-- Candidatos Cadastrados --")
@@ -61,6 +62,7 @@ class GerenciadorDePerfis {
         println("\n-- Opções de Cadastro --")
         println("1 - Candidato")
         println("2 - Empresa")
+        println("3 - Vaga")
         print("Qual deseja cadastrar: ")
 
         try {
@@ -216,9 +218,55 @@ class GerenciadorDePerfis {
                 } catch (Exception e) {
                     println "Erro no cadastro: ${e.message}"
                 }
+            } else if (opcaoadd == 3) {
+                try {
+                    Empresa empresa = selecionarEmpresa(sc)
+
+                    if (empresa == null) {
+                        return
+                    }
+
+                    gerenciadorDeVagas.cadastrarVagaPeloTerminal(sc, empresa)
+
+                } catch (Exception e) {
+                    println "Erro ao cadastrar vaga: ${e.message}"
+                }
             }
         } catch (Exception e) {
             println "Erro ${e.message}"
         }
+    }
+    Empresa selecionarEmpresa(Scanner sc) {
+
+        List<Empresa> empresas = empresaDAO.listarTodos()
+
+        if (empresas.isEmpty()) {
+            println "Nenhuma empresa cadastrada ainda."
+            return null
+        }
+
+        println "\n-- Empresas Cadastradas --"
+
+        empresas.eachWithIndex { empresa, indice ->
+            println "${indice + 1} - ${empresa.nome} | CNPJ: ${empresa.cnpj}"
+        }
+
+        print "Selecione a empresa: "
+
+        if (!sc.hasNextInt()) {
+            println "Erro: informe apenas o número da empresa."
+            sc.nextLine()
+            return null
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > empresas.size()) {
+            println "Empresa inválida."
+            return null
+        }
+
+        return empresas[opcao - 1]
     }
 }

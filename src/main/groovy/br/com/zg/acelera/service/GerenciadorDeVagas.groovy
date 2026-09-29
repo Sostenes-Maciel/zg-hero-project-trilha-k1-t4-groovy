@@ -1,7 +1,6 @@
 package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CompetenciaDAO
-import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
@@ -10,7 +9,6 @@ class GerenciadorDeVagas {
 
     private VagaDAO vagaDAO = new VagaDAO()
     private CompetenciaDAO competenciaDAO = new CompetenciaDAO()
-    private EmpresaDAO empresaDAO = new EmpresaDAO()
 
     Integer cadastrarVaga(Vaga vaga) {
         Integer idVaga = vagaDAO.cadastrar(vaga)
@@ -62,16 +60,10 @@ class GerenciadorDeVagas {
     void excluirVaga(Integer id) {
         vagaDAO.excluir(id)
     }
-    void cadastrarVagaPeloTerminal(Scanner sc, String cnpjEmpresa) {
-
-        Empresa empresa = empresaDAO.buscarPorCnpj(cnpjEmpresa)
-
-        if (empresa == null) {
-            println "Empresa não encontrada."
-            return
-        }
+    void cadastrarVagaPeloTerminal(Scanner sc, Empresa empresa) {
 
         println "\n--- CADASTRAR NOVA VAGA ---"
+        println "Empresa: ${empresa.nome}"
 
         print "Título da vaga: "
         String titulo = sc.nextLine().trim()
@@ -85,7 +77,7 @@ class GerenciadorDeVagas {
         print "Descrição: "
         String descricao = sc.nextLine().trim()
 
-        print "Competências exigidas (separe por vírgula): "
+        print "Competências exigidas: "
         String entradaComps = sc.nextLine()
 
         List<String> competencias = entradaComps
