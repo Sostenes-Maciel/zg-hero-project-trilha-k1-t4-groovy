@@ -62,7 +62,6 @@ class GerenciadorDePerfis {
         println("\n-- Opções de Cadastro --")
         println("1 - Candidato")
         println("2 - Empresa")
-        println("3 - Vaga")
         print("Qual deseja cadastrar: ")
 
         try {
@@ -218,24 +217,14 @@ class GerenciadorDePerfis {
                 } catch (Exception e) {
                     println "Erro no cadastro: ${e.message}"
                 }
-            } else if (opcaoadd == 3) {
-                try {
-                    Empresa empresa = selecionarEmpresa(sc)
-
-                    if (empresa == null) {
-                        return
-                    }
-
-                    gerenciadorDeVagas.cadastrarVagaPeloTerminal(sc, empresa)
-
-                } catch (Exception e) {
-                    println "Erro ao cadastrar vaga: ${e.message}"
-                }
             }
         } catch (Exception e) {
             println "Erro ${e.message}"
         }
     }
+
+
+
     Empresa selecionarEmpresa(Scanner sc) {
 
         List<Empresa> empresas = empresaDAO.listarTodos()
@@ -268,5 +257,62 @@ class GerenciadorDePerfis {
         }
 
         return empresas[opcao - 1]
+    }
+
+    void gerenciarVagas(Scanner sc) {
+
+        Empresa empresa = selecionarEmpresa(sc)
+
+        if (empresa == null) {
+            return
+        }
+
+        int opcao = 0
+
+        while (opcao != 5) {
+
+            println "\n--- VAGAS DE ${empresa.nome} ---"
+            println "1 - Cadastrar vaga"
+            println "2 - Listar vagas"
+            println "3 - Atualizar vaga"
+            println "4 - Excluir vaga"
+            println "5 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+                case 1:
+                    gerenciadorDeVagas.cadastrarVagaPeloTerminal(sc, empresa)
+                    break
+
+                case 2:
+                    gerenciadorDeVagas.listarVagasPeloTerminal(empresa)
+                    break
+
+                case 3:
+                    gerenciadorDeVagas.atualizarVagaPeloTerminal(sc, empresa)
+                    break
+
+                case 4:
+                    gerenciadorDeVagas.excluirVagaPeloTerminal(sc, empresa)
+                    break
+
+                case 5:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
+            }
+        }
     }
 }

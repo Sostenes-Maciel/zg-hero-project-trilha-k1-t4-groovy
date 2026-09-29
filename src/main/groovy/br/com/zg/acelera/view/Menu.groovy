@@ -12,13 +12,14 @@ class Menu {
         int opcao = 0
         println "Bem-vindo ao Linkertinder <3\n"
 
-        while (opcao != 5) {
+        while (opcao != 6) {
 
             println("1 - Listar candidatos")
             println("2 - Listar Empresas")
             println("3 - Cadastrar")
             println("4 - Ver Resultados de Curtidas e Matches")
-            println("5 - Sair")
+            println("5 - Gerenciar Vagas")
+            println("6 - Sair")
 
             try {
                 print "\nEscolha uma opção: "
@@ -40,10 +41,12 @@ class Menu {
                         GerenciadordeMatches.exibirPainel()
                         break
                     case 5:
+                        gerenciador.gerenciarVagas(sc)
+                        break
+
+                    case 6:
                         println("Saindo do Linketinder. Até logo!")
                         break
-                    default:
-                        println("Opção inválida! Tente novamente.")
                 }
             } catch (InputMismatchException e) {
                 println("Erro: Por favor, digite apenas números!")
