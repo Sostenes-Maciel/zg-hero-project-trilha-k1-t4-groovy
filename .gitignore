@@ -41,3 +41,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+.idea/dataSources.xml
+.idea/data_source_mapping.xml
+.idea/sqldialects.xml
