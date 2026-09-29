@@ -1,5 +1,7 @@
 package br.com.zg.acelera.service
 
+import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.dao.BancodeDados
@@ -8,17 +10,27 @@ import br.com.zg.acelera.dao.BancodeDados
 class GerenciadorDePerfis {
     BancodeDados dados = new BancodeDados()
 
+    CandidatoDAO candidatoDAO = new CandidatoDAO()
+    CompetenciaDAO competenciaDAO = new CompetenciaDAO()
+
     void listarCandidatos() {
         println("\n-- Candidatos Cadastrados --")
-        if (dados.candidatos.isEmpty()) {
+
+        List<Candidato> candidatos = candidatoDAO.listarTodos()
+
+        if (candidatos.isEmpty()) {
             println("Nenhum candidato cadastrado ainda.\n")
             return
         }
-        dados.candidatos.each { escrever ->
-            println "Nome: ${escrever.nome} | CPF: ${escrever.cpf} | Estado: ${escrever.estado}"
-            println "Competências: ${escrever.competencias.join(', ')}"
+
+        candidatos.each { candidato ->
+            candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
+
+            println "Nome: ${candidato.nome} | CPF: ${candidato.cpf} | Estado: ${candidato.estado}"
+            println "Competências: ${candidato.competencias.join(', ')}"
             println "-" * 60
         }
+
         println()
     }
 
@@ -77,6 +89,9 @@ class GerenciadorDePerfis {
                     sc.nextLine()
                     ValidarCandidato.validarIdade(idade)
 
+                    print "País: "
+                    String pais = sc.nextLine().trim()
+
                     print "Estado: "
                     String estado = sc.nextLine().trim()
                     ValidarCandidato.validarEstado(estado)
@@ -103,13 +118,19 @@ class GerenciadorDePerfis {
                             email: email,
                             cpf: cpf,
                             idade: idade,
+                            pais: pais,
                             estado: estado,
                             cep: cep,
                             descricao: descricao,
                             competencias: competencias
                     )
 
-                    dados.cadastrarCandidato(novoCandidato)
+                    candidatoDAO.cadastrar(novoCandidato)
+
+                    competencias.each { competencia ->
+                        competenciaDAO.garantirCompetencia(competencia)
+                        competenciaDAO.adicionarAoCandidato(novoCandidato.cpf, competencia)
+                    }
 
                     println "Candidato cadastrado com sucesso!\n"
 

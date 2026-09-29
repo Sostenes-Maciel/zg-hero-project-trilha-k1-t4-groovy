@@ -12,7 +12,7 @@ class CompetenciaDAO {
             VALUES (?)
         """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, nome)
@@ -29,8 +29,8 @@ class CompetenciaDAO {
 
         List<String> competencias = []
 
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql);
+        try (Connection conexao = ConexaoBD.conectar()
+             PreparedStatement stmt = conexao.prepareStatement(sql)
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -48,7 +48,7 @@ class CompetenciaDAO {
             WHERE nome = ?
         """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, novoNome)
@@ -63,7 +63,7 @@ class CompetenciaDAO {
             WHERE nome = ?
         """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, nome)
@@ -79,7 +79,7 @@ class CompetenciaDAO {
         ON CONFLICT DO NOTHING
     """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cpf)
@@ -100,7 +100,7 @@ class CompetenciaDAO {
           )
     """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cpf)
@@ -122,7 +122,7 @@ class CompetenciaDAO {
 
         List<String> competencias = []
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cpf)
@@ -145,7 +145,7 @@ class CompetenciaDAO {
         ON CONFLICT DO NOTHING
     """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cnpj)
@@ -166,7 +166,7 @@ class CompetenciaDAO {
           )
     """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cnpj)
@@ -188,7 +188,7 @@ class CompetenciaDAO {
 
         List<String> competencias = []
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setString(1, cnpj)
@@ -212,7 +212,7 @@ class CompetenciaDAO {
         ON CONFLICT DO NOTHING
     """
 
-        try (Connection conexao = ConexaoBD.conectar();
+        try (Connection conexao = ConexaoBD.conectar()
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
             stmt.setInt(1, idVaga)
@@ -268,5 +268,19 @@ class CompetenciaDAO {
         }
 
         return competencias
+    }
+    void garantirCompetencia(String nome) {
+        String sql = """
+        INSERT INTO competencia (nome)
+        VALUES (?)
+        ON CONFLICT (nome) DO NOTHING
+    """
+
+        try (Connection conexao = ConexaoBD.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+            stmt.setString(1, nome)
+            stmt.executeUpdate()
+        }
     }
 }
