@@ -14,7 +14,7 @@ class Menu {
 
         while (opcao != 6) {
 
-            println("1 - Listar candidatos")
+            println("1 - Gerenciar candidatos")
             println("2 - Listar Empresas")
             println("3 - Cadastrar")
             println("4 - Ver Resultados de Curtidas e Matches")
@@ -28,7 +28,7 @@ class Menu {
 
                 switch (opcao) {
                     case 1:
-                        gerenciador.listarCandidatos()
+                        gerenciador.gerenciarCandidatos(sc)
                         break
                     case 2:
                         gerenciador.listarEmpresas()
@@ -48,7 +48,7 @@ class Menu {
                         println("Saindo do Linketinder. Até logo!")
                         break
                 }
-            } catch (InputMismatchException e) {
+            } catch (InputMismatchException ignored) {
                 println("Erro: Por favor, digite apenas números!")
                 sc.nextLine()
                 opcao = 0

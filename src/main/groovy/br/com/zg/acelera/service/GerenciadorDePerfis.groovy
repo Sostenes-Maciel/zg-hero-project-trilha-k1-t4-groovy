@@ -17,6 +17,7 @@ class GerenciadorDePerfis {
     GerenciadorDeVagas gerenciadorDeVagas = new GerenciadorDeVagas()
 
     void listarCandidatos() {
+
         println("\n-- Candidatos Cadastrados --")
 
         List<Candidato> candidatos = candidatoDAO.listarTodos()
@@ -26,10 +27,15 @@ class GerenciadorDePerfis {
             return
         }
 
-        candidatos.each { candidato ->
-            candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
+        candidatos.eachWithIndex { candidato, indice ->
 
-            println "Nome: ${candidato.nome} | CPF: ${candidato.cpf} | Estado: ${candidato.estado}"
+            candidato.competencias =
+                    competenciaDAO.listarDoCandidato(candidato.cpf)
+
+            println "ID: ${indice + 1}"
+            println "Nome: ${candidato.nome}"
+            println "CPF: ${candidato.cpf}"
+            println "Estado: ${candidato.estado}"
             println "Competências: ${candidato.competencias.join(', ')}"
             println "-" * 60
         }
@@ -315,4 +321,175 @@ class GerenciadorDePerfis {
             }
         }
     }
+    Candidato selecionarCandidato(Scanner sc) {
+
+        List<Candidato> candidatos = candidatoDAO.listarTodos()
+
+        if (candidatos.isEmpty()) {
+            println "Nenhum candidato cadastrado ainda."
+            return null
+        }
+
+        println "\n-- Candidatos Cadastrados --"
+
+        candidatos.eachWithIndex { candidato, indice ->
+            println "${indice + 1} - ${candidato.nome} | CPF: ${candidato.cpf}"
+        }
+
+        print "Selecione o candidato pelo ID: "
+
+        if (!sc.hasNextInt()) {
+            println "Erro: informe apenas o número do candidato."
+            sc.nextLine()
+            return null
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > candidatos.size()) {
+            println "Candidato inválido."
+            return null
+        }
+
+        return candidatos[opcao - 1]
+    }
+    void atualizarCandidatoPeloTerminal(Scanner sc) {
+
+        Candidato candidato = selecionarCandidato(sc)
+
+        if (candidato == null) {
+            return
+        }
+
+        String cpf = candidato.cpf
+
+        List<String> competenciasAntigas =
+                new ArrayList<>(competenciaDAO.listarDoCandidato(cpf))
+
+        print "Novo nome: "
+        String nome = sc.nextLine().trim()
+        ValidarCandidato.validarNome(nome)
+
+        print "Novo e-mail: "
+        String email = sc.nextLine().trim()
+        ValidarCandidato.validarEmail(email)
+
+        print "Nova idade: "
+        if (!sc.hasNextInt()) {
+            println "Idade inválida."
+            sc.nextLine()
+            return
+        }
+
+        int idade = sc.nextInt()
+        sc.nextLine()
+        ValidarCandidato.validarIdade(idade)
+
+        print "Novo país: "
+        String pais = sc.nextLine().trim()
+
+        print "Novo estado: "
+        String estado = sc.nextLine().trim()
+        ValidarCandidato.validarEstado(estado)
+
+        print "Novo CEP: "
+        String cep = sc.nextLine().trim()
+        ValidarCandidato.validarCep(cep)
+
+        print "Nova descrição: "
+        String descricao = sc.nextLine().trim()
+        ValidarCandidato.validarDescricao(descricao)
+
+        print "Novas competências: "
+        String entradaComps = sc.nextLine()
+
+        List<String> competencias = entradaComps
+                .tokenize(',')
+                .collect { it.trim() }
+                .findAll { it }
+
+        ValidarCandidato.validarCompetencias(competencias)
+
+        candidato.nome = nome
+        candidato.email = email
+        candidato.idade = idade
+        candidato.pais = pais
+        candidato.estado = estado
+        candidato.cep = cep
+        candidato.descricao = descricao
+        candidato.competencias = competencias
+
+        candidatoDAO.atualizar(candidato)
+
+        competenciasAntigas.each { competencia ->
+            competenciaDAO.removerDoCandidato(cpf, competencia)
+        }
+
+        competencias.each { competencia ->
+            competenciaDAO.garantirCompetencia(competencia)
+            competenciaDAO.adicionarAoCandidato(cpf, competencia)
+        }
+
+        println "Candidato atualizado com sucesso!"
+    }
+    void excluirCandidatoPeloTerminal(Scanner sc) {
+
+        Candidato candidato = selecionarCandidato(sc)
+
+        if (candidato == null) {
+            return
+        }
+
+        candidatoDAO.excluir(candidato.cpf)
+
+        println "Candidato excluído com sucesso!"
+    }
+    void gerenciarCandidatos(Scanner sc) {
+
+        int opcao = 0
+
+        while (opcao != 4) {
+
+            println "\n--- CANDIDATOS ---"
+            println "1 - Listar candidatos"
+            println "2 - Atualizar candidato"
+            println "3 - Excluir candidato"
+            println "4 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+
+                case 1:
+                    listarCandidatos()
+                    break
+
+                case 2:
+                    atualizarCandidatoPeloTerminal(sc)
+                    break
+
+                case 3:
+                    excluirCandidatoPeloTerminal(sc)
+                    break
+
+                case 4:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
+            }
+        }
+    }
+
 }
