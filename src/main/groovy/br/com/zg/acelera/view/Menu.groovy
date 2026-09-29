@@ -15,7 +15,7 @@ class Menu {
         while (opcao != 6) {
 
             println("1 - Gerenciar candidatos")
-            println("2 - Listar Empresas")
+            println("2 - Gerenciar Empresas")
             println("3 - Cadastrar")
             println("4 - Ver Resultados de Curtidas e Matches")
             println("5 - Gerenciar Vagas")
@@ -28,10 +28,10 @@ class Menu {
 
                 switch (opcao) {
                     case 1:
-                        gerenciador.gerenciarCandidatos(sc)
+                        gerenciarCandidatos(sc)
                         break
                     case 2:
-                        gerenciador.listarEmpresas()
+                        gerenciarEmpresas(sc)
                         break
                     case 3:
                         gerenciador.cadastroNovo(sc)
@@ -54,6 +54,96 @@ class Menu {
                 opcao = 0
             } catch (Exception e) {
                 println "Erro! ${e.message}"
+            }
+        }
+    }
+    void gerenciarCandidatos(Scanner sc) {
+
+        int opcao = 0
+
+        while (opcao != 4) {
+
+            println "\n--- CANDIDATOS ---"
+            println "1 - Listar candidatos"
+            println "2 - Atualizar candidato"
+            println "3 - Excluir candidato"
+            println "4 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+
+                case 1:
+                    gerenciador.listarCandidatos()
+                    break
+                case 2:
+                    gerenciador.atualizarCandidatoPeloTerminal(sc)
+                    break
+
+                case 3:
+                    gerenciador.excluirCandidatoPeloTerminal(sc)
+                    break
+
+                case 4:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
+            }
+        }
+    }
+    void gerenciarEmpresas(Scanner sc) {
+
+        int opcao = 0
+
+        while (opcao != 4) {
+
+            println "\n--- EMPRESAS ---"
+            println "1 - Listar empresas"
+            println "2 - Atualizar empresa"
+            println "3 - Excluir empresa"
+            println "4 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+                case 1:
+                    gerenciador.listarEmpresas()
+                    break
+
+                case 2:
+                    gerenciador.atualizarEmpresaPeloTerminal(sc)
+                    break
+
+                case 3:
+                    gerenciador.excluirEmpresaPeloTerminal(sc)
+                    break
+
+                case 4:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
             }
         }
     }

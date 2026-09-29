@@ -445,51 +445,119 @@ class GerenciadorDePerfis {
 
         println "Candidato excluído com sucesso!"
     }
-    void gerenciarCandidatos(Scanner sc) {
 
-        int opcao = 0
+    Empresa selecionarEmpresaParaEdicao(Scanner sc) {
 
-        while (opcao != 4) {
+        List<Empresa> empresas = empresaDAO.listarTodos()
 
-            println "\n--- CANDIDATOS ---"
-            println "1 - Listar candidatos"
-            println "2 - Atualizar candidato"
-            println "3 - Excluir candidato"
-            println "4 - Voltar"
-
-            print "Escolha uma opção: "
-
-            if (!sc.hasNextInt()) {
-                println "Opção inválida."
-                sc.nextLine()
-                continue
-            }
-
-            opcao = sc.nextInt()
-            sc.nextLine()
-
-            switch (opcao) {
-
-                case 1:
-                    listarCandidatos()
-                    break
-
-                case 2:
-                    atualizarCandidatoPeloTerminal(sc)
-                    break
-
-                case 3:
-                    excluirCandidatoPeloTerminal(sc)
-                    break
-
-                case 4:
-                    println "Voltando..."
-                    break
-
-                default:
-                    println "Opção inválida."
-            }
+        if (empresas.isEmpty()) {
+            println "Nenhuma empresa cadastrada ainda."
+            return null
         }
+
+        println "\n-- Empresas Cadastradas --"
+
+        empresas.eachWithIndex { empresa, indice ->
+            println "${indice + 1} - ${empresa.nome}"
+        }
+
+        print "Selecione a empresa pelo ID: "
+
+        if (!sc.hasNextInt()) {
+            println "Opção inválida."
+            sc.nextLine()
+            return null
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > empresas.size()) {
+            println "Empresa inválida."
+            return null
+        }
+
+        return empresas[opcao - 1]
+    }
+    void atualizarEmpresaPeloTerminal(Scanner sc) {
+
+        Empresa empresa = selecionarEmpresaParaEdicao(sc)
+
+        if (empresa == null) {
+            return
+        }
+
+        String cnpj = empresa.cnpj
+
+        List<String> competenciasAntigas =
+                new ArrayList<>(competenciaDAO.listarDaEmpresa(cnpj))
+
+        print "Novo nome da empresa: "
+        String nome = sc.nextLine().trim()
+        ValidarEmpresa.validarNome(nome)
+
+        print "Novo e-mail corporativo: "
+        String email = sc.nextLine().trim()
+        ValidarEmpresa.validarEmail(email)
+
+        print "Novo país: "
+        String pais = sc.nextLine().trim()
+        ValidarEmpresa.validarPais(pais)
+
+        print "Novo estado: "
+        String estado = sc.nextLine().trim()
+        ValidarEmpresa.validarEstado(estado)
+
+        print "Novo CEP: "
+        String cep = sc.nextLine().trim()
+        ValidarEmpresa.validarCep(cep)
+
+        print "Nova descrição: "
+        String descricao = sc.nextLine().trim()
+        ValidarEmpresa.validarDescricao(descricao)
+
+        print "Novas competências desejadas: "
+        String entradaComps = sc.nextLine()
+
+        List<String> competencias = entradaComps
+                .tokenize(',')
+                .collect { it.trim() }
+                .findAll { it }
+
+        ValidarEmpresa.validarCompetencias(competencias)
+
+        empresa.nome = nome
+        empresa.email = email
+        empresa.pais = pais
+        empresa.estado = estado
+        empresa.cep = cep
+        empresa.descricao = descricao
+        empresa.competencias = competencias
+
+        empresaDAO.atualizar(empresa)
+
+        competenciasAntigas.each { competencia ->
+            competenciaDAO.removerDaEmpresa(cnpj, competencia)
+        }
+
+        competencias.each { competencia ->
+            competenciaDAO.garantirCompetencia(competencia)
+            competenciaDAO.adicionarAoEmpresa(cnpj, competencia)
+        }
+
+        println "Empresa atualizada com sucesso!"
+    }
+    void excluirEmpresaPeloTerminal(Scanner sc) {
+
+        Empresa empresa = selecionarEmpresaParaEdicao(sc)
+
+        if (empresa == null) {
+            return
+        }
+
+        empresaDAO.excluir(empresa.cnpj)
+
+        println "Empresa excluída com sucesso!"
     }
 
 }
