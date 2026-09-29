@@ -9,17 +9,18 @@ import java.sql.ResultSet
 
 class VagaDAO {
 
-    void cadastrar(Vaga vaga) {
+    Integer cadastrar(Vaga vaga) {
         String sql = """
-            INSERT INTO vaga (
-                titulo,
-                pais,
-                estado,
-                descricao,
-                cnpj_empresa
-            )
-            VALUES (?, ?, ?, ?, ?)
-        """
+        INSERT INTO vaga (
+            titulo,
+            pais,
+            estado,
+            descricao,
+            cnpj_empresa
+        )
+        VALUES (?, ?, ?, ?, ?)
+        RETURNING id_vaga
+    """
 
         try (Connection conexao = ConexaoBD.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
@@ -30,8 +31,14 @@ class VagaDAO {
             stmt.setString(4, vaga.descricao)
             stmt.setString(5, vaga.empresa.cnpj)
 
-            stmt.executeUpdate()
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_vaga")
+                }
+            }
         }
+
+        return null
     }
 
     List<Vaga> listarTodos() {
