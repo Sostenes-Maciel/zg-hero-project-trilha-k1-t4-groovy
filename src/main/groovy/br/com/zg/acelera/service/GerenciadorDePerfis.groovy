@@ -2,6 +2,7 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.dao.BancodeDados
@@ -12,6 +13,7 @@ class GerenciadorDePerfis {
 
     CandidatoDAO candidatoDAO = new CandidatoDAO()
     CompetenciaDAO competenciaDAO = new CompetenciaDAO()
+    EmpresaDAO empresaDAO = new EmpresaDAO()
 
     void listarCandidatos() {
         println("\n-- Candidatos Cadastrados --")
@@ -36,15 +38,22 @@ class GerenciadorDePerfis {
 
     void listarEmpresas() {
         println("\n-- Empresas Cadastradas --")
-        if (dados.empresas.isEmpty()) {
+
+        List<Empresa> empresas = empresaDAO.listarTodos()
+
+        if (empresas.isEmpty()) {
             println("Nenhuma empresa cadastrada ainda.\n")
             return
         }
-        dados.empresas.each { escrever ->
-            println "Nome: ${escrever.nome} | CNPJ: ${escrever.cnpj} | País: ${escrever.pais}"
-            println "Competências desejadas: ${escrever.competencias.join(', ')}"
+
+        empresas.each { empresa ->
+            empresa.competencias = competenciaDAO.listarDaEmpresa(empresa.cnpj)
+
+            println "Nome: ${empresa.nome} | CNPJ: ${empresa.cnpj} | País: ${empresa.pais}"
+            println "Competências desejadas: ${empresa.competencias.join(', ')}"
             println "-" * 60
         }
+
         println()
     }
 
@@ -79,7 +88,7 @@ class GerenciadorDePerfis {
                     String cpf = sc.nextLine().trim()
                     ValidarCandidato.validarCpf(cpf)
 
-                    print "Idade (apenas números): "
+                    print "Idade: "
                     if (!sc.hasNextInt()) {
                         sc.nextLine()
                         throw new IllegalArgumentException("Idade deve ser um número inteiro.")
@@ -192,7 +201,12 @@ class GerenciadorDePerfis {
                             competencias: competencias
                     )
 
-                    dados.cadastrarEmpresa(novaEmpresa)
+                    empresaDAO.cadastrar(novaEmpresa)
+
+                    competencias.each { competencia ->
+                        competenciaDAO.garantirCompetencia(competencia)
+                        competenciaDAO.adicionarAoEmpresa(novaEmpresa.cnpj, competencia)
+                    }
 
                     println "Empresa cadastrada com sucesso!\n"
 
