@@ -238,7 +238,7 @@ O projeto foi atualizado com a implementação de testes unitários utilizando o
 * **Testes de Fronteira:** Adicionados casos para verificar os limites das validações, como idade, CPF, CNPJ e CEP.
 * **Organização dos Testes:** Os testes foram separados em classes `Spec`, mantendo cada unidade do sistema testada de forma independente.
 
-## Atualização: Implementação FrontEnd
+## Atualização(Trilha TypeScript): Implementação FrontEnd
 
 **Privacidade**
 
@@ -415,6 +415,82 @@ Para suportar o principal caso de uso do LinkeTinder (o "Match"), o banco de dad
 4. **O Evento de Match:** A aplicação (backend) é responsável por consultar o banco e verificar a intersecção de interesses (Candidato curtiu a Vaga X `AND` Empresa dona da Vaga X curtiu o Candidato). Ao identificar essa condição verdadeira, um registro final é inserido na tabela `match`, consolidando a conexão e permitindo o contato entre as partes.
 
 As queries de inserção e simulação desta lógica encontram-se no arquivo SQL principal do repositório.
+
+## Atualização(Trilha BD): Migração para JDBC e DAO
+
+Nesta etapa, o sistema deixou de utilizar o armazenamento em memória como forma principal de persistência e passou a utilizar **PostgreSQL através de JDBC**.
+
+Foi criada uma classe exclusiva para realizar a conexão com o banco de dados:
+
+```text
+ConexaoBD
+```
+
+Também foram criadas classes DAO responsáveis pelas operações de acesso e persistência:
+
+```text
+CandidatoDAO
+EmpresaDAO
+CompetenciaDAO
+VagaDAO
+```
+
+Cada DAO possui as operações de **CRUD** correspondentes à sua tabela.
+
+A estrutura passou a seguir o fluxo:
+
+```text
+Menu
+  ↓
+Service
+  ↓
+DAO
+  ↓
+JDBC
+  ↓
+PostgreSQL
+```
+
+Essa separação permite manter a lógica de negócio nos `services` e concentrar o acesso ao banco nas classes DAO.
+
+
+
+### Organização dos menus
+
+As opções de cada CRUD ficam organizadas na camada de `view`, enquanto os `services` executam as operações utilizando os DAOs.
+
+No terminal, a navegação é organizada por contexto:
+
+```text
+Candidatos
+├── Listar
+├── Atualizar dados
+├── Gerenciar competências
+└── Excluir
+
+Empresas
+├── Listar
+├── Atualizar dados
+├── Gerenciar competências desejadas
+└── Excluir
+
+Vagas
+├── Cadastrar
+├── Listar
+├── Atualizar
+└── Excluir
+```
+
+As competências de candidatos e empresas são gerenciadas separadamente, enquanto as competências exigidas de uma vaga são definidas durante o cadastro ou atualização da vaga.
+
+As relações entre candidatos, empresas e vagas com competências são persistidas nas tabelas:
+
+```text
+candidato_competencia
+empresa_competencia
+vaga_competencia
+```
+
 
 ## Autor
 

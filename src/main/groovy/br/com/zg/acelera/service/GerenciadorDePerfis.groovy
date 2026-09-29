@@ -5,11 +5,8 @@ import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
-import br.com.zg.acelera.dao.BancodeDados
-
 
 class GerenciadorDePerfis {
-    BancodeDados dados = new BancodeDados()
 
     CandidatoDAO candidatoDAO = new CandidatoDAO()
     CompetenciaDAO competenciaDAO = new CompetenciaDAO()
@@ -343,8 +340,6 @@ class GerenciadorDePerfis {
             return
         }
 
-        String cpf = candidato.cpf
-
         print "Novo nome: "
         String nome = sc.nextLine().trim()
         ValidarCandidato.validarNome(nome)
@@ -444,8 +439,6 @@ class GerenciadorDePerfis {
         if (empresa == null) {
             return
         }
-
-        String cnpj = empresa.cnpj
 
         print "Novo nome da empresa: "
         String nome = sc.nextLine().trim()
