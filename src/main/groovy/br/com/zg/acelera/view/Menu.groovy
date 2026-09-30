@@ -96,7 +96,6 @@ class Menu {
                     break
 
                 case 5:
-                    GerenciadordeMatches.simularInteracoes()
                     GerenciadordeMatches.exibirPainel()
                     break
                 case 6:
@@ -152,7 +151,6 @@ class Menu {
                     gerenciador.curtirCandidatoPeloTerminal(sc)
                     break
                 case 5:
-                    GerenciadordeMatches.simularInteracoes()
                     GerenciadordeMatches.exibirPainel()
                     break
                 case 6:

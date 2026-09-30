@@ -4,6 +4,7 @@ import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
+import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
@@ -14,6 +15,7 @@ class GerenciadorDePerfis {
     CompetenciaDAO competenciaDAO = new CompetenciaDAO()
     EmpresaDAO empresaDAO = new EmpresaDAO()
     CurtidaDAO curtidaDAO = new CurtidaDAO()
+    MatchDAO matchDAO = new MatchDAO()
     GerenciadorDeVagas gerenciadorDeVagas = new GerenciadorDeVagas()
 
     void listarCandidatos() {
@@ -639,8 +641,24 @@ class GerenciadorDePerfis {
                 empresa.cnpj,
                 vaga.id)) {
 
-            println "\n*** MATCH ENCONTRADO! ***"
-            println "${empresa.nome} e ${candidato.nome} deram match!"
+            if (matchDAO.existeMatch(
+                    candidato.cpf,
+                    empresa.cnpj,
+                    vaga.id)) {
+
+                println "\nEsse match já está registrado."
+
+            } else {
+
+                matchDAO.registrarMatch(
+                        candidato.cpf,
+                        empresa.cnpj,
+                        vaga.id
+                )
+
+                println "\n*** MATCH ENCONTRADO! ***"
+                println "${empresa.nome} e ${candidato.nome} deram match!"
+            }
         }
     }
 }
