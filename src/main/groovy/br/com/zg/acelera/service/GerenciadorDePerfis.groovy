@@ -136,11 +136,6 @@ class GerenciadorDePerfis {
 
                     candidatoDAO.cadastrar(novoCandidato)
 
-                    competencias.each { String competencia ->
-                        competenciaDAO.garantirCompetencia(competencia)
-                        competenciaDAO.adicionarAoCandidato(novoCandidato.cpf, competencia)
-                    }
-
                     println "Candidato cadastrado com sucesso!\n"
 
                 } catch (IllegalArgumentException e) {
@@ -193,11 +188,6 @@ class GerenciadorDePerfis {
 
                     empresaDAO.cadastrar(novaEmpresa)
 
-                    competencias.each { String competencia ->
-                        competenciaDAO.garantirCompetencia(competencia)
-                        competenciaDAO.adicionarAoEmpresa(novaEmpresa.cnpj, competencia)
-                    }
-
                     println "Empresa cadastrada com sucesso!\n"
 
                 } catch (IllegalArgumentException e) {
@@ -226,7 +216,7 @@ class GerenciadorDePerfis {
         println "\n-- Empresas Cadastradas --"
 
         empresas.eachWithIndex { empresa, indice ->
-            println "${indice + 1} - ${empresa.nome} | CNPJ: ${empresa.cnpj}"
+            println "${indice + 1} - ${empresa.nome}"
         }
 
         print "Selecione a empresa: "
@@ -316,7 +306,7 @@ class GerenciadorDePerfis {
         println "\n-- Candidatos Cadastrados --"
 
         candidatos.eachWithIndex { candidato, indice ->
-            println "${indice + 1} - ${candidato.nome} | CPF: ${candidato.cpf}"
+            println "${indice + 1} - ${candidato.nome}"
         }
 
         print "Selecione o candidato pelo ID: "
@@ -337,13 +327,47 @@ class GerenciadorDePerfis {
 
         return candidatos[opcao - 1]
     }
-    void atualizarCandidatoPeloTerminal(Scanner sc) {
+    Candidato selecionarCandidatoParaCurtir(Scanner sc) {
 
-        Candidato candidato = selecionarCandidato(sc)
+        List<Candidato> candidatos = candidatoDAO.listarTodos()
 
-        if (candidato == null) {
-            return
+        if (candidatos.isEmpty()) {
+            println "Nenhum candidato cadastrado ainda."
+            return null
         }
+
+        println "\n-- Candidatos Disponíveis --"
+
+        candidatos.eachWithIndex { candidato, indice ->
+
+            List<String> competencias =
+                    competenciaDAO.listarDoCandidato(candidato.cpf)
+
+            println "${indice + 1} - Competências: " +
+                    (competencias.isEmpty()
+                            ? "Nenhuma competência cadastrada"
+                            : competencias.join(', '))
+        }
+
+        print "Selecione o candidato: "
+
+        if (!sc.hasNextInt()) {
+            println "Erro: informe apenas o número do candidato."
+            sc.nextLine()
+            return null
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > candidatos.size()) {
+            println "Candidato inválido."
+            return null
+        }
+
+        return candidatos[opcao - 1]
+    }
+    void atualizarCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
 
         print "Novo nome: "
         String nome = sc.nextLine().trim()
@@ -391,13 +415,7 @@ class GerenciadorDePerfis {
 
         println "Candidato atualizado com sucesso!"
     }
-    void excluirCandidatoPeloTerminal(Scanner sc) {
-
-        Candidato candidato = selecionarCandidato(sc)
-
-        if (candidato == null) {
-            return
-        }
+    void excluirCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
 
         candidatoDAO.excluir(candidato.cpf)
 
@@ -437,13 +455,7 @@ class GerenciadorDePerfis {
 
         return empresas[opcao - 1]
     }
-    void atualizarEmpresaPeloTerminal(Scanner sc) {
-
-        Empresa empresa = selecionarEmpresaParaEdicao(sc)
-
-        if (empresa == null) {
-            return
-        }
+    void atualizarEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
 
         print "Novo nome da empresa: "
         String nome = sc.nextLine().trim()
@@ -480,13 +492,7 @@ class GerenciadorDePerfis {
 
         println "Empresa atualizada com sucesso!"
     }
-    void excluirEmpresaPeloTerminal(Scanner sc) {
-
-        Empresa empresa = selecionarEmpresaParaEdicao(sc)
-
-        if (empresa == null) {
-            return
-        }
+    void excluirEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
 
         empresaDAO.excluir(empresa.cnpj)
 
@@ -542,13 +548,7 @@ class GerenciadorDePerfis {
                 competencia
         )
     }
-    void curtirVagaPeloTerminal(Scanner sc) {
-
-        Candidato candidato = selecionarCandidato(sc)
-
-        if (candidato == null) {
-            return
-        }
+    void curtirVagaPeloTerminal(Scanner sc, Candidato candidato) {
 
         List<Vaga> vagas = gerenciadorDeVagas.listarVagas()
 
@@ -560,7 +560,7 @@ class GerenciadorDePerfis {
         println "\n-- Vagas Disponíveis --"
 
         vagas.eachWithIndex { vaga, indice ->
-            println "${indice + 1} - ${vaga.titulo} | Empresa: ${vaga.empresa.nome}"
+            println "${indice + 1} - ${vaga.titulo}"
         }
 
         print "Selecione a vaga pelo ID: "
@@ -586,15 +586,9 @@ class GerenciadorDePerfis {
                 vaga.id
         )
     }
-    void curtirCandidatoPeloTerminal(Scanner sc) {
+    void curtirCandidatoPeloTerminal(Scanner sc, Empresa empresa) {
 
-        Empresa empresa = selecionarEmpresa(sc)
-
-        if (empresa == null) {
-            return
-        }
-
-        Candidato candidato = selecionarCandidato(sc)
+        Candidato candidato = selecionarCandidatoParaCurtir(sc)
 
         if (candidato == null) {
             return

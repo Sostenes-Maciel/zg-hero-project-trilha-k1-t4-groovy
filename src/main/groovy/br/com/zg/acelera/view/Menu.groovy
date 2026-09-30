@@ -56,18 +56,23 @@ class Menu {
     }
     void gerenciarCandidatos(Scanner sc) {
 
+        Candidato candidato = gerenciador.selecionarCandidato(sc)
+
+        if (candidato == null) {
+            return
+        }
+
         int opcao = 0
 
-        while (opcao != 7) {
+        while (opcao != 6) {
 
-            println "\n--- CANDIDATOS ---"
-            println "1 - Listar candidatos"
-            println "2 - Atualizar candidato"
-            println "3 - Gerenciar competências"
-            println "4 - Curtir vaga"
-            println "5 - Ver matches"
-            println "6 - Excluir candidato"
-            println "7 - Voltar"
+            println "\n--- CANDIDATO: ${candidato.nome} ---"
+            println "1 - Atualizar dados"
+            println "2 - Gerenciar competências"
+            println "3 - Curtir vaga"
+            println "4 - Ver meus matches"
+            println "5 - Excluir perfil do candidato"
+            println "6 - Voltar"
 
             print "Escolha uma opção: "
 
@@ -83,25 +88,29 @@ class Menu {
             switch (opcao) {
 
                 case 1:
-                    gerenciador.listarCandidatos()
+                    gerenciador.atualizarCandidatoPeloTerminal(sc, candidato)
                     break
+
                 case 2:
-                    gerenciador.atualizarCandidatoPeloTerminal(sc)
+                    gerenciarCompetenciasCandidato(sc, candidato)
                     break
+
                 case 3:
-                    gerenciarCompetenciasCandidato(sc)
+                    gerenciador.curtirVagaPeloTerminal(sc, candidato)
                     break
+
                 case 4:
-                    gerenciador.curtirVagaPeloTerminal(sc)
+                    GerenciadordeMatches.exibirMatchesDoCandidato(candidato.cpf)
                     break
 
                 case 5:
-                    GerenciadordeMatches.exibirPainel()
+                    gerenciador.excluirCandidatoPeloTerminal(sc, candidato)
+
+                    // Depois da exclusão, volta para o menu principal
+                    opcao = 6
                     break
+
                 case 6:
-                    gerenciador.excluirCandidatoPeloTerminal(sc)
-                    break
-                case 7:
                     println "Voltando..."
                     break
 
@@ -112,18 +121,23 @@ class Menu {
     }
     void gerenciarEmpresas(Scanner sc) {
 
+        Empresa empresa = gerenciador.selecionarEmpresa(sc)
+
+        if (empresa == null) {
+            return
+        }
+
         int opcao = 0
 
-        while (opcao != 5) {
+        while (opcao != 6) {
 
-            println "\n--- EMPRESAS ---"
-            println "1 - Listar empresas"
-            println "2 - Atualizar empresa"
-            println "3 - Gerenciar competências desejadas"
-            println "4 - Curtir candidato"
-            println "5 - Ver matches"
-            println "6 - Excluir empresa"
-            println "7 - Voltar"
+            println "\n--- EMPRESA: ${empresa.nome} ---"
+            println "1 - Atualizar dados"
+            println "2 - Gerenciar competências desejadas"
+            println "3 - Curtir candidato"
+            println "4 - Ver meus matches"
+            println "5 - Excluir perfil da empresa"
+            println "6 - Voltar"
 
             print "Escolha uma opção: "
 
@@ -137,26 +151,29 @@ class Menu {
             sc.nextLine()
 
             switch (opcao) {
+
                 case 1:
-                    gerenciador.listarEmpresas()
+                    gerenciador.atualizarEmpresaPeloTerminal(sc, empresa)
                     break
 
                 case 2:
-                    gerenciador.atualizarEmpresaPeloTerminal(sc)
+                    gerenciarCompetenciasEmpresa(sc, empresa)
                     break
+
                 case 3:
-                    gerenciarCompetenciasEmpresa(sc)
+                    gerenciador.curtirCandidatoPeloTerminal(sc, empresa)
                     break
+
                 case 4:
-                    gerenciador.curtirCandidatoPeloTerminal(sc)
+                    GerenciadordeMatches.exibirMatchesDaEmpresa(empresa.cnpj)
                     break
+
                 case 5:
-                    GerenciadordeMatches.exibirPainel()
+                    gerenciador.excluirEmpresaPeloTerminal(sc, empresa)
+                    opcao = 6
                     break
+
                 case 6:
-                    gerenciador.excluirEmpresaPeloTerminal(sc)
-                    break
-                case 7:
                     println "Voltando..."
                     break
 
@@ -165,13 +182,7 @@ class Menu {
             }
         }
     }
-    void gerenciarCompetenciasCandidato(Scanner sc) {
-
-        Candidato candidato = gerenciador.selecionarCandidato(sc)
-
-        if (candidato == null) {
-            return
-        }
+    void gerenciarCompetenciasCandidato(Scanner sc, Candidato candidato) {
 
         int opcao = 0
 
@@ -215,6 +226,11 @@ class Menu {
 
                     if (competencia.isEmpty()) {
                         println "Competência inválida."
+                        break
+                    }
+
+                    if (competencia.contains(",")) {
+                        println "Digite apenas uma competência por vez."
                         break
                     }
 
@@ -273,13 +289,7 @@ class Menu {
             }
         }
     }
-    void gerenciarCompetenciasEmpresa(Scanner sc) {
-
-        Empresa empresa = gerenciador.selecionarEmpresaParaEdicao(sc)
-
-        if (empresa == null) {
-            return
-        }
+    void gerenciarCompetenciasEmpresa(Scanner sc, Empresa empresa) {
 
         int opcao = 0
 
@@ -323,6 +333,11 @@ class Menu {
 
                     if (competencia.isEmpty()) {
                         println "Competência inválida."
+                        break
+                    }
+
+                    if (competencia.contains(",")) {
+                        println "Digite apenas uma competência por vez."
                         break
                     }
 
