@@ -2,15 +2,18 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.model.Vaga
 
 class GerenciadorDePerfis {
 
     CandidatoDAO candidatoDAO = new CandidatoDAO()
     CompetenciaDAO competenciaDAO = new CompetenciaDAO()
     EmpresaDAO empresaDAO = new EmpresaDAO()
+    CurtidaDAO curtidaDAO = new CurtidaDAO()
     GerenciadorDeVagas gerenciadorDeVagas = new GerenciadorDeVagas()
 
     void listarCandidatos() {
@@ -131,7 +134,7 @@ class GerenciadorDePerfis {
 
                     candidatoDAO.cadastrar(novoCandidato)
 
-                    competencias.each { competencia ->
+                    competencias.each { String competencia ->
                         competenciaDAO.garantirCompetencia(competencia)
                         competenciaDAO.adicionarAoCandidato(novoCandidato.cpf, competencia)
                     }
@@ -188,7 +191,7 @@ class GerenciadorDePerfis {
 
                     empresaDAO.cadastrar(novaEmpresa)
 
-                    competencias.each { competencia ->
+                    competencias.each { String competencia ->
                         competenciaDAO.garantirCompetencia(competencia)
                         competenciaDAO.adicionarAoEmpresa(novaEmpresa.cnpj, competencia)
                     }
@@ -537,5 +540,107 @@ class GerenciadorDePerfis {
                 competencia
         )
     }
+    void curtirVagaPeloTerminal(Scanner sc) {
 
+        Candidato candidato = selecionarCandidato(sc)
+
+        if (candidato == null) {
+            return
+        }
+
+        List<Vaga> vagas = gerenciadorDeVagas.listarVagas()
+
+        if (vagas.isEmpty()) {
+            println "Nenhuma vaga cadastrada ainda."
+            return
+        }
+
+        println "\n-- Vagas Disponíveis --"
+
+        vagas.eachWithIndex { vaga, indice ->
+            println "${indice + 1} - ${vaga.titulo} | Empresa: ${vaga.empresa.nome}"
+        }
+
+        print "Selecione a vaga pelo ID: "
+
+        if (!sc.hasNextInt()) {
+            println "Erro: informe apenas o número da vaga."
+            sc.nextLine()
+            return
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > vagas.size()) {
+            println "Vaga inválida."
+            return
+        }
+
+        Vaga vaga = vagas[opcao - 1]
+
+        curtidaDAO.registrarCurtidaCandidato(
+                candidato.cpf,
+                vaga.id
+        )
+    }
+    void curtirCandidatoPeloTerminal(Scanner sc) {
+
+        Empresa empresa = selecionarEmpresa(sc)
+
+        if (empresa == null) {
+            return
+        }
+
+        Candidato candidato = selecionarCandidato(sc)
+
+        if (candidato == null) {
+            return
+        }
+
+        List<Vaga> vagas = gerenciadorDeVagas.listarVagasDaEmpresa(empresa.cnpj)
+
+        if (vagas.isEmpty()) {
+            println "Essa empresa não possui vagas cadastradas."
+            return
+        }
+
+        println "\n-- Vagas da ${empresa.nome} --"
+
+        vagas.eachWithIndex { vaga, indice ->
+            println "${indice + 1} - ${vaga.titulo}"
+        }
+
+        print "Selecione a vaga: "
+
+        if (!sc.hasNextInt()) {
+            println "Erro: informe apenas o número da vaga."
+            sc.nextLine()
+            return
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > vagas.size()) {
+            println "Vaga inválida."
+            return
+        }
+
+        Vaga vaga = vagas[opcao - 1]
+
+        curtidaDAO.registrarCurtidaEmpresa(
+                candidato.cpf,
+                empresa.cnpj
+        )
+
+        if (curtidaDAO.verificarMatch(
+                candidato.cpf,
+                empresa.cnpj,
+                vaga.id)) {
+
+            println "\n*** MATCH ENCONTRADO! ***"
+            println "${empresa.nome} e ${candidato.nome} deram match!"
+        }
+    }
 }

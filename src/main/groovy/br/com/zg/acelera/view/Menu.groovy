@@ -14,14 +14,13 @@ class Menu {
         int opcao = 0
         println "Bem-vindo ao Linkertinder <3\n"
 
-        while (opcao != 6) {
+        while (opcao != 5) {
 
             println("1 - Gerenciar candidatos")
             println("2 - Gerenciar Empresas")
             println("3 - Cadastrar")
-            println("4 - Ver Resultados de Curtidas e Matches")
-            println("5 - Gerenciar Vagas")
-            println("6 - Sair")
+            println("4 - Gerenciar Vagas")
+            println("5 - Sair")
 
             try {
                 print "\nEscolha uma opção: "
@@ -39,14 +38,10 @@ class Menu {
                         gerenciador.cadastroNovo(sc)
                         break
                     case 4:
-                        GerenciadordeMatches.simularInteracoes()
-                        GerenciadordeMatches.exibirPainel()
-                        break
-                    case 5:
                         gerenciador.gerenciarVagas(sc)
                         break
 
-                    case 6:
+                    case 5:
                         println("Saindo do Linketinder. Até logo!")
                         break
                 }
@@ -63,14 +58,16 @@ class Menu {
 
         int opcao = 0
 
-        while (opcao != 5) {
+        while (opcao != 7) {
 
             println "\n--- CANDIDATOS ---"
             println "1 - Listar candidatos"
             println "2 - Atualizar candidato"
             println "3 - Gerenciar competências"
-            println "4 - Excluir candidato"
-            println "5 - Voltar"
+            println "4 - Curtir vaga"
+            println "5 - Ver matches"
+            println "6 - Excluir candidato"
+            println "7 - Voltar"
 
             print "Escolha uma opção: "
 
@@ -94,12 +91,18 @@ class Menu {
                 case 3:
                     gerenciarCompetenciasCandidato(sc)
                     break
-
                 case 4:
-                    gerenciador.excluirCandidatoPeloTerminal(sc)
+                    gerenciador.curtirVagaPeloTerminal(sc)
                     break
 
                 case 5:
+                    GerenciadordeMatches.simularInteracoes()
+                    GerenciadordeMatches.exibirPainel()
+                    break
+                case 6:
+                    gerenciador.excluirCandidatoPeloTerminal(sc)
+                    break
+                case 7:
                     println "Voltando..."
                     break
 
@@ -118,8 +121,10 @@ class Menu {
             println "1 - Listar empresas"
             println "2 - Atualizar empresa"
             println "3 - Gerenciar competências desejadas"
-            println "4 - Excluir empresa"
-            println "5 - Voltar"
+            println "4 - Curtir candidato"
+            println "5 - Ver matches"
+            println "6 - Excluir empresa"
+            println "7 - Voltar"
 
             print "Escolha uma opção: "
 
@@ -144,9 +149,16 @@ class Menu {
                     gerenciarCompetenciasEmpresa(sc)
                     break
                 case 4:
-                    gerenciador.excluirEmpresaPeloTerminal(sc)
+                    gerenciador.curtirCandidatoPeloTerminal(sc)
                     break
                 case 5:
+                    GerenciadordeMatches.simularInteracoes()
+                    GerenciadordeMatches.exibirPainel()
+                    break
+                case 6:
+                    gerenciador.excluirEmpresaPeloTerminal(sc)
+                    break
+                case 7:
                     println "Voltando..."
                     break
 
@@ -364,6 +376,48 @@ class Menu {
                     break
 
                 case 4:
+                    println "Voltando..."
+                    break
+
+                default:
+                    println "Opção inválida."
+            }
+        }
+    }
+    void gerenciarCurtidasMatches(Scanner sc) {
+
+        int opcao = 0
+
+        while (opcao != 3) {
+
+            println "\n--- CURTIDAS E MATCHES ---"
+            println "1 - Candidato curtir vaga"
+            println "2 - Ver resultados de curtidas e matches"
+            println "3 - Voltar"
+
+            print "Escolha uma opção: "
+
+            if (!sc.hasNextInt()) {
+                println "Opção inválida."
+                sc.nextLine()
+                continue
+            }
+
+            opcao = sc.nextInt()
+            sc.nextLine()
+
+            switch (opcao) {
+
+                case 1:
+                    gerenciador.curtirVagaPeloTerminal(sc)
+                    break
+
+                case 2:
+                    GerenciadordeMatches.simularInteracoes()
+                    GerenciadordeMatches.exibirPainel()
+                    break
+
+                case 3:
                     println "Voltando..."
                     break
 
