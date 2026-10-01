@@ -585,6 +585,31 @@ class GerenciadorDePerfis {
                 candidato.cpf,
                 vaga.id
         )
+
+        if (curtidaDAO.verificarMatch(
+                candidato.cpf,
+                vaga.empresa.cnpj,
+                vaga.id)) {
+
+            if (matchDAO.existeMatch(
+                    candidato.cpf,
+                    vaga.empresa.cnpj,
+                    vaga.id)) {
+
+                println "\nEsse match já está registrado."
+
+            } else {
+
+                matchDAO.registrarMatch(
+                        candidato.cpf,
+                        vaga.empresa.cnpj,
+                        vaga.id
+                )
+
+                println "\n*** MATCH ENCONTRADO! ***"
+                println "${candidato.nome} e ${vaga.empresa.nome} deram match!"
+            }
+        }
     }
     void curtirCandidatoPeloTerminal(Scanner sc, Empresa empresa) {
 
