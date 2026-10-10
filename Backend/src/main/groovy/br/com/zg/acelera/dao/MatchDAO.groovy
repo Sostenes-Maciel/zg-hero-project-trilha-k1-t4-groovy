@@ -4,13 +4,19 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class MatchDAO {
+class MatchDAO implements IMatchDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    MatchDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             stmt.executeUpdate()
@@ -27,7 +33,7 @@ class MatchDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             rs = stmt.executeQuery()
@@ -47,7 +53,7 @@ class MatchDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             rs = stmt.executeQuery()
@@ -64,7 +70,7 @@ class MatchDAO {
         return resultados
     }
 
-    private Map<String, Object> mapearMatch(ResultSet rs) {
+    private static Map<String, Object> mapearMatch(ResultSet rs) {
         return [
                 idMatch      : rs.getInt("id_match"),
                 nomeCandidato: rs.getString("nome_candidato"),
@@ -73,6 +79,7 @@ class MatchDAO {
         ]
     }
 
+    @Override
     boolean existeMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
         String sql = """
             SELECT 1 FROM match_vaga
@@ -81,17 +88,17 @@ class MatchDAO {
         return executarQueryBooleana(sql, [cpfCandidato, cnpjEmpresa, idVaga])
     }
 
+    @Override
     void registrarMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
         if (existeMatch(cpfCandidato, cnpjEmpresa, idVaga)) {
-            println "Esse match já está registrado."
             return
         }
 
         String sql = "INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga) VALUES (?, ?, ?)"
         executarUpdate(sql, [cpfCandidato, cnpjEmpresa, idVaga])
-        println "Match registrado com sucesso."
     }
 
+    @Override
     List<Map<String, Object>> listarMatches() {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
@@ -104,6 +111,7 @@ class MatchDAO {
         return executarQueryMatches(sql, [])
     }
 
+    @Override
     List<Map<String, Object>> listarMatchesDoCandidato(String cpfCandidato) {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
@@ -117,6 +125,7 @@ class MatchDAO {
         return executarQueryMatches(sql, [cpfCandidato])
     }
 
+    @Override
     List<Map<String, Object>> listarMatchesDaEmpresa(String cnpjEmpresa) {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
