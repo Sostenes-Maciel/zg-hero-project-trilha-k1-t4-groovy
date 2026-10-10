@@ -1,4 +1,4 @@
-package br.com.zg.acelera.model
+package br.com.zg.acelera.interfaces
 
 interface IPessoa {
 

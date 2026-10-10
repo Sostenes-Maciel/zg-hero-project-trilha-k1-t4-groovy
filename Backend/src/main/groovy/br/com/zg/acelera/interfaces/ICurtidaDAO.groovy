@@ -1,4 +1,4 @@
-package br.com.zg.acelera.dao
+package br.com.zg.acelera.interfaces
 
 interface ICurtidaDAO {
     void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga)

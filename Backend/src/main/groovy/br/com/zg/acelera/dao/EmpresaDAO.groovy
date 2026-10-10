@@ -1,5 +1,7 @@
 package br.com.zg.acelera.dao
 
+import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IEmpresaDAO
 import br.com.zg.acelera.model.Empresa
 
 import java.sql.Connection

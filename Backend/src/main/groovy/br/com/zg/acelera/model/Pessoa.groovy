@@ -1,5 +1,7 @@
 package br.com.zg.acelera.model
 
+import br.com.zg.acelera.interfaces.IPessoa
+
 abstract class Pessoa implements IPessoa {
 
     String nome

@@ -1,4 +1,4 @@
-package br.com.zg.acelera.dao
+package br.com.zg.acelera.interfaces
 
 interface ICompetenciaDAO {
     void cadastrar(String nome)

@@ -1,5 +1,7 @@
 package br.com.zg.acelera.dao
 
+import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IVagaDAO
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 

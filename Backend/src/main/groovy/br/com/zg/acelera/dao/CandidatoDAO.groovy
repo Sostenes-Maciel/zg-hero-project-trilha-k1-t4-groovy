@@ -1,5 +1,7 @@
 package br.com.zg.acelera.dao
 
+import br.com.zg.acelera.interfaces.ICandidatoDAO
+import br.com.zg.acelera.interfaces.IConexaoFactory
 import br.com.zg.acelera.model.Candidato
 import java.sql.Connection
 import java.sql.PreparedStatement

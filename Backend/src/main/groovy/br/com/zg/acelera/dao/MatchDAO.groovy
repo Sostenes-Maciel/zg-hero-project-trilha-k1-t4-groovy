@@ -1,5 +1,8 @@
 package br.com.zg.acelera.dao
 
+import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IMatchDAO
+
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet

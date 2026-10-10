@@ -1,4 +1,4 @@
-package br.com.zg.acelera.dao
+package br.com.zg.acelera.interfaces
 
 interface IMatchDAO {
     boolean existeMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga)

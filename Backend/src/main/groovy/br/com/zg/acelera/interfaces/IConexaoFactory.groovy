@@ -1,4 +1,4 @@
-package br.com.zg.acelera.dao
+package br.com.zg.acelera.interfaces
 
 import java.sql.Connection
 import java.sql.SQLException
