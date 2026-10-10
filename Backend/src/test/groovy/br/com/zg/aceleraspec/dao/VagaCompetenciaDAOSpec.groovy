@@ -1,6 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.ConexaoBD
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Empresa
@@ -14,9 +15,10 @@ class VagaCompetenciaDAOSpec extends Specification {
     private CompetenciaDAO competenciaDAO
 
     def setup() {
-        vagaDAO = new VagaDAO()
-        empresaDAO = new EmpresaDAO()
-        competenciaDAO = new CompetenciaDAO()
+        def conexaoFactory = new ConexaoBD()
+        vagaDAO = new VagaDAO(conexaoFactory)
+        empresaDAO = new EmpresaDAO(conexaoFactory)
+        competenciaDAO = new CompetenciaDAO(conexaoFactory)
 
         vagaDAO.listarPorEmpresa("88.777.666/0001-55").each {
             vagaDAO.excluir(it.id)
