@@ -4,19 +4,18 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
-class ConexaoBD {
+class ConexaoBD implements IConexaoFactory {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/LinkeTinder_BD"
-
     private static final String USUARIO = "postgres"
     private static final String SENHA = "postgres"
 
-    static Connection conectar() {
+    @Override
+    Connection conectar() throws SQLException {
         try {
             return DriverManager.getConnection(URL, USUARIO, SENHA)
         } catch (SQLException e) {
-            throw new RuntimeException("Falha fatal ao conectar no banco de dados. Verifique se o Postgres está rodando e as credenciais.", e)
+            throw new RuntimeException("Falha fatal ao conectar no banco de dados.", e)
         }
     }
 }
-

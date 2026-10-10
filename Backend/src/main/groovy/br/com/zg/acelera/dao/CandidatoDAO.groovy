@@ -1,21 +1,25 @@
 package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.model.Candidato
-
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CandidatoDAO {
+class CandidatoDAO implements ICandidatoDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    CandidatoDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
 
-            // Preenche os ? dinamicamente
             parametros.eachWithIndex { param, i ->
                 stmt.setObject(i + 1, param)
             }
@@ -23,6 +27,7 @@ class CandidatoDAO {
             stmt.executeUpdate()
         } catch (Exception e) {
             println "Erro no Banco de Dados: ${e.message}"
+            throw new RuntimeException("Falha ao executar query", e)
         } finally {
             if (stmt != null) stmt.close()
             if (conexao != null) conexao.close()
@@ -36,7 +41,7 @@ class CandidatoDAO {
         ResultSet rs = null
 
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
 
             parametros.eachWithIndex { param, i ->
@@ -70,6 +75,7 @@ class CandidatoDAO {
         )
     }
 
+    @Override
     void cadastrar(Candidato candidato) {
         String sql = """
             INSERT INTO candidato (cpf, nome, email, pais, estado, cep, descricao, idade)
@@ -81,23 +87,20 @@ class CandidatoDAO {
         ])
     }
 
+    @Override
     List<Candidato> listarTodos() {
-        String sql = """
-            SELECT cpf, nome, email, pais, estado, cep, descricao, idade 
-            FROM candidato ORDER BY nome
-        """
+        String sql = "SELECT cpf, nome, email, pais, estado, cep, descricao, idade FROM candidato ORDER BY nome"
         return executarQuery(sql, [])
     }
 
-    Candidato buscarPorCpf(String cpf) {
-        String sql = """
-            SELECT cpf, nome, email, pais, estado, cep, descricao, idade 
-            FROM candidato WHERE cpf = ?
-        """
+    @Override
+    Candidato buscarPorId(String cpf) {
+        String sql = "SELECT cpf, nome, email, pais, estado, cep, descricao, idade FROM candidato WHERE cpf = ?"
         List<Candidato> resultados = executarQuery(sql, [cpf])
         return resultados.isEmpty() ? null : resultados[0]
     }
 
+    @Override
     void atualizar(Candidato candidato) {
         String sql = """
             UPDATE candidato
@@ -110,6 +113,7 @@ class CandidatoDAO {
         ])
     }
 
+    @Override
     void excluir(String cpf) {
         String sql = "DELETE FROM candidato WHERE cpf = ?"
         executarUpdate(sql, [cpf])

@@ -1,6 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.ConexaoBD
 import br.com.zg.acelera.model.Candidato
 import spock.lang.Specification
 
@@ -9,12 +10,13 @@ class CandidatoDAOSpec extends Specification {
     private CandidatoDAO candidatoDAO
 
     def setup() {
-        candidatoDAO = new CandidatoDAO()
+        candidatoDAO = new CandidatoDAO(new ConexaoBD())
+
         candidatoDAO.excluir("999.999.999-99")
     }
 
     def "deve realizar o CRUD de candidato no banco"() {
-        given:
+        given: "um candidato valido para teste"
         Candidato candidato = new Candidato(
                 cpf: "999.999.999-99",
                 nome: "Candidato Teste",
@@ -26,23 +28,23 @@ class CandidatoDAOSpec extends Specification {
                 idade: 25
         )
 
-        when:
+        when: "acionamos o metodo de cadastro"
         candidatoDAO.cadastrar(candidato)
 
-        then:
-        candidatoDAO.buscarPorCpf("999.999.999-99").nome == "Candidato Teste"
+        then: "ao buscar por ID, o nome deve coincidir com o cadastrado"
+        candidatoDAO.buscarPorId("999.999.999-99").nome == "Candidato Teste"
 
-        when:
+        when: "alteramos o nome e salvamos no banco"
         candidato.nome = "Candidato Atualizado"
         candidatoDAO.atualizar(candidato)
 
-        then:
-        candidatoDAO.buscarPorCpf("999.999.999-99").nome == "Candidato Atualizado"
+        then: "a nova busca deve refletir o nome atualizado"
+        candidatoDAO.buscarPorId("999.999.999-99").nome == "Candidato Atualizado"
 
-        when:
+        when: "acionamos o metodo de exclusao"
         candidatoDAO.excluir("999.999.999-99")
 
-        then:
-        candidatoDAO.buscarPorCpf("999.999.999-99") == null
+        then: "o candidato nao deve mais ser encontrado"
+        candidatoDAO.buscarPorId("999.999.999-99") == null
     }
 }
