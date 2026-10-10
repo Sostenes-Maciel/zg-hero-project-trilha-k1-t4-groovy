@@ -2,6 +2,7 @@ package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.ConexaoBD
 import br.com.zg.acelera.model.Candidato
 import spock.lang.Specification
 
@@ -11,15 +12,16 @@ class CompetenciaDAOSpec extends Specification {
     private CandidatoDAO candidatoDAO
 
     def setup() {
-        competenciaDAO = new CompetenciaDAO()
-        candidatoDAO = new CandidatoDAO()
+        def conexaoFactory = new ConexaoBD()
+        competenciaDAO = new CompetenciaDAO(conexaoFactory)
+        candidatoDAO = new CandidatoDAO(conexaoFactory)
 
         candidatoDAO.excluir("99999999999")
         competenciaDAO.excluir("Java Teste")
     }
 
     def "deve cadastrar e vincular competencia ao candidato"() {
-        given:
+        given: "um candidato e uma competência cadastrados no banco"
         Candidato candidato = new Candidato(
                 cpf: "99999999999",
                 nome: "Candidato Competencia",
@@ -34,24 +36,24 @@ class CompetenciaDAOSpec extends Specification {
         competenciaDAO.cadastrar("Java Teste")
         candidatoDAO.cadastrar(candidato)
 
-        when:
+        when: "adicionamos a competência ao candidato"
         competenciaDAO.adicionarAoCandidato(
                 candidato.cpf,
                 "Java Teste"
         )
 
-        then:
+        then: "o candidato deve possuir a competência ao listar"
         competenciaDAO.listarDoCandidato(
                 candidato.cpf
         ) == ["Java Teste"]
 
-        when:
+        when: "removemos a competência do candidato"
         competenciaDAO.removerDoCandidato(
                 candidato.cpf,
                 "Java Teste"
         )
 
-        then:
+        then: "a lista de competências do candidato deve estar vazia"
         competenciaDAO.listarDoCandidato(
                 candidato.cpf
         ).isEmpty()
@@ -60,6 +62,4 @@ class CompetenciaDAOSpec extends Specification {
         candidatoDAO.excluir("99999999999")
         competenciaDAO.excluir("Java Teste")
     }
-
-
 }

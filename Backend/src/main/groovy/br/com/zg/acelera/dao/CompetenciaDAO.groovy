@@ -4,13 +4,19 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CompetenciaDAO {
+class CompetenciaDAO implements ICompetenciaDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    CompetenciaDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
 
             parametros.eachWithIndex { param, i ->
@@ -19,7 +25,7 @@ class CompetenciaDAO {
 
             stmt.executeUpdate()
         } catch (Exception e) {
-            println "Erro no Banco de Dados: ${e.message}"
+            throw new RuntimeException("Erro no Banco de Dados: ${e.message}", e)
         } finally {
             if (stmt != null) stmt.close()
             if (conexao != null) conexao.close()
@@ -33,7 +39,7 @@ class CompetenciaDAO {
         ResultSet rs = null
 
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
 
             parametros.eachWithIndex { param, i ->
@@ -45,7 +51,7 @@ class CompetenciaDAO {
                 resultados.add(rs.getString("nome"))
             }
         } catch (Exception e) {
-            println "Erro na Busca: ${e.message}"
+            throw new RuntimeException("Erro na Busca: ${e.message}", e)
         } finally {
             if (rs != null) rs.close()
             if (stmt != null) stmt.close()
@@ -54,33 +60,37 @@ class CompetenciaDAO {
         return resultados
     }
 
+    @Override
     void cadastrar(String nome) {
         String sql = "INSERT INTO competencia (nome) VALUES (?)"
         executarUpdate(sql, [nome])
     }
 
+    @Override
     List<String> listarTodos() {
         String sql = "SELECT nome FROM competencia ORDER BY nome"
         return executarQuery(sql, [])
     }
 
+    @Override
     void atualizar(String nomeAtual, String novoNome) {
         String sql = "UPDATE competencia SET nome = ? WHERE nome = ?"
         executarUpdate(sql, [novoNome, nomeAtual])
     }
 
+    @Override
     void excluir(String nome) {
         String sql = "DELETE FROM competencia WHERE nome = ?"
         executarUpdate(sql, [nome])
     }
 
+    @Override
     void garantirCompetencia(String nome) {
         String sql = "INSERT INTO competencia (nome) VALUES (?) ON CONFLICT (nome) DO NOTHING"
         executarUpdate(sql, [nome])
     }
 
-    // --- CANDIDATO ---
-
+    @Override
     void adicionarAoCandidato(String cpf, String nomeCompetencia) {
         String sql = """
             INSERT INTO candidato_competencia (cpf_candidato, id_competencia)
@@ -90,6 +100,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [cpf, nomeCompetencia])
     }
 
+    @Override
     void removerDoCandidato(String cpf, String nomeCompetencia) {
         String sql = """
             DELETE FROM candidato_competencia
@@ -100,6 +111,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [cpf, nomeCompetencia])
     }
 
+    @Override
     List<String> listarDoCandidato(String cpf) {
         String sql = """
             SELECT c.nome FROM competencia c
@@ -109,8 +121,7 @@ class CompetenciaDAO {
         return executarQuery(sql, [cpf])
     }
 
-    // --- EMPRESA ---
-
+    @Override
     void adicionarAoEmpresa(String cnpj, String nomeCompetencia) {
         String sql = """
             INSERT INTO empresa_competencia (cnpj_empresa, id_competencia)
@@ -120,6 +131,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [cnpj, nomeCompetencia])
     }
 
+    @Override
     void removerDaEmpresa(String cnpj, String nomeCompetencia) {
         String sql = """
             DELETE FROM empresa_competencia
@@ -130,6 +142,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [cnpj, nomeCompetencia])
     }
 
+    @Override
     List<String> listarDaEmpresa(String cnpj) {
         String sql = """
             SELECT c.nome FROM competencia c
@@ -139,8 +152,7 @@ class CompetenciaDAO {
         return executarQuery(sql, [cnpj])
     }
 
-    // --- VAGA ---
-
+    @Override
     void adicionarAVaga(Integer idVaga, String nomeCompetencia) {
         String sql = """
             INSERT INTO vaga_competencia (id_vaga, id_competencia)
@@ -150,6 +162,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [idVaga, nomeCompetencia])
     }
 
+    @Override
     void removerDaVaga(Integer idVaga, String nomeCompetencia) {
         String sql = """
             DELETE FROM vaga_competencia
@@ -160,6 +173,7 @@ class CompetenciaDAO {
         executarUpdate(sql, [idVaga, nomeCompetencia])
     }
 
+    @Override
     List<String> listarDaVaga(Integer idVaga) {
         String sql = """
             SELECT c.nome FROM competencia c
