@@ -1,5 +1,8 @@
 package br.com.zg.acelera.view
 
+import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfis
@@ -7,14 +10,18 @@ import br.com.zg.acelera.service.GerenciadorDeMatches
 
 class Menu {
 
-    GerenciadorDePerfis gerenciador = new GerenciadorDePerfis()
+    private final def conexaoFactory = new ConexaoBD()
+
+    private final def candidatoDAO = new CandidatoDAO(conexaoFactory)
+    private final def empresaDAO = new EmpresaDAO(conexaoFactory)
+    private final GerenciadorDeMatches gerenciadorDeMatches = new GerenciadorDeMatches(conexaoFactory)
+    private final GerenciadorDePerfis gerenciador = new GerenciadorDePerfis(conexaoFactory)
     Scanner sc = new Scanner(System.in)
 
-    // Método utilitário para aplicar o princípio DRY na leitura de inteiros
-    private int lerOpcaoInt(Scanner sc) {
+    private static int lerOpcaoInt(Scanner sc) {
         if (!sc.hasNextInt()) {
-            sc.nextLine() // limpa o buffer
-            return -1     // retorna valor que cai no default do switch
+            sc.nextLine()
+            return -1
         }
         int opcao = sc.nextInt()
         sc.nextLine()
@@ -67,7 +74,7 @@ class Menu {
                 case 1: gerenciador.atualizarCandidatoPeloTerminal(sc, candidato); break
                 case 2: gerenciarCompetenciasCandidato(sc, candidato); break
                 case 3: gerenciador.curtirVagaPeloTerminal(sc, candidato); break
-                case 4: GerenciadorDeMatches.exibirMatchesDoCandidato(candidato.cpf); break
+                case 4: gerenciadorDeMatches.exibirMatchesDoCandidato(candidato.cpf); break
                 case 5:
                     gerenciador.excluirCandidatoPeloTerminal(sc, candidato)
                     opcao = 6 // Sai do loop após excluir
@@ -99,7 +106,7 @@ class Menu {
                 case 1: gerenciador.atualizarEmpresaPeloTerminal(sc, empresa); break
                 case 2: gerenciarCompetenciasEmpresa(sc, empresa); break
                 case 3: gerenciador.curtirCandidatoPeloTerminal(sc, empresa); break
-                case 4: GerenciadorDeMatches.exibirMatchesDaEmpresa(empresa.cnpj); break
+                case 4: gerenciadorDeMatches.exibirMatchesDaEmpresa(empresa.cnpj); break
                 case 5:
                     gerenciador.excluirEmpresaPeloTerminal(sc, empresa)
                     opcao = 6

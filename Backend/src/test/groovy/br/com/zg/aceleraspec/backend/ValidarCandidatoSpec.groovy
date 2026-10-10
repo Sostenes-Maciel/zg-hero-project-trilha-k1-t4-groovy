@@ -5,8 +5,8 @@ import spock.lang.Specification
 
 class ValidarCandidatoSpec extends Specification {
 
-    def "deve aceitar um nome válido"() {
 
+    def "deve aceitar um nome válido"() {
         when:
         ValidarCandidato.validarNome("João da Silva")
 
@@ -15,7 +15,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar um nome inválido"() {
-
         when:
         ValidarCandidato.validarNome("João123")
 
@@ -24,8 +23,8 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "Nome inválido."
     }
 
-    def "deve aceitar um email válido"() {
 
+    def "deve aceitar um email válido"() {
         when:
         ValidarCandidato.validarEmail("teste@email.com")
 
@@ -34,7 +33,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar um email inválido"() {
-
         when:
         ValidarCandidato.validarEmail("teste@email")
 
@@ -45,7 +43,6 @@ class ValidarCandidatoSpec extends Specification {
 
 
     def "deve aceitar um CPF válido"() {
-
         when:
         ValidarCandidato.validarCpf("123.456.789-00")
 
@@ -53,8 +50,15 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar um CPF inválido"() {
+    def "deve aceitar CPF com 11 números"() {
+        when:
+        ValidarCandidato.validarCpf("12345678900")
 
+        then:
+        noExceptionThrown()
+    }
+
+    def "deve rejeitar um CPF inválido"() {
         when:
         ValidarCandidato.validarCpf("123.456.789")
 
@@ -63,17 +67,7 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "CPF deve conter 11 números."
     }
 
-    def "deve aceitar CPF com 11 números"() {
-
-        when:
-        ValidarCandidato.validarCpf("12345678900")
-
-        then:
-        noExceptionThrown()
-    }
-
     def "deve rejeitar CPF com 10 números"() {
-
         when:
         ValidarCandidato.validarCpf("1234567890")
 
@@ -83,7 +77,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar CPF com 12 números"() {
-
         when:
         ValidarCandidato.validarCpf("123456789001")
 
@@ -94,7 +87,6 @@ class ValidarCandidatoSpec extends Specification {
 
 
     def "deve aceitar uma idade válida"() {
-
         when:
         ValidarCandidato.validarIdade(25)
 
@@ -102,8 +94,23 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar uma idade menor que 18 anos"() {
+    def "deve aceitar a idade mínima de 18 anos"() {
+        when:
+        ValidarCandidato.validarIdade(18)
 
+        then:
+        noExceptionThrown()
+    }
+
+    def "deve aceitar a idade máxima de 120 anos"() {
+        when:
+        ValidarCandidato.validarIdade(120)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "deve rejeitar uma idade menor que 18 anos"() {
         when:
         ValidarCandidato.validarIdade(17)
 
@@ -113,7 +120,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar uma idade maior que 120 anos"() {
-
         when:
         ValidarCandidato.validarIdade(121)
 
@@ -122,27 +128,8 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "Idade inválida."
     }
 
-    def "deve aceitar a idade mínima de 18 anos"() {
-
-        when:
-        ValidarCandidato.validarIdade(18)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deve aceitar a idade máxima de 120 anos"() {
-
-        when:
-        ValidarCandidato.validarIdade(120)
-
-        then:
-        noExceptionThrown()
-    }
-
 
     def "deve aceitar um estado válido"() {
-
         when:
         ValidarCandidato.validarEstado("Pernambuco")
 
@@ -151,7 +138,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar um estado inválido"() {
-
         when:
         ValidarCandidato.validarEstado("PE123")
 
@@ -162,7 +148,6 @@ class ValidarCandidatoSpec extends Specification {
 
 
     def "deve aceitar um CEP válido"() {
-
         when:
         ValidarCandidato.validarCep("55299-300")
 
@@ -170,8 +155,15 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar um CEP inválido"() {
+    def "deve aceitar CEP com 8 números"() {
+        when:
+        ValidarCandidato.validarCep("55299300")
 
+        then:
+        noExceptionThrown()
+    }
+
+    def "deve rejeitar um CEP inválido"() {
         when:
         ValidarCandidato.validarCep("55299-30")
 
@@ -180,17 +172,7 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "CEP deve conter 8 números."
     }
 
-    def "deve aceitar CEP com 8 números"() {
-
-        when:
-        ValidarCandidato.validarCep("55299300")
-
-        then:
-        noExceptionThrown()
-    }
-
     def "deve rejeitar CEP com 7 números"() {
-
         when:
         ValidarCandidato.validarCep("5529930")
 
@@ -200,7 +182,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar CEP com 9 números"() {
-
         when:
         ValidarCandidato.validarCep("552993000")
 
@@ -211,7 +192,6 @@ class ValidarCandidatoSpec extends Specification {
 
 
     def "deve aceitar uma descrição preenchida"() {
-
         when:
         ValidarCandidato.validarDescricao("Estudante de ADS")
 
@@ -220,7 +200,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar uma descrição vazia"() {
-
         when:
         ValidarCandidato.validarDescricao("")
 
@@ -231,7 +210,6 @@ class ValidarCandidatoSpec extends Specification {
 
 
     def "deve aceitar uma lista de competências preenchida"() {
-
         when:
         ValidarCandidato.validarCompetencias(["Java", "Groovy"])
 
@@ -240,7 +218,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar uma lista de competências vazia"() {
-
         when:
         ValidarCandidato.validarCompetencias([])
 
@@ -250,7 +227,6 @@ class ValidarCandidatoSpec extends Specification {
     }
 
     def "deve rejeitar competências nulas"() {
-
         when:
         ValidarCandidato.validarCompetencias(null)
 
@@ -258,6 +234,4 @@ class ValidarCandidatoSpec extends Specification {
         def erro = thrown(IllegalArgumentException)
         erro.message == "Informe pelo menos uma competência."
     }
-
-
 }

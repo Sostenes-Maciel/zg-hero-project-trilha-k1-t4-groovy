@@ -5,21 +5,33 @@ import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
+import br.com.zg.acelera.interfaces.IConexaoFactory
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
 class GerenciadorDePerfis {
 
-    CandidatoDAO candidatoDAO = new CandidatoDAO()
-    CompetenciaDAO competenciaDAO = new CompetenciaDAO()
-    EmpresaDAO empresaDAO = new EmpresaDAO()
-    CurtidaDAO curtidaDAO = new CurtidaDAO()
-    MatchDAO matchDAO = new MatchDAO()
-    GerenciadorDeVagas gerenciadorDeVagas = new GerenciadorDeVagas()
+    private final IConexaoFactory conexaoFactory
+
+    final CandidatoDAO candidatoDAO
+    final CompetenciaDAO competenciaDAO
+    final EmpresaDAO empresaDAO
+    final CurtidaDAO curtidaDAO
+    final MatchDAO matchDAO
+    final GerenciadorDeVagas gerenciadorDeVagas
+
+    GerenciadorDePerfis(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+        this.candidatoDAO = new CandidatoDAO(conexaoFactory)
+        this.competenciaDAO = new CompetenciaDAO(conexaoFactory)
+        this.empresaDAO = new EmpresaDAO(conexaoFactory)
+        this.curtidaDAO = new CurtidaDAO(conexaoFactory)
+        this.matchDAO = new MatchDAO(conexaoFactory)
+        this.gerenciadorDeVagas = new GerenciadorDeVagas(conexaoFactory)
+    }
 
     void listarCandidatos() {
-
         println("\n-- Candidatos Cadastrados --")
 
         List<Candidato> candidatos = candidatoDAO.listarTodos()
@@ -30,9 +42,7 @@ class GerenciadorDePerfis {
         }
 
         candidatos.eachWithIndex { candidato, indice ->
-
-            candidato.competencias =
-                    competenciaDAO.listarDoCandidato(candidato.cpf)
+            candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
 
             println "ID: ${indice + 1}"
             println "Nome: ${candidato.nome}"
@@ -193,7 +203,6 @@ class GerenciadorDePerfis {
     }
 
     Empresa selecionarEmpresa(Scanner sc) {
-
         List<Empresa> empresas = empresaDAO.listarTodos()
 
         if (empresas.isEmpty()) {
@@ -227,7 +236,6 @@ class GerenciadorDePerfis {
     }
 
     void gerenciarVagas(Scanner sc) {
-
         Empresa empresa = selecionarEmpresa(sc)
 
         if (empresa == null) {
@@ -237,7 +245,6 @@ class GerenciadorDePerfis {
         int opcao = 0
 
         while (opcao != 5) {
-
             println "\n--- VAGAS DE ${empresa.nome} ---"
             println "1 - Cadastrar vaga"
             println "2 - Listar vagas"
@@ -260,30 +267,25 @@ class GerenciadorDePerfis {
                 case 1:
                     gerenciadorDeVagas.cadastrarVagaPeloTerminal(sc, empresa)
                     break
-
                 case 2:
                     gerenciadorDeVagas.listarVagasPeloTerminal(empresa)
                     break
-
                 case 3:
                     gerenciadorDeVagas.atualizarVagaPeloTerminal(sc, empresa)
                     break
-
                 case 4:
                     gerenciadorDeVagas.excluirVagaPeloTerminal(sc, empresa)
                     break
-
                 case 5:
                     println "Voltando..."
                     break
-
                 default:
                     println "Opção inválida."
             }
         }
     }
-    Candidato selecionarCandidato(Scanner sc) {
 
+    Candidato selecionarCandidato(Scanner sc) {
         List<Candidato> candidatos = candidatoDAO.listarTodos()
 
         if (candidatos.isEmpty()) {
@@ -315,8 +317,8 @@ class GerenciadorDePerfis {
 
         return candidatos[opcao - 1]
     }
-    Candidato selecionarCandidatoParaCurtir(Scanner sc) {
 
+    Candidato selecionarCandidatoParaCurtir(Scanner sc) {
         List<Candidato> candidatos = candidatoDAO.listarTodos()
 
         if (candidatos.isEmpty()) {
@@ -327,9 +329,7 @@ class GerenciadorDePerfis {
         println "\n-- Candidatos Disponíveis --"
 
         candidatos.eachWithIndex { candidato, indice ->
-
-            List<String> competencias =
-                    competenciaDAO.listarDoCandidato(candidato.cpf)
+            List<String> competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
 
             println "${indice + 1} - Competências: " +
                     (competencias.isEmpty()
@@ -355,156 +355,140 @@ class GerenciadorDePerfis {
 
         return candidatos[opcao - 1]
     }
+
     void atualizarCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
+        try {
+            print "Novo nome: "
+            String nome = sc.nextLine().trim()
+            ValidarCandidato.validarNome(nome)
 
-        print "Novo nome: "
-        String nome = sc.nextLine().trim()
-        ValidarCandidato.validarNome(nome)
+            print "Novo e-mail: "
+            String email = sc.nextLine().trim()
+            ValidarCandidato.validarEmail(email)
 
-        print "Novo e-mail: "
-        String email = sc.nextLine().trim()
-        ValidarCandidato.validarEmail(email)
+            print "Nova idade: "
+            if (!sc.hasNextInt()) {
+                sc.nextLine()
+                throw new IllegalArgumentException("Idade deve ser um número inteiro.")
+            }
 
-        print "Nova idade: "
-        if (!sc.hasNextInt()) {
-            println "Idade inválida."
+            int idade = sc.nextInt()
             sc.nextLine()
-            return
+            ValidarCandidato.validarIdade(idade)
+
+            print "Novo país: "
+            String pais = sc.nextLine().trim()
+
+            print "Novo estado: "
+            String estado = sc.nextLine().trim()
+            ValidarCandidato.validarEstado(estado)
+
+            print "Novo CEP: "
+            String cep = sc.nextLine().trim()
+            ValidarCandidato.validarCep(cep)
+
+            print "Nova descrição: "
+            String descricao = sc.nextLine().trim()
+            ValidarCandidato.validarDescricao(descricao)
+
+            candidato.nome = nome
+            candidato.email = email
+            candidato.idade = idade
+            candidato.pais = pais
+            candidato.estado = estado
+            candidato.cep = cep
+            candidato.descricao = descricao
+
+            candidatoDAO.atualizar(candidato)
+            println "Candidato atualizado com sucesso!"
+
+        } catch (IllegalArgumentException e) {
+            println "Erro: ${e.message}"
+        } catch (Exception e) {
+            println "Erro inesperado: ${e.message}"
         }
-
-        int idade = sc.nextInt()
-        sc.nextLine()
-        ValidarCandidato.validarIdade(idade)
-
-        print "Novo país: "
-        String pais = sc.nextLine().trim()
-
-        print "Novo estado: "
-        String estado = sc.nextLine().trim()
-        ValidarCandidato.validarEstado(estado)
-
-        print "Novo CEP: "
-        String cep = sc.nextLine().trim()
-        ValidarCandidato.validarCep(cep)
-
-        print "Nova descrição: "
-        String descricao = sc.nextLine().trim()
-        ValidarCandidato.validarDescricao(descricao)
-
-        candidato.nome = nome
-        candidato.email = email
-        candidato.idade = idade
-        candidato.pais = pais
-        candidato.estado = estado
-        candidato.cep = cep
-        candidato.descricao = descricao
-
-        candidatoDAO.atualizar(candidato)
-
-        println "Candidato atualizado com sucesso!"
     }
+
     void excluirCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
-
         candidatoDAO.excluir(candidato.cpf)
-
         println "Candidato excluído com sucesso!"
     }
 
     void atualizarEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
+        try {
+            print "Novo nome da empresa: "
+            String nome = sc.nextLine().trim()
+            ValidarEmpresa.validarNome(nome)
 
-        print "Novo nome da empresa: "
-        String nome = sc.nextLine().trim()
-        ValidarEmpresa.validarNome(nome)
+            print "Novo e-mail corporativo: "
+            String email = sc.nextLine().trim()
+            ValidarEmpresa.validarEmail(email)
 
-        print "Novo e-mail corporativo: "
-        String email = sc.nextLine().trim()
-        ValidarEmpresa.validarEmail(email)
+            print "Novo país: "
+            String pais = sc.nextLine().trim()
+            ValidarEmpresa.validarPais(pais)
 
-        print "Novo país: "
-        String pais = sc.nextLine().trim()
-        ValidarEmpresa.validarPais(pais)
+            print "Novo estado: "
+            String estado = sc.nextLine().trim()
+            ValidarEmpresa.validarEstado(estado)
 
-        print "Novo estado: "
-        String estado = sc.nextLine().trim()
-        ValidarEmpresa.validarEstado(estado)
+            print "Novo CEP: "
+            String cep = sc.nextLine().trim()
+            ValidarEmpresa.validarCep(cep)
 
-        print "Novo CEP: "
-        String cep = sc.nextLine().trim()
-        ValidarEmpresa.validarCep(cep)
+            print "Nova descrição: "
+            String descricao = sc.nextLine().trim()
+            ValidarEmpresa.validarDescricao(descricao)
 
-        print "Nova descrição: "
-        String descricao = sc.nextLine().trim()
-        ValidarEmpresa.validarDescricao(descricao)
+            empresa.nome = nome
+            empresa.email = email
+            empresa.pais = pais
+            empresa.estado = estado
+            empresa.cep = cep
+            empresa.descricao = descricao
 
-        empresa.nome = nome
-        empresa.email = email
-        empresa.pais = pais
-        empresa.estado = estado
-        empresa.cep = cep
-        empresa.descricao = descricao
+            empresaDAO.atualizar(empresa)
+            println "Empresa atualizada com sucesso!"
 
-        empresaDAO.atualizar(empresa)
-
-        println "Empresa atualizada com sucesso!"
+        } catch (IllegalArgumentException e) {
+            println "Erro ao atualizar empresa: ${e.message}"
+        } catch (Exception e) {
+            println "Erro inesperado: ${e.message}"
+        }
     }
+
     void excluirEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
-
         empresaDAO.excluir(empresa.cnpj)
-
         println "Empresa excluída com sucesso!"
     }
-    List<String> listarCompetenciasDoCandidato(Candidato candidato) {
 
+    List<String> listarCompetenciasDoCandidato(Candidato candidato) {
         return competenciaDAO.listarDoCandidato(candidato.cpf)
     }
-    void adicionarCompetenciaAoCandidato(
-            Candidato candidato,
-            String competencia) {
 
+    void adicionarCompetenciaAoCandidato(Candidato candidato, String competencia) {
         competenciaDAO.garantirCompetencia(competencia)
-
-        competenciaDAO.adicionarAoCandidato(
-                candidato.cpf,
-                competencia
-        )
+        competenciaDAO.adicionarAoCandidato(candidato.cpf, competencia)
     }
-    void removerCompetenciaDoCandidato(
-            Candidato candidato,
-            String competencia) {
 
-        competenciaDAO.removerDoCandidato(
-                candidato.cpf,
-                competencia
-        )
+    void removerCompetenciaDoCandidato(Candidato candidato, String competencia) {
+        competenciaDAO.removerDoCandidato(candidato.cpf, competencia)
     }
+
     List<String> listarCompetenciasDaEmpresa(Empresa empresa) {
-
         return competenciaDAO.listarDaEmpresa(empresa.cnpj)
     }
 
-    void adicionarCompetenciaAEmpresa(
-            Empresa empresa,
-            String competencia) {
-
+    void adicionarCompetenciaAEmpresa(Empresa empresa, String competencia) {
         competenciaDAO.garantirCompetencia(competencia)
-
-        competenciaDAO.adicionarAoEmpresa(
-                empresa.cnpj,
-                competencia
-        )
+        competenciaDAO.adicionarAoEmpresa(empresa.cnpj, competencia)
     }
 
-    void removerCompetenciaDaEmpresa(
-            Empresa empresa,
-            String competencia) {
-
-        competenciaDAO.removerDaEmpresa(
-                empresa.cnpj,
-                competencia
-        )
+    void removerCompetenciaDaEmpresa(Empresa empresa, String competencia) {
+        competenciaDAO.removerDaEmpresa(empresa.cnpj, competencia)
     }
+
     void curtirVagaPeloTerminal(Scanner sc, Candidato candidato) {
-
         List<Vaga> vagas = gerenciadorDeVagas.listarVagas()
 
         if (vagas.isEmpty()) {
@@ -536,15 +520,11 @@ class GerenciadorDePerfis {
 
         Vaga vaga = vagas[opcao - 1]
 
-        curtidaDAO.registrarCurtidaCandidato(
-                candidato.cpf,
-                vaga.id
-        )
-
+        curtidaDAO.registrarCurtidaCandidato(candidato.cpf, vaga.id)
         processarPossivelMatch(candidato.cpf, vaga.empresa.cnpj, vaga.id, candidato.nome, vaga.empresa.nome)
     }
-    void curtirCandidatoPeloTerminal(Scanner sc, Empresa empresa) {
 
+    void curtirCandidatoPeloTerminal(Scanner sc, Empresa empresa) {
         Candidato candidato = selecionarCandidatoParaCurtir(sc)
 
         if (candidato == null) {
@@ -582,13 +562,10 @@ class GerenciadorDePerfis {
 
         Vaga vaga = vagas[opcao - 1]
 
-        curtidaDAO.registrarCurtidaEmpresa(
-                candidato.cpf,
-                empresa.cnpj
-        )
-
+        curtidaDAO.registrarCurtidaEmpresa(candidato.cpf, empresa.cnpj)
         processarPossivelMatch(candidato.cpf, empresa.cnpj, vaga.id, empresa.nome, candidato.nome)
     }
+
     private void processarPossivelMatch(String cpf, String cnpj, int vagaId, String nome1, String nome2) {
         if (curtidaDAO.verificarMatch(cpf, cnpj, vagaId)) {
             if (matchDAO.existeMatch(cpf, cnpj, vagaId)) {
@@ -598,6 +575,8 @@ class GerenciadorDePerfis {
                 println "\n*** MATCH ENCONTRADO! ***"
                 println "${nome1} e ${nome2} deram match!"
             }
+        } else {
+            println "\nVaga curtida com sucesso! Aguardando o match."
         }
     }
 }

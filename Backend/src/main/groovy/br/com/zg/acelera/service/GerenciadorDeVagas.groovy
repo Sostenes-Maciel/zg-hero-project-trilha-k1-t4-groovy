@@ -2,14 +2,21 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
+import br.com.zg.acelera.interfaces.IConexaoFactory
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
 class GerenciadorDeVagas {
 
-    private VagaDAO vagaDAO = new VagaDAO()
-    private CompetenciaDAO competenciaDAO = new CompetenciaDAO()
+    private final IConexaoFactory conexaoFactory
+    private final VagaDAO vagaDAO
+    private final CompetenciaDAO competenciaDAO
 
+    GerenciadorDeVagas(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+        this.vagaDAO = new VagaDAO(conexaoFactory)
+        this.competenciaDAO = new CompetenciaDAO(conexaoFactory)
+    }
 
     Integer cadastrarVaga(Vaga vaga) {
         Integer idVaga = vagaDAO.cadastrar(vaga)
@@ -63,7 +70,6 @@ class GerenciadorDeVagas {
     }
 
     void cadastrarVagaPeloTerminal(Scanner sc, Empresa empresa) {
-
         println "\n--- CADASTRAR NOVA VAGA ---"
         println "Empresa: ${empresa.nome}"
 
@@ -100,7 +106,6 @@ class GerenciadorDeVagas {
     }
 
     void listarVagasPeloTerminal(Empresa empresa) {
-
         List<Vaga> vagas = listarVagasDaEmpresa(empresa.cnpj)
 
         println "\n--- VAGAS DA EMPRESA: ${empresa.nome} ---"
