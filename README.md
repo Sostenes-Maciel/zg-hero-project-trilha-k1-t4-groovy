@@ -491,6 +491,13 @@ empresa_competencia
 vaga_competencia
 ```
 
+### Atualização - Boas Práticas
+
+- **Separação de Responsabilidades (SRP):** Desacoplamento da manipulação do DOM, regras de negócio e eventos em funções especializadas.
+- **Validações Padronizadas:** Isolamento de expressões regulares em constantes nomeadas e aplicação de métodos defensivos com `.trim()`.
+- **Integridade de Dados (Cascade Delete):** Remoção automática de registros órfãos (matches e curtidas) na camada de persistência simulada ao excluir entidades.
+- **Otimização DRY:** Reutilização de rotinas de normalização e cálculo de afinidade por competências.
+
 
 ## Autor
 
