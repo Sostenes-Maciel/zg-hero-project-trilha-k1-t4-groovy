@@ -3,6 +3,7 @@ const REGEX_EMAIL = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
 const REGEX_CNPJ = /^\d{14}$/
 const REGEX_CEP_BR = /^\d{8}$/
 const REGEX_CODIGO_POSTAL_GERAL = /^[A-Za-z0-9][A-Za-z0-9 -]{2,14}$/
+const REGEX_TEXTO_DESCRICAO = /^[a-zA-ZÀ-ÿ\s.,!?()-]+$/
 
 export class ValidarEmpresa {
 
@@ -42,8 +43,14 @@ export class ValidarEmpresa {
     }
 
     static validarDescricao(descricao: string): void {
-        if (!descricao?.trim()) {
+        const descricaoLimpa = descricao?.trim()
+
+        if (!descricaoLimpa) {
             throw new Error('A descrição não pode estar vazia.')
+        }
+
+        if (!REGEX_TEXTO_DESCRICAO.test(descricaoLimpa)) {
+            throw new Error('A descrição deve conter apenas texto (letras e pontuação básica).')
         }
     }
 
