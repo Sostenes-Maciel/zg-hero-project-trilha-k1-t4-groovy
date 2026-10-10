@@ -1,16 +1,19 @@
 import type { Candidato } from '../model/Candidato'
-import {renderListaCandidatos} from "./ListaCandidatos.ts";
-import {renderListaVagas} from "./ListaVagas.ts";
-import {renderListaMatchesCandidato} from "./ListaMatchesCandidato.ts";
+import { renderListaCandidatos } from "./ListaCandidatos.ts"
+import { renderListaVagas } from "./ListaVagas.ts"
+import { renderListaMatchesCandidato } from "./ListaMatchesCandidato.ts"
 
 export function renderPerfilCandidato(candidato: Candidato): void {
-    console.log("Dados do candidato:", candidato);
+    console.log("Dados do candidato:", candidato)
+
     const app = document.querySelector<HTMLDivElement>('#app')
+    if (!app) return
 
-    if (!app) {
-        return
-    }
+    renderizarTemplatePerfil(app, candidato)
+    configurarEventosNavegacao(candidato)
+}
 
+function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): void {
     app.innerHTML = `
         <section class="perfil-candidato tela-com-transicao">            
             <h1>Perfil do Candidato</h1>
@@ -29,16 +32,25 @@ export function renderPerfilCandidato(candidato: Candidato): void {
                     <strong>Competências:</strong>
                     ${candidato.competencias.join(', ')}
                 </p>
-            </>
-            <button id="voltar-candidatos">Voltar</button>
-            <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
-            <button id="btn-meus-matches">Meus Matches</button>
-        </>
-    `
+            </div>
 
-    const botaoVagas = document.querySelector<HTMLButtonElement>(
-        '#btn-vagas-disponiveis'
-    )
+            <div class="acoes-perfil">
+                <button id="voltar-candidatos">Voltar</button>
+                <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
+                <button id="btn-meus-matches">Meus Matches</button>
+            </div>
+        </section>
+    `
+}
+
+function configurarEventosNavegacao(candidato: Candidato): void {
+    const botaoVoltar = document.querySelector<HTMLButtonElement>('#voltar-candidatos')
+    const botaoVagas = document.querySelector<HTMLButtonElement>('#btn-vagas-disponiveis')
+    const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
+
+    botaoVoltar?.addEventListener('click', () => {
+        renderListaCandidatos()
+    })
 
     botaoVagas?.addEventListener('click', () => {
         renderListaVagas(() => {
@@ -46,22 +58,9 @@ export function renderPerfilCandidato(candidato: Candidato): void {
         }, candidato)
     })
 
-    const botaoMatches = document.querySelector<HTMLButtonElement>(
-        '#btn-meus-matches'
-    )
-
     botaoMatches?.addEventListener('click', () => {
         renderListaMatchesCandidato(candidato, () => {
             renderPerfilCandidato(candidato)
         })
     })
-
-    const botaoVoltar = document.querySelector<HTMLButtonElement>(
-        '#voltar-candidatos'
-    )
-
-    botaoVoltar?.addEventListener('click', () => {
-        renderListaCandidatos()
-    })
-
 }

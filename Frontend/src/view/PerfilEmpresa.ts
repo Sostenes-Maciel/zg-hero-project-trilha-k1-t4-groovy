@@ -1,27 +1,30 @@
-import type {Empresa} from '../model/Empresa'
-import {BancodeDados} from '../dao/BancodeDados'
-import {Chart} from "chart.js/auto";
-import {renderListaEmpresas} from "./ListaEmpresas.ts";
-import {renderViewCadastroVaga} from '../service/CadastroVaga.ts'
-import {calcularAfinidade} from "../service/CalcularAfinidade.ts";
-import {renderListaMatchesEmpresa} from "./ListaMatchesEmpresa.ts";
-import {mostrarAnimacaoMatch} from "./AnimacaoMatch.ts";
+import type { Empresa } from '../model/Empresa'
+import { BancodeDados } from '../dao/BancodeDados'
+import { Chart } from "chart.js/auto"
+import { renderListaEmpresas } from "./ListaEmpresas.ts"
+import { renderViewCadastroVaga } from '../service/CadastroVaga.ts'
+import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
+import { renderListaMatchesEmpresa } from "./ListaMatchesEmpresa.ts"
+import { mostrarAnimacaoMatch } from "./AnimacaoMatch.ts"
 
-function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
+export function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
     const app = document.querySelector<HTMLDivElement>('#app')
+    if (!app) return
 
-    if (!app) {
-        return
-    }
+    renderizarTemplatePerfil(app, empresa, mensagemSucesso, animarTransicao)
+    renderizarGraficoCompetencias()
+    renderizarTabelaCandidatos(empresa)
+    configurarEventos(empresa)
+}
 
+function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
     app.innerHTML = `
         <section class="perfil-empresa ${animarTransicao ? 'tela-com-transicao' : ''}">
             <h1>Perfil da Empresa</h1>
-            <p id = "mensagem"></p>
+            <p id="mensagem" class="${mensagemSucesso ? 'mensagem-sucesso' : ''}">${mensagemSucesso ?? ''}</p>
 
             <div>
                 <h2>${empresa.nome}</h2>
-
                 <p><strong>E-mail:</strong> ${empresa.email}</p>
                 <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
                 <p><strong>País:</strong> ${empresa.pais}</p>
@@ -35,17 +38,13 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
             </div>
             
             <h2>Candidatos por competência</h2>
-            
-
             <div class="grafico-container">
                 <canvas id="grafico-competencias"></canvas>
             </div>
 
             <h2>Candidatos disponíveis</h2>
-            
             <div class="filtro-candidatos">
                 <label for="filtro-competencia">Buscar por competência</label>
-            
                 <input
                     type="text"
                     id="filtro-competencia"
@@ -62,48 +61,30 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
                         <th class="coluna-acao">Ação</th>
                     </tr>
                 </thead>
-            
-                <tbody id="lista-candidatos-empresa">
-                </tbody>
+                <tbody id="lista-candidatos-empresa"></tbody>
             </table>
 
-            <button id="voltar-empresa">Voltar</button>
-            <button id="btn-cadastrar-vaga">Cadastrar vaga</button>
-            <button id="btn-meus-matches">Meus Matches</button>
-            
+            <div class="acoes-perfil">
+                <button id="voltar-empresa">Voltar</button>
+                <button id="btn-cadastrar-vaga">Cadastrar vaga</button>
+                <button id="btn-meus-matches">Meus Matches</button>
+            </div>
         </section>
     `
-    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+}
 
-    if (mensagemSucesso && mensagem) {
-        mensagem.textContent = mensagemSucesso
-        mensagem.classList.add('mensagem-sucesso')
-    }
-    const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>(
-        '#btn-cadastrar-vaga'
-    )
-
-    botaoCadastrarVaga?.addEventListener('click', () => {
-        void renderViewCadastroVaga(() => {
-            renderPerfilEmpresa(empresa)
-        });
-
-    })
+function renderizarGraficoCompetencias(): void {
     try {
         const quantidadePorCompetencia: Record<string, number> = {}
 
         BancodeDados.candidatos.forEach(candidato => {
             candidato.competencias.forEach(competencia => {
                 const chave = competencia.trim().toLowerCase()
-
-                quantidadePorCompetencia[chave] =
-                    (quantidadePorCompetencia[chave] || 0) + 1
+                quantidadePorCompetencia[chave] = (quantidadePorCompetencia[chave] || 0) + 1
             })
         })
-        const canvas = document.querySelector<HTMLCanvasElement>(
-            '#grafico-competencias'
-        )
 
+        const canvas = document.querySelector<HTMLCanvasElement>('#grafico-competencias')
         if (!canvas) {
             console.error('Canvas do gráfico não encontrado.')
             return
@@ -111,10 +92,8 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
 
         new Chart(canvas, {
             type: 'bar',
-
             data: {
                 labels: Object.keys(quantidadePorCompetencia),
-
                 datasets: [
                     {
                         label: 'Quantidade de candidatos',
@@ -122,22 +101,15 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
                     }
                 ]
             },
-
             options: {
                 responsive: true,
-
                 plugins: {
-                    legend: {
-                        display: true
-                    }
+                    legend: { display: true }
                 },
-
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
+                        ticks: { stepSize: 1 }
                     }
                 }
             }
@@ -145,117 +117,86 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
     } catch (erro) {
         console.error('Erro ao criar gráfico:', erro)
     }
+}
 
-    const lista = document.querySelector<HTMLTableSectionElement>(
-        '#lista-candidatos-empresa'
-    )
-
-    if (!lista) {
-        return
-    }
+function renderizarTabelaCandidatos(empresa: Empresa): void {
+    const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos-empresa')
+    if (!lista) return
 
     BancodeDados.candidatos.forEach((candidato) => {
         const linha = document.createElement('tr')
+        linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
 
-        linha.dataset.competencias = candidato.competencias
-            .join(' ')
-            .toLowerCase()
-
-        const curtiu = BancodeDados.empresaCurtiuCandidato(
-            empresa,
-            candidato
-        )
-
-        const temMatch = BancodeDados.empresaTemMatchComCandidato(
-            empresa,
-            candidato
-        )
-
-        const iconeCurtida = temMatch
-            ? '🤝'
-            : curtiu
-                ? '♥'
-                : '♡'
+        const curtiu = BancodeDados.empresaCurtiuCandidato(empresa, candidato)
+        const temMatch = BancodeDados.empresaTemMatchComCandidato(empresa, candidato)
+        const iconeCurtida = temMatch ? '🤝' : curtiu ? '♥' : '♡'
 
         linha.innerHTML = `
             <td class="coluna-candidato">
                 ${temMatch ? candidato.nome : 'Match necessário para visualização'}
             </td>
-        
             <td class="coluna-competencias">
                 ${candidato.competencias.join(', ')}
             </td>
-        
             <td class="coluna-afinidade">
                 ${calcularAfinidade(candidato, empresa)}%
             </td>
-        
             <td class="coluna-acao">
                 <button
                     class="btn-curtir-candidato"
                     data-cpf="${candidato.cpf}"
-                    title="${
-                    temMatch
-                        ? 'Match confirmado'
-                        : curtiu
-                            ? 'Candidato curtido'
-                            : 'Curtir candidato'
-                }"
+                    title="${temMatch ? 'Match confirmado' : curtiu ? 'Candidato curtido' : 'Curtir candidato'}"
                     ${temMatch ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
                 </button>
             </td>
         `
-
         lista.appendChild(linha)
     })
+}
 
-    const botoesCurtirCandidato =
-        document.querySelectorAll<HTMLButtonElement>(
-            '.btn-curtir-candidato'
-        )
+function configurarEventos(empresa: Empresa): void {
+    configurarBotaoCadastrarVaga(empresa)
+    configurarBotoesCurtirCandidato(empresa)
+    configurarFiltroCompetencia()
+    configurarNavegacaoMatches(empresa)
+    configurarBotaoVoltar()
+}
 
-    botoesCurtirCandidato.forEach(botao => {
+function configurarBotaoCadastrarVaga(empresa: Empresa): void {
+    const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>('#btn-cadastrar-vaga')
+    botaoCadastrarVaga?.addEventListener('click', () => {
+        void renderViewCadastroVaga(() => {
+            renderPerfilEmpresa(empresa)
+        })
+    })
+}
+
+function configurarBotoesCurtirCandidato(empresa: Empresa): void {
+    const botoesCurtir = document.querySelectorAll<HTMLButtonElement>('.btn-curtir-candidato')
+
+    botoesCurtir.forEach(botao => {
         botao.addEventListener('click', () => {
             const cpf = botao.dataset.cpf
+            if (!cpf) return
 
-            if (!cpf) {
-                return
-            }
-
-            const candidato = BancodeDados.candidatos.find(
-                candidato => candidato.cpf === cpf
-            )
-
-            if (!candidato) {
-                return
-            }
+            const candidato = BancodeDados.candidatos.find(c => c.cpf === cpf)
+            if (!candidato) return
 
             const posicaoScroll = window.scrollY
-
             BancodeDados.curtirCandidato(empresa, candidato)
 
-            const criouMatch =
-                BancodeDados.empresaTemMatchComCandidato(
-                    empresa,
-                    candidato
-                )
+            const criouMatch = BancodeDados.empresaTemMatchComCandidato(empresa, candidato)
 
             renderPerfilEmpresa(empresa, undefined, false)
 
             if (!criouMatch) {
                 requestAnimationFrame(() => {
-                    const botaoAtual =
-                        document.querySelector<HTMLButtonElement>(
-                            `.btn-curtir-candidato[data-cpf="${candidato.cpf}"]`
-                        )
-
+                    const botaoAtual = document.querySelector<HTMLButtonElement>(`.btn-curtir-candidato[data-cpf="${candidato.cpf}"]`)
                     botaoAtual?.classList.add('curtida-animada')
                 })
-            }
-
-            if (criouMatch) {
+            } else {
                 mostrarAnimacaoMatch()
             }
 
@@ -264,37 +205,34 @@ function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarT
             })
         })
     })
+}
 
-    const filtroCompetencia = document.querySelector<HTMLInputElement>(
-        '#filtro-competencia'
-    )
+function configurarFiltroCompetencia(): void {
+    const filtroCompetencia = document.querySelector<HTMLInputElement>('#filtro-competencia')
+    const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos-empresa')
 
     filtroCompetencia?.addEventListener('input', () => {
         const termo = filtroCompetencia.value.trim().toLowerCase()
-
-        const linhas = lista.querySelectorAll<HTMLTableRowElement>('tr')
+        const linhas = lista?.querySelectorAll<HTMLTableRowElement>('tr') ?? []
 
         linhas.forEach(linha => {
             const competencias = linha.dataset.competencias ?? ''
-
             linha.hidden = !competencias.includes(termo)
         })
     })
+}
 
-    const botaoMatches = document.querySelector<HTMLButtonElement>(
-        '#btn-meus-matches'
-    )
-
+function configurarNavegacaoMatches(empresa: Empresa): void {
+    const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
     botaoMatches?.addEventListener('click', () => {
         renderListaMatchesEmpresa(empresa, () => {
             renderPerfilEmpresa(empresa)
         })
     })
+}
 
-    const botaoVoltar = document.querySelector<HTMLButtonElement>(
-        '#voltar-empresa'
-    )
-
+function configurarBotaoVoltar(): void {
+    const botaoVoltar = document.querySelector<HTMLButtonElement>('#voltar-empresa')
     botaoVoltar?.addEventListener('click', () => {
         renderListaEmpresas()
     })
