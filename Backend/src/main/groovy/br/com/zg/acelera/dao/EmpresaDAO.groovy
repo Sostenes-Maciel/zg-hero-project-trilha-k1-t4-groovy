@@ -8,135 +8,47 @@ import java.sql.ResultSet
 
 class EmpresaDAO {
 
-    void cadastrar(Empresa empresa) {
-        String sql = """
-            INSERT INTO empresa (
-                cnpj,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, empresa.cnpj)
-            stmt.setString(2, empresa.nome)
-            stmt.setString(3, empresa.email)
-            stmt.setString(4, empresa.pais)
-            stmt.setString(5, empresa.estado)
-            stmt.setString(6, empresa.cep)
-            stmt.setString(7, empresa.descricao)
-
+    private void executarUpdate(String sql, List parametros) {
+        Connection conexao = null
+        PreparedStatement stmt = null
+        try {
+            conexao = ConexaoBD.conectar()
+            stmt = conexao.prepareStatement(sql)
+            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             stmt.executeUpdate()
+        } catch (Exception e) {
+            println "Erro no Banco de Dados: ${e.message}"
+        } finally {
+            if (stmt != null) stmt.close()
+            if (conexao != null) conexao.close()
         }
     }
 
-    List<Empresa> listarTodos() {
-        String sql = """
-            SELECT
-                cnpj,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao
-            FROM empresa
-            ORDER BY nome
-        """
-
-        List<Empresa> empresas = []
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
+    private List<Empresa> executarQuery(String sql, List parametros) {
+        List<Empresa> resultados = []
+        Connection conexao = null
+        PreparedStatement stmt = null
+        ResultSet rs = null
+        try {
+            conexao = ConexaoBD.conectar()
+            stmt = conexao.prepareStatement(sql)
+            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
+            rs = stmt.executeQuery()
             while (rs.next()) {
-                empresas.add(mapearEmpresa(rs))
+                resultados.add(mapearEmpresa(rs))
             }
+        } catch (Exception e) {
+            println "Erro na Busca: ${e.message}"
+        } finally {
+            if (rs != null) rs.close()
+            if (stmt != null) stmt.close()
+            if (conexao != null) conexao.close()
         }
-
-        return empresas
-    }
-
-    Empresa buscarPorCnpj(String cnpj) {
-        String sql = """
-            SELECT
-                cnpj,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao
-            FROM empresa
-            WHERE cnpj = ?
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, cnpj)
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearEmpresa(rs)
-                }
-            }
-        }
-
-        return null
-    }
-
-    void atualizar(Empresa empresa) {
-        String sql = """
-            UPDATE empresa
-            SET nome = ?,
-                email = ?,
-                pais = ?,
-                estado = ?,
-                cep = ?,
-                descricao = ?
-            WHERE cnpj = ?
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, empresa.nome)
-            stmt.setString(2, empresa.email)
-            stmt.setString(3, empresa.pais)
-            stmt.setString(4, empresa.estado)
-            stmt.setString(5, empresa.cep)
-            stmt.setString(6, empresa.descricao)
-            stmt.setString(7, empresa.cnpj)
-
-            stmt.executeUpdate()
-        }
-    }
-
-    void excluir(String cnpj) {
-        String sql = """
-            DELETE FROM empresa
-            WHERE cnpj = ?
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, cnpj)
-            stmt.executeUpdate()
-        }
+        return resultados
     }
 
     private static Empresa mapearEmpresa(ResultSet rs) {
-        new Empresa(
+        return new Empresa(
                 cnpj: rs.getString("cnpj"),
                 nome: rs.getString("nome"),
                 email: rs.getString("email"),
@@ -145,5 +57,44 @@ class EmpresaDAO {
                 cep: rs.getString("cep"),
                 descricao: rs.getString("descricao")
         )
+    }
+
+    void cadastrar(Empresa empresa) {
+        String sql = """
+            INSERT INTO empresa (cnpj, nome, email, pais, estado, cep, descricao)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+        executarUpdate(sql, [
+                empresa.cnpj, empresa.nome, empresa.email, empresa.pais,
+                empresa.estado, empresa.cep, empresa.descricao
+        ])
+    }
+
+    List<Empresa> listarTodos() {
+        String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa ORDER BY nome"
+        return executarQuery(sql, [])
+    }
+
+    Empresa buscarPorCnpj(String cnpj) {
+        String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa WHERE cnpj = ?"
+        List<Empresa> resultados = executarQuery(sql, [cnpj])
+        return resultados.isEmpty() ? null : resultados[0]
+    }
+
+    void atualizar(Empresa empresa) {
+        String sql = """
+            UPDATE empresa
+            SET nome = ?, email = ?, pais = ?, estado = ?, cep = ?, descricao = ?
+            WHERE cnpj = ?
+        """
+        executarUpdate(sql, [
+                empresa.nome, empresa.email, empresa.pais, empresa.estado,
+                empresa.cep, empresa.descricao, empresa.cnpj
+        ])
+    }
+
+    void excluir(String cnpj) {
+        String sql = "DELETE FROM empresa WHERE cnpj = ?"
+        executarUpdate(sql, [cnpj])
     }
 }
