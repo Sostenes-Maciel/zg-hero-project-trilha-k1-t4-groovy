@@ -15,8 +15,7 @@ class ConexaoBD {
         try {
             return DriverManager.getConnection(URL, USUARIO, SENHA)
         } catch (SQLException e) {
-            println "Erro ao conectar com o banco de dados: ${e.message}"
-            throw e
+            throw new RuntimeException("Falha fatal ao conectar no banco de dados. Verifique se o Postgres está rodando e as credenciais.", e)
         }
     }
 }
