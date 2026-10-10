@@ -4,9 +4,7 @@ package br.com.zg.acelera.service
 class ValidarCandidato {
 
     static void validarNome(String nome) {
-        if (!nome || !nome.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("Nome inválido.")
-        }
+        validarApenasLetras(nome,"Nome")
     }
 
     static void validarEmail(String email) {
@@ -16,11 +14,7 @@ class ValidarCandidato {
     }
 
     static void validarCpf(String cpf) {
-        cpf = cpf.replaceAll(/[.-]/, '')
-
-        if (!cpf.matches(/\d{11}/)) {
-            throw new IllegalArgumentException("CPF deve conter 11 números.")
-        }
+        validarTamanhoNumerico(cpf, 11, "CPF")
     }
 
     static void validarIdade(int idade) {
@@ -30,17 +24,11 @@ class ValidarCandidato {
     }
 
     static void validarEstado(String estado) {
-        if (!estado || !estado.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("Estado inválido.")
-        }
+        validarApenasLetras(estado, "Estado")
     }
 
     static void validarCep(String cep) {
-        cep = cep.replaceAll(/[.-]/, '')
-
-        if (!cep.matches(/\d{8}/)) {
-            throw new IllegalArgumentException("CEP deve conter 8 números.")
-        }
+       validarTamanhoNumerico(cep, 8, "CEP")
     }
 
     static void validarDescricao(String descricao) {
@@ -54,6 +42,18 @@ class ValidarCandidato {
             throw new IllegalArgumentException(
                     "Informe pelo menos uma competência."
             )
+        }
+    }
+    private static void validarApenasLetras(String texto, String nomeCampo) {
+        if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
+            throw new IllegalArgumentException("${nomeCampo} inválido.")
+        }
+    }
+
+    private static void validarTamanhoNumerico(String valor, int tamanhoExato, String nomeCampo) {
+        String limpo = valor ? valor.replaceAll(/[.-]/, '') : ''
+        if (!limpo.matches("\\d{" + tamanhoExato + "}")) {
+            throw new IllegalArgumentException("${nomeCampo} deve conter ${tamanhoExato} números.")
         }
     }
 }
