@@ -8,138 +8,57 @@ import java.sql.ResultSet
 
 class CandidatoDAO {
 
-    void cadastrar(Candidato candidato) {
-        String sql = """
-            INSERT INTO candidato (
-                cpf,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao,
-                idade
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """
+    private void executarUpdate(String sql, List parametros) {
+        Connection conexao = null
+        PreparedStatement stmt = null
+        try {
+            conexao = ConexaoBD.conectar()
+            stmt = conexao.prepareStatement(sql)
 
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, candidato.cpf)
-            stmt.setString(2, candidato.nome)
-            stmt.setString(3, candidato.email)
-            stmt.setString(4, candidato.pais)
-            stmt.setString(5, candidato.estado)
-            stmt.setString(6, candidato.cep)
-            stmt.setString(7, candidato.descricao)
-            stmt.setInt(8, candidato.idade)
+            // Preenche os ? dinamicamente
+            parametros.eachWithIndex { param, i ->
+                stmt.setObject(i + 1, param)
+            }
 
             stmt.executeUpdate()
+        } catch (Exception e) {
+            println "Erro no Banco de Dados: ${e.message}"
+        } finally {
+            if (stmt != null) stmt.close()
+            if (conexao != null) conexao.close()
         }
     }
 
-    List<Candidato> listarTodos() {
-        String sql = """
-            SELECT
-                cpf,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao,
-                idade
-            FROM candidato
-            ORDER BY nome
-        """
+    private List<Candidato> executarQuery(String sql, List parametros) {
+        List<Candidato> resultados = []
+        Connection conexao = null
+        PreparedStatement stmt = null
+        ResultSet rs = null
 
-        List<Candidato> candidatos = []
+        try {
+            conexao = ConexaoBD.conectar()
+            stmt = conexao.prepareStatement(sql)
 
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            parametros.eachWithIndex { param, i ->
+                stmt.setObject(i + 1, param)
+            }
 
+            rs = stmt.executeQuery()
             while (rs.next()) {
-                candidatos.add(mapearCandidato(rs))
+                resultados.add(mapearCandidato(rs))
             }
+        } catch (Exception e) {
+            println "Erro na Busca: ${e.message}"
+        } finally {
+            if (rs != null) rs.close()
+            if (stmt != null) stmt.close()
+            if (conexao != null) conexao.close()
         }
-
-        return candidatos
-    }
-
-    Candidato buscarPorCpf(String cpf) {
-        String sql = """
-            SELECT
-                cpf,
-                nome,
-                email,
-                pais,
-                estado,
-                cep,
-                descricao,
-                idade
-            FROM candidato
-            WHERE cpf = ?
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, cpf)
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearCandidato(rs)
-                }
-            }
-        }
-
-        return null
-    }
-
-    void atualizar(Candidato candidato) {
-        String sql = """
-            UPDATE candidato
-            SET nome = ?,
-                email = ?,
-                pais = ?,
-                estado = ?,
-                cep = ?,
-                descricao = ?,
-                idade = ?
-            WHERE cpf = ?
-        """
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, candidato.nome)
-            stmt.setString(2, candidato.email)
-            stmt.setString(3, candidato.pais)
-            stmt.setString(4, candidato.estado)
-            stmt.setString(5, candidato.cep)
-            stmt.setString(6, candidato.descricao)
-            stmt.setInt(7, candidato.idade)
-            stmt.setString(8, candidato.cpf)
-
-            stmt.executeUpdate()
-        }
-    }
-
-    void excluir(String cpf) {
-        String sql = "DELETE FROM candidato WHERE cpf = ?"
-
-        try (Connection conexao = ConexaoBD.conectar();
-             PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setString(1, cpf)
-            stmt.executeUpdate()
-        }
+        return resultados
     }
 
     private static Candidato mapearCandidato(ResultSet rs) {
-        new Candidato(
+        return new Candidato(
                 cpf: rs.getString("cpf"),
                 nome: rs.getString("nome"),
                 email: rs.getString("email"),
@@ -149,5 +68,50 @@ class CandidatoDAO {
                 descricao: rs.getString("descricao"),
                 idade: rs.getInt("idade")
         )
+    }
+
+    void cadastrar(Candidato candidato) {
+        String sql = """
+            INSERT INTO candidato (cpf, nome, email, pais, estado, cep, descricao, idade)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        executarUpdate(sql, [
+                candidato.cpf, candidato.nome, candidato.email, candidato.pais,
+                candidato.estado, candidato.cep, candidato.descricao, candidato.idade
+        ])
+    }
+
+    List<Candidato> listarTodos() {
+        String sql = """
+            SELECT cpf, nome, email, pais, estado, cep, descricao, idade 
+            FROM candidato ORDER BY nome
+        """
+        return executarQuery(sql, [])
+    }
+
+    Candidato buscarPorCpf(String cpf) {
+        String sql = """
+            SELECT cpf, nome, email, pais, estado, cep, descricao, idade 
+            FROM candidato WHERE cpf = ?
+        """
+        List<Candidato> resultados = executarQuery(sql, [cpf])
+        return resultados.isEmpty() ? null : resultados[0]
+    }
+
+    void atualizar(Candidato candidato) {
+        String sql = """
+            UPDATE candidato
+            SET nome = ?, email = ?, pais = ?, estado = ?, cep = ?, descricao = ?, idade = ?
+            WHERE cpf = ?
+        """
+        executarUpdate(sql, [
+                candidato.nome, candidato.email, candidato.pais, candidato.estado,
+                candidato.cep, candidato.descricao, candidato.idade, candidato.cpf
+        ])
+    }
+
+    void excluir(String cpf) {
+        String sql = "DELETE FROM candidato WHERE cpf = ?"
+        executarUpdate(sql, [cpf])
     }
 }
