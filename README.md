@@ -499,6 +499,40 @@ vaga_competencia
 - **Otimização DRY:** Reutilização de rotinas de normalização e cálculo de afinidade por competências.
 
 
+### Atualização - Aplicação dos princípios SOLID
+
+Aplicação dos Princípios SOLID
+
+A refatoração da camada de persistência e negócios foi guiada pelos pilares do SOLID:
+
+1. (Princípio da Responsabilidade Única - SRP)
+
+Onde se aplica: As classes de validação (ValidarCandidato, ValidarEmpresa) e os DAOs possuem propósitos estritos. Os DAOs cuidam exclusivamente da persistência SQL, enquanto as regras de consistência de dados residem isoladamente nos serviços de validação, testadas de forma unitária e pura.
+
+2. (Princípio Aberto/Fechado - OCP)
+
+Onde se aplica: As classes DAO implementam contratos abstratos (ICandidatoDAO, ICurtidaDAO, IMatchDAO, etc.). É possível estender ou trocar a tecnologia de persistência no futuro sem modificar a estrutura de consumo dos dados.
+
+3.  (Princípio da Substituição de Liskov - LSP)
+
+Onde se aplica: Todas as classes concretas de persistência (CandidatoDAO, EmpresaDAO, etc.) podem ser substituídas por suas respectivas interfaces em qualquer ponto da aplicação ou nos testes automatizados, sem que isso afete o comportamento esperado do sistema.
+
+4.  (Princípio da Segregação de Interfaces - ISP)
+
+Onde se aplica: Em vez de uma interface monolítica genérica para todos os acessos a banco, criamos contratos enxutos e específicos para cada entidade (IMatchDAO, ICurtidaDAO, ICandidatoDAO), garantindo que nenhuma classe implemente métodos desnecessários.
+
+5.  (Princípio da Inversão de Dependência - DIP)
+
+Onde se aplica: Os DAOs deixaram de acoplar instâncias estáticas de conexão de banco de dados. Agora, utilizam o princípio de Injeção de Dependência via Construtor, recebendo a interface IConexaoFactory (ConexaoBD), o que facilita imensamente o isolamento em testes de integração.
+
+ Suíte de Testes Automatizados (Spock Framework)
+
+A suíte de testes foi estruturada utilizando o framework Spock com cenários de métodos isolados (def "..."), promovendo relatórios claros na IDE e alta legibilidade baseada no padrão Given-When-Then.
+
+Testes de Integração (DAO): Validam a comunicação direta com o banco de dados PostgreSQL para as entidades de Candidato, Empresa, Vaga, Competência, Curtida e Match, garantindo o ciclo de vida completo de inserção, consulta e exclusão (cleanup).
+
+Testes Unitários (Validação): ValidarCandidatoSpec e ValidarEmpresaSpec asseguram a integridade de regras de negócio (formatos de CPF, CNPJ, e-mail, idades, CEPs e estados) de maneira rápida e independente de infraestrutura externa.
+
 ## Autor
 
 **Sóstenes Marques Maciel**
