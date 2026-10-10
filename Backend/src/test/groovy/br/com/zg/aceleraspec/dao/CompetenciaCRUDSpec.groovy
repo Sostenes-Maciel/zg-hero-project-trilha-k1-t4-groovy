@@ -1,5 +1,6 @@
-package br.com.zg.acelera.dao
+package br.com.zg.aceleraspec.dao
 
+import br.com.zg.acelera.dao.CompetenciaDAO
 import spock.lang.Specification
 
 class CompetenciaCRUDSpec extends Specification {

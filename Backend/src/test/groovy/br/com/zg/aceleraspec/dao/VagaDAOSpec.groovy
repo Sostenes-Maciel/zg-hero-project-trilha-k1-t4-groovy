@@ -1,5 +1,7 @@
-package br.com.zg.acelera.dao
+package br.com.zg.aceleraspec.dao
 
+import br.com.zg.acelera.dao.EmpresaDAO
+import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 import spock.lang.Specification

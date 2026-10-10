@@ -1,6 +1,6 @@
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+!Backend/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 .kotlin
@@ -45,3 +45,30 @@ bin/
 .idea/dataSources.xml
 .idea/data_source_mapping.xml
 .idea/sqldialects.xml
+
+# Logs do Frontend
+/Frontend/logs
+/Frontend/npm-debug.log*
+/Frontend/yarn-debug.log*
+/Frontend/yarn-error.log*
+/Frontend/pnpm-debug.log*
+/Frontend/lerna-debug.log*
+
+# Dependências e Build do Frontend
+/Frontend/node_modules
+/Frontend/dist
+/Frontend/dist-ssr
+/Frontend/*.local
+
+# Extensões genéricas de logs (Global)
+*.log
+
+# Editor directories and files (Global)
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
