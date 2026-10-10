@@ -75,7 +75,7 @@ class MatchDAO {
 
     boolean existeMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
         String sql = """
-            SELECT 1 FROM match 
+            SELECT 1 FROM match_vaga
             WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga = ?
         """
         return executarQueryBooleana(sql, [cpfCandidato, cnpjEmpresa, idVaga])
@@ -87,7 +87,7 @@ class MatchDAO {
             return
         }
 
-        String sql = "INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga) VALUES (?, ?, ?)"
+        String sql = "INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga) VALUES (?, ?, ?)"
         executarUpdate(sql, [cpfCandidato, cnpjEmpresa, idVaga])
         println "Match registrado com sucesso."
     }
@@ -95,7 +95,7 @@ class MatchDAO {
     List<Map<String, Object>> listarMatches() {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
-            FROM match m
+            FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
             JOIN vaga v ON v.id_vaga = m.id_vaga
@@ -107,7 +107,7 @@ class MatchDAO {
     List<Map<String, Object>> listarMatchesDoCandidato(String cpfCandidato) {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
-            FROM match m
+            FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
             JOIN vaga v ON v.id_vaga = m.id_vaga
@@ -120,7 +120,7 @@ class MatchDAO {
     List<Map<String, Object>> listarMatchesDaEmpresa(String cnpjEmpresa) {
         String sql = """
             SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
-            FROM match m
+            FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
             JOIN vaga v ON v.id_vaga = m.id_vaga
