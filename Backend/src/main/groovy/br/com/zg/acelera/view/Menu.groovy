@@ -3,7 +3,7 @@ package br.com.zg.acelera.view
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfis
-import br.com.zg.acelera.service.GerenciadordeMatches
+import br.com.zg.acelera.service.GerenciadorDeMatches
 
 class Menu {
 
@@ -100,7 +100,7 @@ class Menu {
                     break
 
                 case 4:
-                    GerenciadordeMatches.exibirMatchesDoCandidato(candidato.cpf)
+                    GerenciadorDeMatches.exibirMatchesDoCandidato(candidato.cpf)
                     break
 
                 case 5:
@@ -165,7 +165,7 @@ class Menu {
                     break
 
                 case 4:
-                    GerenciadordeMatches.exibirMatchesDaEmpresa(empresa.cnpj)
+                    GerenciadorDeMatches.exibirMatchesDaEmpresa(empresa.cnpj)
                     break
 
                 case 5:
@@ -426,8 +426,7 @@ class Menu {
                     break
 
                 case 2:
-                    GerenciadordeMatches.simularInteracoes()
-                    GerenciadordeMatches.exibirPainel()
+                    GerenciadorDeMatches.exibirPainel()
                     break
 
                 case 3:
