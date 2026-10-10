@@ -82,10 +82,7 @@ class GerenciadorDeVagas {
         print "Competências exigidas: "
         String entradaComps = sc.nextLine()
 
-        List<String> competencias = entradaComps
-                .tokenize(',')
-                .collect { it.trim() }
-                .findAll { it }
+        List<String> competencias = extrairCompetencias(entradaComps)
 
         Vaga vaga = new Vaga(
                 titulo: titulo,
@@ -125,26 +122,10 @@ class GerenciadorDeVagas {
     }
 
     void atualizarVagaPeloTerminal(Scanner sc, Empresa empresa) {
-
         listarVagasPeloTerminal(empresa)
 
-        print "\nInforme o ID da vaga que deseja atualizar: "
-
-        if (!sc.hasNextInt()) {
-            println "ID inválido."
-            sc.nextLine()
-            return
-        }
-
-        Integer id = sc.nextInt()
-        sc.nextLine()
-
-        Vaga vaga = buscarVaga(id)
-
-        if (vaga == null || vaga.empresa.cnpj != empresa.cnpj) {
-            println "Vaga não encontrada para esta empresa."
-            return
-        }
+        Vaga vaga = solicitarEValidarVaga(sc, empresa)
+        if (vaga == null) return
 
         List<String> competenciasAntigas = new ArrayList<>(vaga.competencia)
 
@@ -163,35 +144,44 @@ class GerenciadorDeVagas {
         print "Novas competências (separe por vírgula): "
         String entradaComps = sc.nextLine()
 
-        vaga.competencia = entradaComps
-                .tokenize(',')
-                .collect { it.trim() }
-                .findAll { it }
+        vaga.competencia = extrairCompetencias(entradaComps)
 
         vagaDAO.atualizar(vaga)
 
         competenciasAntigas.each { competencia ->
-            competenciaDAO.removerDaVaga(id, competencia)
+            competenciaDAO.removerDaVaga(vaga.id, competencia)
         }
 
         vaga.competencia.each { competencia ->
             competenciaDAO.garantirCompetencia(competencia)
-            competenciaDAO.adicionarAVaga(id, competencia)
+            competenciaDAO.adicionarAVaga(vaga.id, competencia)
         }
 
         println "Vaga atualizada com sucesso!"
     }
 
     void excluirVagaPeloTerminal(Scanner sc, Empresa empresa) {
-
         listarVagasPeloTerminal(empresa)
 
-        print "\nInforme o ID da vaga que deseja excluir: "
+        Vaga vaga = solicitarEValidarVaga(sc, empresa)
+        if (vaga == null) return
+
+        excluirVaga(vaga.id)
+        println "Vaga excluída com sucesso!"
+    }
+
+    private List<String> extrairCompetencias(String entrada) {
+        if (!entrada) return []
+        return entrada.tokenize(',').collect { it.trim() }.findAll { it }
+    }
+
+    private Vaga solicitarEValidarVaga(Scanner sc, Empresa empresa) {
+        print "\nInforme o ID da vaga: "
 
         if (!sc.hasNextInt()) {
             println "ID inválido."
             sc.nextLine()
-            return
+            return null
         }
 
         Integer id = sc.nextInt()
@@ -201,45 +191,9 @@ class GerenciadorDeVagas {
 
         if (vaga == null || vaga.empresa.cnpj != empresa.cnpj) {
             println "Vaga não encontrada para esta empresa."
-            return
-        }
-
-        excluirVaga(id)
-
-        println "Vaga excluída com sucesso!"
-    }
-
-    Empresa selecionarEmpresa(Scanner sc) {
-
-        List<Empresa> empresas = empresaDAO.listarTodos()
-
-        if (empresas.isEmpty()) {
-            println "Nenhuma empresa cadastrada ainda."
             return null
         }
 
-        println "\n-- Empresas Cadastradas --"
-
-        empresas.eachWithIndex { empresa, indice ->
-            println "${indice + 1} - ${empresa.nome} | CNPJ: ${empresa.cnpj}"
-        }
-
-        print "Selecione a empresa: "
-
-        if (!sc.hasNextInt()) {
-            println "Erro: informe apenas o número da empresa."
-            sc.nextLine()
-            return null
-        }
-
-        int opcao = sc.nextInt()
-        sc.nextLine()
-
-        if (opcao < 1 || opcao > empresas.size()) {
-            println "Empresa inválida."
-            return null
-        }
-
-        return empresas[opcao - 1]
+        return vaga
     }
 }
