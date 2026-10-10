@@ -1,21 +1,23 @@
 import { BancodeDados } from '../dao/BancodeDados'
-import {renderPerfilCandidato} from "./PerfilCandidato.ts";
-import {confirmarExclusao} from "../components/Confirmacao.ts";
+import { renderPerfilCandidato } from "./PerfilCandidato.ts"
+import { confirmarExclusao } from "../components/Confirmacao.ts"
 
 export function renderListaCandidatos(mensagemSucesso?: string): void {
     const app = document.querySelector<HTMLDivElement>('#app')
+    if (!app) return
 
-    if (!app) {
-        return
-    }
+    renderizarTabelaBase(app, mensagemSucesso)
+    renderizarLinhasCandidatos()
+    configurarEventosBotoes()
+}
 
-    const candidatos = BancodeDados.candidatos
-
+function renderizarTabelaBase(app: HTMLDivElement, mensagemSucesso?: string): void {
     app.innerHTML = `
-
-        <section>
+        <section class="tela-com-transicao">
             <h1>Candidatos</h1>
-            <p id="mensagem"></p>
+            <p id="mensagem" class="${mensagemSucesso ? 'mensagem-sucesso' : ''}">
+                ${mensagemSucesso ?? ''}
+            </p>
 
             <table>
                 <thead>
@@ -24,25 +26,24 @@ export function renderListaCandidatos(mensagemSucesso?: string): void {
                         <th>Estado</th>
                         <th>Competências</th>
                         <th>Ação</th>
-                        
                     </tr>
                 </thead>
-                
-
                 <tbody id="lista-candidatos">
+                    <!-- Linhas injetadas via JavaScript -->
                 </tbody>
             </table>
         </section>
     `
-    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+}
 
-    if (mensagemSucesso && mensagem) {
-        mensagem.textContent = mensagemSucesso
-    }
-
+function renderizarLinhasCandidatos(): void {
     const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos')
+    if (!lista) return
 
-    if (!lista) {
+    const candidatos = BancodeDados.candidatos
+
+    if (candidatos.length === 0) {
+        lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Nenhum candidato cadastrado.</td></tr>'
         return
     }
 
@@ -59,74 +60,65 @@ export function renderListaCandidatos(mensagemSucesso?: string): void {
             </td>
             <td>${candidato.estado}</td>
             <td>${candidato.competencias.join(', ')}</td>
-                <td>
-                    <button class="btn-perfil" data-cpf="${candidato.cpf}">
-                        Ver perfil
-                    </button>
-                
-                    <button class="btn-excluir" data-cpf="${candidato.cpf}">
-                        Excluir
-                    </button>
-                </td>
-            `
-
+            <td>
+                <button class="btn-perfil" data-cpf="${candidato.cpf}">
+                    Ver perfil
+                </button>
+                <button class="btn-excluir" data-cpf="${candidato.cpf}">
+                    Excluir
+                </button>
+            </td>
+        `
         lista.appendChild(linha)
     })
+}
 
-    const botoesPerfil = document.querySelectorAll<HTMLButtonElement>(
-        '.btn-perfil'
-    )
+
+function configurarEventosBotoes(): void {
+    const botoesPerfil = document.querySelectorAll<HTMLButtonElement>('.btn-perfil')
+    const botoesExcluir = document.querySelectorAll<HTMLButtonElement>('.btn-excluir')
 
     botoesPerfil.forEach(botao => {
-        botao.addEventListener('click', () => {
-            const cpf = botao.dataset.cpf
-
-            const candidato = BancodeDados.candidatos.find(
-                candidato => candidato.cpf === cpf
-            )
-
-            if (!candidato) {
-                console.error('Candidato não encontrado.')
-                return
-            }
-
-            renderPerfilCandidato(candidato)
-        })
+        botao.addEventListener('click', () => abrirPerfil(botao.dataset.cpf))
     })
-
-    const botoesExcluir = document.querySelectorAll<HTMLButtonElement>(
-        '.btn-excluir'
-    )
 
     botoesExcluir.forEach(botao => {
-        botao.addEventListener('click', async () => {
-            const cpf = botao.dataset.cpf
-
-            if (!cpf) {
-                console.error('CPF do candidato não encontrado.')
-                return
-            }
-
-            const confirmar = await confirmarExclusao(
-                'Excluir candidato?',
-                'Essa ação não poderá ser desfeita.'
-            )
-
-            if (!confirmar) {
-                return
-            }
-
-            try {
-                BancodeDados.excluirCandidato(cpf)
-                renderListaCandidatos('Candidato excluído com sucesso!')
-
-            } catch (erro) {
-                console.error('Erro ao excluir candidato:', erro)
-
-                window.alert(
-                    'Não foi possível excluir o candidato. Tente novamente.'
-                )
-            }
-        })
+        botao.addEventListener('click', () => processarExclusao(botao.dataset.cpf))
     })
+}
+
+function abrirPerfil(cpf?: string): void {
+    if (!cpf) return
+
+    const candidato = BancodeDados.candidatos.find(c => c.cpf === cpf)
+    if (!candidato) {
+        console.error('Candidato não encontrado.')
+        return
+    }
+
+    renderPerfilCandidato(candidato)
+}
+
+async function processarExclusao(cpf?: string): Promise<void> {
+    if (!cpf) {
+        console.error('CPF do candidato não encontrado.')
+        return
+    }
+
+    const confirmar = await confirmarExclusao(
+        'Excluir candidato?',
+        'Essa ação não poderá ser desfeita e removerá os matches vinculados.'
+    )
+
+    if (!confirmar) return
+
+    try {
+          BancodeDados.excluirCandidato(cpf)
+
+        renderListaCandidatos('Candidato excluído com sucesso!')
+
+    } catch (erro) {
+        console.error('Erro ao excluir candidato:', erro)
+        window.alert('Não foi possível excluir o candidato. Tente novamente.')
+    }
 }
