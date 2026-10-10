@@ -506,4 +506,19 @@ export class BancodeDados {
             )
         })
     }
+    static deletarCandidato(cpf: string): void {
+        this.candidatos = this.candidatos.filter(c => c.cpf !== cpf)
+        this.matches = this.matches.filter(match => match.candidato?.cpf !== cpf)
+        this.curtidas = this.curtidas.filter(curtida => curtida.candidato?.cpf !== cpf)
+    }
+
+    static deletarEmpresa(cnpj: string): void {
+        this.empresas = this.empresas.filter(e => e.cnpj !== cnpj)
+        this.vagas = this.vagas.filter(vaga => vaga.empresa?.cnpj !== cnpj)
+        this.matches = this.matches.filter(match => match.empresa?.cnpj !== cnpj)
+        this.curtidas = this.curtidas.filter(curtida =>
+            curtida.empresa?.cnpj !== cnpj &&
+            curtida.vaga?.empresa?.cnpj !== cnpj
+        )
+    }
 }
