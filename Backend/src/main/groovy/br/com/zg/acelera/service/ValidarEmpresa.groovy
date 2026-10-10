@@ -3,9 +3,7 @@ package br.com.zg.acelera.service
 class ValidarEmpresa {
 
     static void validarNome(String nome) {
-        if (!nome || !nome.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("Nome da empresa inválido.")
-        }
+        validarApenasLetras(nome, "Nome da empresa")
     }
 
     static void validarEmail(String email) {
@@ -15,30 +13,19 @@ class ValidarEmpresa {
     }
 
     static void validarCnpj(String cnpj) {
-        cnpj = cnpj.replaceAll(/[.\/-]/, '')
-        if (!cnpj.matches(/\d{14}/)) {
-            throw new IllegalArgumentException("CNPJ deve conter 14 números.")
-        }
+        validarTamanhoNumerico(cnpj, 14, "CNPJ")
     }
 
     static void validarPais(String pais) {
-        if (!pais || !pais.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("País inválido.")
-        }
+        validarApenasLetras(pais, "País")
     }
 
     static void validarEstado(String estado) {
-        if (!estado || !estado.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("Estado inválido.")
-        }
+        validarApenasLetras(estado, "Estado")
     }
 
     static void validarCep(String cep) {
-        cep = cep.replaceAll(/[.-]/, '')
-
-        if (!cep.matches(/\d{8}/)) {
-            throw new IllegalArgumentException("CEP deve conter 8 números.")
-        }
+        validarTamanhoNumerico(cep, 8, "CEP")
     }
 
     static void validarDescricao(String descricao) {
@@ -50,6 +37,18 @@ class ValidarEmpresa {
     static void validarCompetencias(List<String> competencias) {
         if (!competencias || competencias.isEmpty()) {
             throw new IllegalArgumentException("Informe pelo menos uma competência.")
+        }
+    }
+    private static void validarApenasLetras(String texto, String nomeCampo) {
+        if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
+            throw new IllegalArgumentException("${nomeCampo} inválido.")
+        }
+    }
+
+    private static void validarTamanhoNumerico(String valor, int tamanhoExato, String nomeCampo) {
+        String limpo = valor ? valor.replaceAll(/[.\/-]/, '') : ''
+        if (!limpo.matches("\\d{" + tamanhoExato + "}")) {
+            throw new IllegalArgumentException("${nomeCampo} deve conter ${tamanhoExato} números.")
         }
     }
 }
