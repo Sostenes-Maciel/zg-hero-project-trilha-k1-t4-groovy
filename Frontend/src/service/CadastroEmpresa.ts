@@ -8,15 +8,17 @@ import {
 
 export async function renderCadastroEmpresa(): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
+    if (!app) return
 
-    if (!app) {
-        return
-    }
+    renderizarFormulario(app)
+    await configurarSelectsLocalizacao()
+    configurarEventosFormulario()
+}
 
+function renderizarFormulario(app: HTMLDivElement): void {
     app.innerHTML = `
         <section class="cadastro-container">
             <h1>Cadastro de Empresa</h1>
-
             <form id="form-empresa">
                 <div>
                     <label for="nome">Nome</label>
@@ -48,13 +50,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
                 </div>
 
                 <label for="codigoPostal">Código Postal</label>
-                    <input
-                        type="text"
-                        id="codigoPostal"
-                        name="codigoPostal"
-                        placeholder="Ex.: 55299-300"
-                        required
-                    >
+                <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
 
                 <div>
                     <label for="descricao">Descrição</label>
@@ -63,37 +59,28 @@ export async function renderCadastroEmpresa(): Promise<void> {
 
                 <div>
                     <label for="competencias">Competências</label>
-                    <input
-                        type="text"
-                        id="competencias"
-                        name="competencias"
-                        placeholder="Ex.: Java, Angular, TypeScript"
-                        required
-                    >
+                    <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Angular, TypeScript" required>
                 </div>
 
                 <button type="submit">Cadastrar</button>
-
                 <p id="mensagem"></p>
             </form>
         </section>
     `
+}
+
+async function configurarSelectsLocalizacao(): Promise<void> {
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
     const selectEstado = document.querySelector<HTMLSelectElement>('#estado')
 
-    if (!selectPais || !selectEstado) {
-        return
-    }
+    if (!selectPais || !selectEstado) return
 
     try {
         const paises = await getCountries()
-
         paises.forEach(pais => {
             const option = document.createElement('option')
-
             option.value = pais.iso2
             option.textContent = pais.name
-
             selectPais.appendChild(option)
         })
     } catch (erro) {
@@ -101,110 +88,94 @@ export async function renderCadastroEmpresa(): Promise<void> {
     }
 
     selectPais.addEventListener('change', async () => {
-        const codigoPais = selectPais.value
-
-        selectEstado.innerHTML = `
-        <option value="">Selecione um estado</option>
-    `
-
-        selectEstado.disabled = true
-
-        if (!codigoPais) {
-            return
-        }
-
-        try {
-            const estados = await getStatesOfCountry(codigoPais)
-
-            estados.forEach(estado => {
-                const option = document.createElement('option')
-
-                option.value = estado.name
-                option.textContent = estado.name
-
-                selectEstado.appendChild(option)
-            })
-
-            selectEstado.disabled = false
-
-        } catch (erro) {
-            console.error('Erro ao carregar estados:', erro)
-        }
+        await atualizarEstadosPorPais(selectPais.value, selectEstado)
     })
+}
 
+async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSelectElement): Promise<void> {
+    selectEstado.innerHTML = '<option value="">Selecione um estado</option>'
+    selectEstado.disabled = true
+
+    if (!codigoPais) return
+
+    try {
+        const estados = await getStatesOfCountry(codigoPais)
+        estados.forEach(estado => {
+            const option = document.createElement('option')
+            option.value = estado.name
+            option.textContent = estado.name
+            selectEstado.appendChild(option)
+        })
+        selectEstado.disabled = false
+    } catch (erro) {
+        console.error('Erro ao carregar estados:', erro)
+    }
+}
+
+function configurarEventosFormulario(): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-empresa')
-
     formulario?.addEventListener('submit', (evento) => {
         evento.preventDefault()
-
-        try {
-            const dados = new FormData(formulario)
-
-            const nome = dados.get('nome') as string
-            const email = dados.get('email') as string
-            const cnpj = dados.get('cnpj') as string
-            const pais = selectPais.selectedOptions[0]?.textContent?.trim() ?? ''
-            const estado = dados.get('estado') as string
-            const codigoPostal = dados.get('codigoPostal') as string
-            const descricao = dados.get('descricao') as string
-
-            const competencias = (dados.get('competencias') as string)
-                .split(',')
-                .map(competencia => competencia.trim())
-                .filter(competencia => competencia.length > 0)
-
-            ValidarEmpresa.validarNome(nome)
-            ValidarEmpresa.validarEmail(email)
-            ValidarEmpresa.validarCnpj(cnpj)
-            ValidarEmpresa.validarPais(pais)
-            ValidarEmpresa.validarEstado(estado)
-            ValidarEmpresa.validarCodigoPostal(
-                codigoPostal,
-                selectPais.value
-            )
-            ValidarEmpresa.validarDescricao(descricao)
-            ValidarEmpresa.validarCompetencias(competencias)
-
-            const empresa: Empresa = {
-                nome,
-                email,
-                cnpj,
-                pais,
-                estado,
-                cep: codigoPostal,
-                descricao,
-                competencias
-            }
-
-            BancodeDados.cadastrarEmpresa(empresa)
-
-            const mensagem = document.querySelector<HTMLParagraphElement>(
-                '#mensagem'
-            )
-
-            if (mensagem) {
-                mensagem.textContent = 'Empresa cadastrada com sucesso!'
-                mensagem.classList.add('mensagem-sucesso')
-            }
-
-            formulario.reset()
-
-            console.log('Empresa cadastrada:', empresa)
-
-        } catch (erro) {
-            console.error('Erro ao cadastrar empresa:', erro)
-
-            const mensagem = document.querySelector<HTMLParagraphElement>(
-                '#mensagem'
-            )
-
-            if (mensagem) {
-                mensagem.textContent =
-                    erro instanceof Error
-                        ? erro.message
-                        : 'Não foi possível cadastrar o candidato. Tente novamente.'
-                        mensagem.classList.add('mensagem-erro')
-            }
-        }
+        processarSubmissao(formulario)
     })
+}
+
+function processarSubmissao(formulario: HTMLFormElement): void {
+    const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+    const selectPais = document.querySelector<HTMLSelectElement>('#pais')
+
+    if (mensagem) {
+        mensagem.className = ''
+        mensagem.textContent = ''
+    }
+
+    try {
+        const empresa = extrairEValidarDados(formulario, selectPais)
+
+        BancodeDados.cadastrarEmpresa(empresa)
+        console.log('Empresa cadastrada:', empresa)
+
+        exibirMensagem(mensagem, 'Empresa cadastrada com sucesso!', 'mensagem-sucesso')
+        formulario.reset()
+
+    } catch (erro) {
+        console.error('Erro ao cadastrar empresa:', erro)
+        const textoErro = erro instanceof Error ? erro.message : 'Não foi possível cadastrar a empresa. Tente novamente.'
+        exibirMensagem(mensagem, textoErro, 'mensagem-erro')
+    }
+}
+
+function extrairEValidarDados(formulario: HTMLFormElement, selectPais: HTMLSelectElement | null): Empresa {
+    const dados = new FormData(formulario)
+
+    const nome = dados.get('nome') as string
+    const email = dados.get('email') as string
+    const cnpj = dados.get('cnpj') as string
+    const pais = selectPais?.selectedOptions[0]?.textContent?.trim() ?? ''
+    const estado = dados.get('estado') as string
+    const codigoPostal = dados.get('codigoPostal') as string
+    const descricao = dados.get('descricao') as string
+
+    const competencias = (dados.get('competencias') as string)
+        .split(',')
+        .map(competencia => competencia.trim())
+        .filter(competencia => competencia.length > 0)
+
+    ValidarEmpresa.validarNome(nome)
+    ValidarEmpresa.validarEmail(email)
+    ValidarEmpresa.validarCnpj(cnpj)
+    ValidarEmpresa.validarPais(pais)
+    ValidarEmpresa.validarEstado(estado)
+    ValidarEmpresa.validarCodigoPostal(codigoPostal, selectPais?.value ?? '')
+    ValidarEmpresa.validarDescricao(descricao)
+    ValidarEmpresa.validarCompetencias(competencias)
+
+    return { nome, email, cnpj, pais, estado, cep: codigoPostal, descricao, competencias }
+}
+
+function exibirMensagem(elemento: HTMLParagraphElement | null, texto: string, classeCSS: string): void {
+    if (elemento) {
+        elemento.textContent = texto
+        elemento.classList.add(classeCSS)
+    }
 }
