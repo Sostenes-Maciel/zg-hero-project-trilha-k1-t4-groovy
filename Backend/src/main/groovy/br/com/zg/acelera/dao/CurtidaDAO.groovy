@@ -4,13 +4,19 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CurtidaDAO {
+class CurtidaDAO implements ICurtidaDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    CurtidaDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             stmt.executeUpdate()
@@ -27,11 +33,11 @@ class CurtidaDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             rs = stmt.executeQuery()
-            return rs.next() // Retorna true se encontrou algum registro
+            return rs.next()
         } catch (Exception e) {
             throw new RuntimeException("Erro ao verificar dados no banco: ${e.message}", e)
         } finally {
@@ -41,32 +47,31 @@ class CurtidaDAO {
         }
     }
 
+    @Override
     void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga) {
         String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND id_vaga = ? AND cnpj_empresa IS NULL"
 
         if (executarQueryBooleana(sqlVerificar, [cpfCandidato, idVaga])) {
-            println "O candidato já curtiu essa vaga."
             return
         }
 
         String sqlInserir = "INSERT INTO curtida (cpf_candidato, id_vaga) VALUES (?, ?)"
         executarUpdate(sqlInserir, [cpfCandidato, idVaga])
-        println "Curtida do candidato registrada com sucesso."
     }
 
+    @Override
     void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa) {
         String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga IS NULL"
 
         if (executarQueryBooleana(sqlVerificar, [cpfCandidato, cnpjEmpresa])) {
-            println "A empresa já curtiu esse candidato."
             return
         }
 
         String sqlInserir = "INSERT INTO curtida (cpf_candidato, cnpj_empresa) VALUES (?, ?)"
         executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa])
-        println "Curtida da empresa registrada com sucesso."
     }
 
+    @Override
     boolean verificarMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
         String sql = """
             SELECT 1
