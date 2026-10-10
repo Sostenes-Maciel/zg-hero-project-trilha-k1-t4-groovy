@@ -7,13 +7,19 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class VagaDAO {
+class VagaDAO implements IVagaDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    VagaDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             stmt.executeUpdate()
@@ -30,11 +36,11 @@ class VagaDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
 
-            rs = stmt.executeQuery() // Usamos executeQuery pois o SQL tem RETURNING
+            rs = stmt.executeQuery()
             if (rs.next()) {
                 return rs.getInt("id_vaga")
             }
@@ -54,7 +60,7 @@ class VagaDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             rs = stmt.executeQuery()
@@ -86,17 +92,23 @@ class VagaDAO {
         )
     }
 
-    Integer cadastrar(Vaga vaga) {
+    @Override
+    void cadastrar(Vaga vaga) {
         String sql = """
             INSERT INTO vaga (titulo, pais, estado, descricao, cnpj_empresa)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id_vaga
         """
-        return executarInsertComRetorno(sql, [
+        Integer idGerado = executarInsertComRetorno(sql, [
                 vaga.titulo, vaga.pais, vaga.estado, vaga.descricao, vaga.empresa.cnpj
         ])
+
+        if (idGerado != null) {
+            vaga.id = idGerado
+        }
     }
 
+    @Override
     List<Vaga> listarTodos() {
         String sql = """
             SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
@@ -107,6 +119,7 @@ class VagaDAO {
         return executarQuery(sql, [])
     }
 
+    @Override
     Vaga buscarPorId(Integer id) {
         String sql = """
             SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
@@ -118,6 +131,7 @@ class VagaDAO {
         return resultados.isEmpty() ? null : resultados[0]
     }
 
+    @Override
     List<Vaga> listarPorEmpresa(String cnpj) {
         String sql = """
             SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
@@ -129,6 +143,7 @@ class VagaDAO {
         return executarQuery(sql, [cnpj])
     }
 
+    @Override
     void atualizar(Vaga vaga) {
         String sql = """
             UPDATE vaga
@@ -140,6 +155,7 @@ class VagaDAO {
         ])
     }
 
+    @Override
     void excluir(Integer id) {
         String sql = "DELETE FROM vaga WHERE id_vaga = ?"
         executarUpdate(sql, [id])
