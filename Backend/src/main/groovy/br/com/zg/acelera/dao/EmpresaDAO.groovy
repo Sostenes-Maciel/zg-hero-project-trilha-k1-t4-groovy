@@ -6,18 +6,25 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class EmpresaDAO {
+class EmpresaDAO implements IEmpresaDAO {
+
+    private final IConexaoFactory conexaoFactory
+
+    EmpresaDAO(IConexaoFactory conexaoFactory) {
+        this.conexaoFactory = conexaoFactory
+    }
 
     private void executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             stmt.executeUpdate()
         } catch (Exception e) {
             println "Erro no Banco de Dados: ${e.message}"
+            throw new RuntimeException("Falha ao executar query", e)
         } finally {
             if (stmt != null) stmt.close()
             if (conexao != null) conexao.close()
@@ -30,7 +37,7 @@ class EmpresaDAO {
         PreparedStatement stmt = null
         ResultSet rs = null
         try {
-            conexao = ConexaoBD.conectar()
+            conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
             rs = stmt.executeQuery()
@@ -59,6 +66,7 @@ class EmpresaDAO {
         )
     }
 
+    @Override
     void cadastrar(Empresa empresa) {
         String sql = """
             INSERT INTO empresa (cnpj, nome, email, pais, estado, cep, descricao)
@@ -70,17 +78,20 @@ class EmpresaDAO {
         ])
     }
 
+    @Override
     List<Empresa> listarTodos() {
         String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa ORDER BY nome"
         return executarQuery(sql, [])
     }
 
-    Empresa buscarPorCnpj(String cnpj) {
+    @Override
+    Empresa buscarPorId(String cnpj) {
         String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa WHERE cnpj = ?"
         List<Empresa> resultados = executarQuery(sql, [cnpj])
         return resultados.isEmpty() ? null : resultados[0]
     }
 
+    @Override
     void atualizar(Empresa empresa) {
         String sql = """
             UPDATE empresa
@@ -93,6 +104,7 @@ class EmpresaDAO {
         ])
     }
 
+    @Override
     void excluir(String cnpj) {
         String sql = "DELETE FROM empresa WHERE cnpj = ?"
         executarUpdate(sql, [cnpj])

@@ -1,6 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.EmpresaDAO
+import br.com.zg.acelera.dao.ConexaoBD
 import br.com.zg.acelera.model.Empresa
 import spock.lang.Specification
 
@@ -9,12 +10,12 @@ class EmpresaDAOSpec extends Specification {
     private EmpresaDAO empresaDAO
 
     def setup() {
-        empresaDAO = new EmpresaDAO()
+        empresaDAO = new EmpresaDAO(new ConexaoBD())
         empresaDAO.excluir("99.888.777/0001-66")
     }
 
     def "deve realizar o CRUD de empresa no banco"() {
-        given:
+        given: "uma empresa valida para teste"
         Empresa empresa = new Empresa(
                 cnpj: "99.888.777/0001-66",
                 nome: "Empresa Teste",
@@ -25,24 +26,24 @@ class EmpresaDAOSpec extends Specification {
                 descricao: "Empresa usada no teste do DAO"
         )
 
-        when:
+        when: "acionamos o metodo de cadastro"
         empresaDAO.cadastrar(empresa)
 
-        then:
-        empresaDAO.buscarPorCnpj("99.888.777/0001-66").nome == "Empresa Teste"
+        then: "ao buscar por ID, o nome deve coincidir com o cadastrado"
+        empresaDAO.buscarPorId("99.888.777/0001-66").nome == "Empresa Teste"
 
-        when:
+        when: "alteramos o nome e salvamos no banco"
         empresa.nome = "Empresa Atualizada"
         empresaDAO.atualizar(empresa)
 
-        then:
-        empresaDAO.buscarPorCnpj("99.888.777/0001-66").nome == "Empresa Atualizada"
+        then: "a nova busca deve refletir o nome atualizado"
+        empresaDAO.buscarPorId("99.888.777/0001-66").nome == "Empresa Atualizada"
 
-        when:
+        when: "acionamos o metodo de exclusao"
         empresaDAO.excluir("99.888.777/0001-66")
 
-        then:
-        empresaDAO.buscarPorCnpj("99.888.777/0001-66") == null
+        then: "a empresa nao deve mais ser encontrada"
+        empresaDAO.buscarPorId("99.888.777/0001-66") == null
 
         cleanup:
         empresaDAO.excluir("99.888.777/0001-66")

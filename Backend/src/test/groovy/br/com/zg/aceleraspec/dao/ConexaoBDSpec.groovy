@@ -8,10 +8,13 @@ import java.sql.Connection
 class ConexaoBDSpec extends Specification {
 
     def "deve conectar ao banco PostgreSQL"() {
-        when:
-        Connection conexao = ConexaoBD.conectar()
+        given: "a fabrica de conexao real"
+        ConexaoBD fabricaDeConexao = new ConexaoBD()
 
-        then:
+        when: "solicitamos a abertura da conexao"
+        Connection conexao = fabricaDeConexao.conectar()
+
+        then: "a conexao deve ser retornada aberta"
         conexao != null
         !conexao.isClosed()
 
