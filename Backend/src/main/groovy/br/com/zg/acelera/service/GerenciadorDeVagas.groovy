@@ -19,9 +19,9 @@ class GerenciadorDeVagas {
     }
 
     Integer cadastrarVaga(Vaga vaga) {
-        Integer idVaga = vagaDAO.cadastrar(vaga)
+        vagaDAO.cadastrar(vaga)
 
-        vaga.id = idVaga
+        Integer idVaga = vaga.id
 
         vaga.competencia.each { competencia ->
             competenciaDAO.garantirCompetencia(competencia)
