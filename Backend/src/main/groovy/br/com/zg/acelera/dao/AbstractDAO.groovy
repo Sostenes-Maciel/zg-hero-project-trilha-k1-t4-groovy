@@ -32,6 +32,31 @@ abstract class AbstractDAO<T> {
         }
     }
 
+    protected Integer executarInsertComRetorno(String sql, List parametros) {
+        Connection conexao = null
+        PreparedStatement stmt = null
+        ResultSet rs = null
+        try {
+            conexao = conexaoFactory.conectar()
+            stmt = conexao.prepareStatement(sql)
+
+            parametros.eachWithIndex { param, i ->
+                stmt.setObject(i + 1, param)
+            }
+
+            rs = stmt.executeQuery()
+            if (rs.next()) {
+                return rs.getInt(1)
+            }
+            return null
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao executar insert com retorno", e)
+        } finally {
+            if (rs != null) rs.close()
+            if (stmt != null) stmt.close()
+        }
+    }
+
     protected List<T> executarQuery(String sql, List parametros) {
         List<T> resultados = []
         Connection conexao = null
