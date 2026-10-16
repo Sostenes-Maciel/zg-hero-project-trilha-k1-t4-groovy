@@ -3,68 +3,16 @@ package br.com.zg.acelera.dao
 import br.com.zg.acelera.interfaces.ICandidatoDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CandidatoDAO implements ICandidatoDAO {
-
-    private final IConexao conexaoFactory
+class CandidatoDAO extends AbstractDAO<Candidato> implements ICandidatoDAO {
 
     CandidatoDAO(IConexao conexaoFactory) {
-        this.conexaoFactory = conexaoFactory
+        super(conexaoFactory)
     }
 
-    private void executarUpdate(String sql, List parametros) {
-        Connection conexao = null
-        PreparedStatement stmt = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-
-            parametros.eachWithIndex { param, i ->
-                stmt.setObject(i + 1, param)
-            }
-
-            stmt.executeUpdate()
-        } catch (Exception e) {
-            println "Erro no Banco de Dados: ${e.message}"
-            throw new RuntimeException("Falha ao executar query", e)
-        } finally {
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-    }
-
-    private List<Candidato> executarQuery(String sql, List parametros) {
-        List<Candidato> resultados = []
-        Connection conexao = null
-        PreparedStatement stmt = null
-        ResultSet rs = null
-
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-
-            parametros.eachWithIndex { param, i ->
-                stmt.setObject(i + 1, param)
-            }
-
-            rs = stmt.executeQuery()
-            while (rs.next()) {
-                resultados.add(mapearCandidato(rs))
-            }
-        } catch (Exception e) {
-            println "Erro na Busca: ${e.message}"
-        } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-        return resultados
-    }
-
-    private static Candidato mapearCandidato(ResultSet rs) {
+    @Override
+    protected Candidato mapearRegistro(ResultSet rs) {
         return new Candidato(
                 cpf: rs.getString("cpf"),
                 nome: rs.getString("nome"),
