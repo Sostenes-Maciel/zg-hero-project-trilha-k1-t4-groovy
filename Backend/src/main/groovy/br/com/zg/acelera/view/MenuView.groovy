@@ -1,7 +1,7 @@
 package br.com.zg.acelera.view
 
 import br.com.zg.acelera.dao.CandidatoDAO
-import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
@@ -10,7 +10,7 @@ import br.com.zg.acelera.service.GerenciadorDeMatchesService
 
 class MenuView {
 
-    private final def conexaoFactory = new ConexaoBD()
+    private final def conexaoFactory = new ConexaoPostgres()
 
     private final def candidatoDAO = new CandidatoDAO(conexaoFactory)
     private final def empresaDAO = new EmpresaDAO(conexaoFactory)

@@ -1,7 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.EmpresaDAO
-import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.model.Empresa
 import spock.lang.Specification
 
@@ -10,7 +10,7 @@ class EmpresaDAOSpec extends Specification {
     private EmpresaDAO empresaDAO
 
     def setup() {
-        empresaDAO = new EmpresaDAO(new ConexaoBD())
+        empresaDAO = new EmpresaDAO(new ConexaoPostgres())
         empresaDAO.excluir("99.888.777/0001-66")
     }
 

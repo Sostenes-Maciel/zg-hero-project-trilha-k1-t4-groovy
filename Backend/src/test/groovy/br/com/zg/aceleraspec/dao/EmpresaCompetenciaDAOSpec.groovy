@@ -1,7 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CompetenciaDAO
-import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Empresa
 import spock.lang.Specification
@@ -12,7 +12,7 @@ class EmpresaCompetenciaDAOSpec extends Specification {
     private CompetenciaDAO competenciaDAO
 
     def setup() {
-        def conexaoFactory = new ConexaoBD()
+        def conexaoFactory = new ConexaoPostgres()
         empresaDAO = new EmpresaDAO(conexaoFactory)
         competenciaDAO = new CompetenciaDAO(conexaoFactory)
 

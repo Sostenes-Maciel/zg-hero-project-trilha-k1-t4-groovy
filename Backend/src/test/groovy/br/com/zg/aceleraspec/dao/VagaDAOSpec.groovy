@@ -1,6 +1,6 @@
 package br.com.zg.aceleraspec.dao
 
-import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Empresa
@@ -13,7 +13,7 @@ class VagaDAOSpec extends Specification {
     private EmpresaDAO empresaDAO
 
     def setup() {
-        def conexaoFactory = new ConexaoBD()
+        def conexaoFactory = new ConexaoPostgres()
         vagaDAO = new VagaDAO(conexaoFactory)
         empresaDAO = new EmpresaDAO(conexaoFactory)
 

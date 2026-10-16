@@ -1,7 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
-import br.com.zg.acelera.dao.ConexaoBD
+import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
@@ -18,7 +18,7 @@ class CurtidaDAOSpec extends Specification {
     private VagaDAO vagaDAO
 
     def setup() {
-        def conexaoFactory = new ConexaoBD()
+        def conexaoFactory = new ConexaoPostgres()
         curtidaDAO = new CurtidaDAO(conexaoFactory)
         candidatoDAO = new CandidatoDAO(conexaoFactory)
         empresaDAO = new EmpresaDAO(conexaoFactory)
