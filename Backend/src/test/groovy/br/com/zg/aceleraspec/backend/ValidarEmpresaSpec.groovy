@@ -1,6 +1,6 @@
 package br.com.zg.aceleraspec.backend
 
-import br.com.zg.acelera.service.ValidarEmpresa
+import br.com.zg.acelera.service.ValidarEmpresaService
 import spock.lang.Specification
 
 
@@ -9,7 +9,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar um nome de empresa válido"() {
 
         when:
-        ValidarEmpresa.validarNome("Tech Global")
+        ValidarEmpresaService.validarNome("Tech Global")
 
         then:
         noExceptionThrown()
@@ -18,7 +18,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar um nome de empresa inválido"() {
 
         when:
-        ValidarEmpresa.validarNome("Tech123")
+        ValidarEmpresaService.validarNome("Tech123")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -29,7 +29,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar um email válido"() {
 
         when:
-        ValidarEmpresa.validarEmail("empresa@email.com")
+        ValidarEmpresaService.validarEmail("empresa@email.com")
 
         then:
         noExceptionThrown()
@@ -38,7 +38,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar um email inválido"() {
 
         when:
-        ValidarEmpresa.validarEmail("empresa@email")
+        ValidarEmpresaService.validarEmail("empresa@email")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -49,7 +49,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar CNPJ com 14 números"() {
 
         when:
-        ValidarEmpresa.validarCnpj("12345678000199")
+        ValidarEmpresaService.validarCnpj("12345678000199")
 
         then:
         noExceptionThrown()
@@ -58,7 +58,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar CNPJ formatado"() {
 
         when:
-        ValidarEmpresa.validarCnpj("12.345.678/0001-99")
+        ValidarEmpresaService.validarCnpj("12.345.678/0001-99")
 
         then:
         noExceptionThrown()
@@ -67,7 +67,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar CNPJ com 13 números"() {
 
         when:
-        ValidarEmpresa.validarCnpj("1234567800019")
+        ValidarEmpresaService.validarCnpj("1234567800019")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -77,7 +77,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar CNPJ com 15 números"() {
 
         when:
-        ValidarEmpresa.validarCnpj("123456780001999")
+        ValidarEmpresaService.validarCnpj("123456780001999")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -88,7 +88,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar um país válido"() {
 
         when:
-        ValidarEmpresa.validarPais("Brasil")
+        ValidarEmpresaService.validarPais("Brasil")
 
         then:
         noExceptionThrown()
@@ -97,7 +97,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar um país inválido"() {
 
         when:
-        ValidarEmpresa.validarPais("Brasil123")
+        ValidarEmpresaService.validarPais("Brasil123")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -108,7 +108,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar um estado válido"() {
 
         when:
-        ValidarEmpresa.validarEstado("Pernambuco")
+        ValidarEmpresaService.validarEstado("Pernambuco")
 
         then:
         noExceptionThrown()
@@ -117,7 +117,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar um estado inválido"() {
 
         when:
-        ValidarEmpresa.validarEstado("PE123")
+        ValidarEmpresaService.validarEstado("PE123")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -128,7 +128,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar CEP com 8 números"() {
 
         when:
-        ValidarEmpresa.validarCep("55299300")
+        ValidarEmpresaService.validarCep("55299300")
 
         then:
         noExceptionThrown()
@@ -137,7 +137,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar CEP formatado"() {
 
         when:
-        ValidarEmpresa.validarCep("55299-300")
+        ValidarEmpresaService.validarCep("55299-300")
 
         then:
         noExceptionThrown()
@@ -146,7 +146,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar CEP com 7 números"() {
 
         when:
-        ValidarEmpresa.validarCep("5529930")
+        ValidarEmpresaService.validarCep("5529930")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -156,7 +156,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar CEP com 9 números"() {
 
         when:
-        ValidarEmpresa.validarCep("552993000")
+        ValidarEmpresaService.validarCep("552993000")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -167,7 +167,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar uma descrição preenchida"() {
 
         when:
-        ValidarEmpresa.validarDescricao("Consultoria em tecnologia")
+        ValidarEmpresaService.validarDescricao("Consultoria em tecnologia")
 
         then:
         noExceptionThrown()
@@ -176,7 +176,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar uma descrição vazia"() {
 
         when:
-        ValidarEmpresa.validarDescricao("")
+        ValidarEmpresaService.validarDescricao("")
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -187,7 +187,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve aceitar uma lista de competências preenchida"() {
 
         when:
-        ValidarEmpresa.validarCompetencias(["Java", "Groovy"])
+        ValidarEmpresaService.validarCompetencias(["Java", "Groovy"])
 
         then:
         noExceptionThrown()
@@ -196,7 +196,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar uma lista de competências vazia"() {
 
         when:
-        ValidarEmpresa.validarCompetencias([])
+        ValidarEmpresaService.validarCompetencias([])
 
         then:
         def erro = thrown(IllegalArgumentException)
@@ -206,7 +206,7 @@ class ValidarEmpresaSpec extends Specification {
     def "deve rejeitar competências nulas"() {
 
         when:
-        ValidarEmpresa.validarCompetencias(null)
+        ValidarEmpresaService.validarCompetencias(null)
 
         then:
         def erro = thrown(IllegalArgumentException)

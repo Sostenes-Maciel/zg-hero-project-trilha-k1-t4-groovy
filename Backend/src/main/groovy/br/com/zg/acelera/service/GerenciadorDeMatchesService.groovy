@@ -1,24 +1,16 @@
 package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.MatchDAO
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 
-class GerenciadorDeMatches {
+class GerenciadorDeMatchesService {
 
     private final MatchDAO matchDAO
 
-    GerenciadorDeMatches(IConexaoFactory conexaoFactory) {
+    GerenciadorDeMatchesService(IConexao conexaoFactory) {
         this.matchDAO = new MatchDAO(conexaoFactory)
     }
 
-    void exibirPainel() {
-        def matches = matchDAO.listarMatches()
-        imprimirListaDeMatches("MATCHES REGISTRADOS", matches, "Nenhum match registrado no sistema.") { match ->
-            println "Candidato: ${match.nomeCandidato}"
-            println "Empresa: ${match.nomeEmpresa}"
-            println "Vaga: ${match.tituloVaga}"
-        }
-    }
 
     void exibirMatchesDoCandidato(String cpfCandidato) {
         def matches = matchDAO.listarMatchesDoCandidato(cpfCandidato)

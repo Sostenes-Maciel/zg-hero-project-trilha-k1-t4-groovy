@@ -1,7 +1,7 @@
 package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.interfaces.ICandidatoDAO
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -9,9 +9,9 @@ import java.sql.ResultSet
 
 class CandidatoDAO implements ICandidatoDAO {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
 
-    CandidatoDAO(IConexaoFactory conexaoFactory) {
+    CandidatoDAO(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
     }
 

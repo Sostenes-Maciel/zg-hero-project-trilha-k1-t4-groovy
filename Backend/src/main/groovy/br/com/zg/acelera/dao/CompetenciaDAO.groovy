@@ -1,7 +1,7 @@
 package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.interfaces.ICompetenciaDAO
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -9,9 +9,9 @@ import java.sql.ResultSet
 
 class CompetenciaDAO implements ICompetenciaDAO {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
 
-    CompetenciaDAO(IConexaoFactory conexaoFactory) {
+    CompetenciaDAO(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
     }
 

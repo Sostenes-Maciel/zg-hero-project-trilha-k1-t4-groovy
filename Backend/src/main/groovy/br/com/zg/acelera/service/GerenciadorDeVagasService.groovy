@@ -2,17 +2,17 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
-class GerenciadorDeVagas {
+class GerenciadorDeVagasService {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
     private final VagaDAO vagaDAO
     private final CompetenciaDAO competenciaDAO
 
-    GerenciadorDeVagas(IConexaoFactory conexaoFactory) {
+    GerenciadorDeVagasService(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
         this.vagaDAO = new VagaDAO(conexaoFactory)
         this.competenciaDAO = new CompetenciaDAO(conexaoFactory)

@@ -1,6 +1,6 @@
 package br.com.zg.acelera.dao
 
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.IVagaDAO
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
@@ -11,9 +11,9 @@ import java.sql.ResultSet
 
 class VagaDAO implements IVagaDAO {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
 
-    VagaDAO(IConexaoFactory conexaoFactory) {
+    VagaDAO(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
     }
 

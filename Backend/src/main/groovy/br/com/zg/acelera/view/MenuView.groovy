@@ -5,17 +5,17 @@ import br.com.zg.acelera.dao.ConexaoBD
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
-import br.com.zg.acelera.service.GerenciadorDePerfis
-import br.com.zg.acelera.service.GerenciadorDeMatches
+import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.service.GerenciadorDeMatchesService
 
-class Menu {
+class MenuView {
 
     private final def conexaoFactory = new ConexaoBD()
 
     private final def candidatoDAO = new CandidatoDAO(conexaoFactory)
     private final def empresaDAO = new EmpresaDAO(conexaoFactory)
-    private final GerenciadorDeMatches gerenciadorDeMatches = new GerenciadorDeMatches(conexaoFactory)
-    private final GerenciadorDePerfis gerenciador = new GerenciadorDePerfis(conexaoFactory)
+    private final GerenciadorDeMatchesService gerenciadorDeMatches = new GerenciadorDeMatchesService(conexaoFactory)
+    private final GerenciadorDePerfisService gerenciador = new GerenciadorDePerfisService(conexaoFactory)
     Scanner sc = new Scanner(System.in)
 
     private static int lerOpcaoInt(Scanner sc) {

@@ -150,7 +150,7 @@ Pacote:
 br.com.zg.acelera.view
 ```
 
-Contém a classe `Menu`, responsável pela interação com o usuário através do terminal, incluindo:
+Contém a classe `MenuView`, responsável pela interação com o usuário através do terminal, incluindo:
 
 * Exibição do menu
 * Captura das opções
@@ -165,7 +165,7 @@ Pacote:
 br.com.zg.acelera.service
 ```
 
-Contém o `GerenciadorDePerfis`, responsável pela **lógica de negócio** e pelo gerenciamento dos fluxos relacionados aos cadastros.
+Contém o `GerenciadorDePerfisService`, responsável pela **lógica de negócio** e pelo gerenciamento dos fluxos relacionados aos cadastros.
 
 ### `dao`
 

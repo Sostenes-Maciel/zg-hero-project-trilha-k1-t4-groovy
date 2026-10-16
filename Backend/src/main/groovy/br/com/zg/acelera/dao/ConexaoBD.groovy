@@ -1,12 +1,12 @@
 package br.com.zg.acelera.dao
 
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
-class ConexaoBD implements IConexaoFactory {
+class ConexaoBD implements IConexao {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/LinkeTinder_BD"
     private static final String USUARIO = "postgres"

@@ -5,76 +5,32 @@ import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
-class GerenciadorDePerfis {
+class GerenciadorDePerfisService {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
 
     final CandidatoDAO candidatoDAO
     final CompetenciaDAO competenciaDAO
     final EmpresaDAO empresaDAO
     final CurtidaDAO curtidaDAO
     final MatchDAO matchDAO
-    final GerenciadorDeVagas gerenciadorDeVagas
+    final GerenciadorDeVagasService gerenciadorDeVagas
 
-    GerenciadorDePerfis(IConexaoFactory conexaoFactory) {
+    GerenciadorDePerfisService(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
         this.candidatoDAO = new CandidatoDAO(conexaoFactory)
         this.competenciaDAO = new CompetenciaDAO(conexaoFactory)
         this.empresaDAO = new EmpresaDAO(conexaoFactory)
         this.curtidaDAO = new CurtidaDAO(conexaoFactory)
         this.matchDAO = new MatchDAO(conexaoFactory)
-        this.gerenciadorDeVagas = new GerenciadorDeVagas(conexaoFactory)
+        this.gerenciadorDeVagas = new GerenciadorDeVagasService(conexaoFactory)
     }
 
-    void listarCandidatos() {
-        println("\n-- Candidatos Cadastrados --")
-
-        List<Candidato> candidatos = candidatoDAO.listarTodos()
-
-        if (candidatos.isEmpty()) {
-            println("Nenhum candidato cadastrado ainda.\n")
-            return
-        }
-
-        candidatos.eachWithIndex { candidato, indice ->
-            candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
-
-            println "ID: ${indice + 1}"
-            println "Nome: ${candidato.nome}"
-            println "CPF: ${candidato.cpf}"
-            println "Estado: ${candidato.estado}"
-            println "Competências: ${candidato.competencias.join(', ')}"
-            println "-" * 60
-        }
-
-        println()
-    }
-
-    void listarEmpresas() {
-        println("\n-- Empresas Cadastradas --")
-
-        List<Empresa> empresas = empresaDAO.listarTodos()
-
-        if (empresas.isEmpty()) {
-            println("Nenhuma empresa cadastrada ainda.\n")
-            return
-        }
-
-        empresas.each { empresa ->
-            empresa.competencias = competenciaDAO.listarDaEmpresa(empresa.cnpj)
-
-            println "Nome: ${empresa.nome} | CNPJ: ${empresa.cnpj} | País: ${empresa.pais}"
-            println "Competências desejadas: ${empresa.competencias.join(', ')}"
-            println "-" * 60
-        }
-
-        println()
-    }
 
     void cadastroNovo(Scanner sc) {
         println("\n-- Opções de Cadastro --")
@@ -106,15 +62,15 @@ class GerenciadorDePerfis {
 
             print "Nome: "
             String nome = sc.nextLine().trim()
-            ValidarCandidato.validarNome(nome)
+            ValidarCandidatoService.validarNome(nome)
 
             print "E-mail: "
             String email = sc.nextLine().trim()
-            ValidarCandidato.validarEmail(email)
+            ValidarCandidatoService.validarEmail(email)
 
             print "CPF: "
             String cpf = sc.nextLine().trim()
-            ValidarCandidato.validarCpf(cpf)
+            ValidarCandidatoService.validarCpf(cpf)
 
             print "Idade: "
             if (!sc.hasNextInt()) {
@@ -123,22 +79,22 @@ class GerenciadorDePerfis {
             }
             int idade = sc.nextInt()
             sc.nextLine()
-            ValidarCandidato.validarIdade(idade)
+            ValidarCandidatoService.validarIdade(idade)
 
             print "País: "
             String pais = sc.nextLine().trim()
 
             print "Estado: "
             String estado = sc.nextLine().trim()
-            ValidarCandidato.validarEstado(estado)
+            ValidarCandidatoService.validarEstado(estado)
 
             print "CEP: "
             String cep = sc.nextLine().trim()
-            ValidarCandidato.validarCep(cep)
+            ValidarCandidatoService.validarCep(cep)
 
             print "Descrição pessoal: "
             String descricao = sc.nextLine().trim()
-            ValidarCandidato.validarDescricao(descricao)
+            ValidarCandidatoService.validarDescricao(descricao)
 
             Candidato novoCandidato = new Candidato(
                     nome: nome, email: email, cpf: cpf, idade: idade,
@@ -161,31 +117,31 @@ class GerenciadorDePerfis {
 
             print "Nome da Empresa: "
             String nome = sc.nextLine().trim()
-            ValidarEmpresa.validarNome(nome)
+            ValidarEmpresaService.validarNome(nome)
 
             print "E-mail Corporativo: "
             String email = sc.nextLine().trim()
-            ValidarEmpresa.validarEmail(email)
+            ValidarEmpresaService.validarEmail(email)
 
             print "CNPJ: "
             String cnpj = sc.nextLine().trim()
-            ValidarEmpresa.validarCnpj(cnpj)
+            ValidarEmpresaService.validarCnpj(cnpj)
 
             print "País: "
             String pais = sc.nextLine().trim()
-            ValidarEmpresa.validarPais(pais)
+            ValidarEmpresaService.validarPais(pais)
 
             print "Estado: "
             String estado = sc.nextLine().trim()
-            ValidarEmpresa.validarEstado(estado)
+            ValidarEmpresaService.validarEstado(estado)
 
             print "CEP: "
             String cep = sc.nextLine().trim()
-            ValidarEmpresa.validarCep(cep)
+            ValidarEmpresaService.validarCep(cep)
 
             print "Descrição da empresa: "
             String descricao = sc.nextLine().trim()
-            ValidarEmpresa.validarDescricao(descricao)
+            ValidarEmpresaService.validarDescricao(descricao)
 
             Empresa novaEmpresa = new Empresa(
                     nome: nome, email: email, cnpj: cnpj, pais: pais,
@@ -360,11 +316,11 @@ class GerenciadorDePerfis {
         try {
             print "Novo nome: "
             String nome = sc.nextLine().trim()
-            ValidarCandidato.validarNome(nome)
+            ValidarCandidatoService.validarNome(nome)
 
             print "Novo e-mail: "
             String email = sc.nextLine().trim()
-            ValidarCandidato.validarEmail(email)
+            ValidarCandidatoService.validarEmail(email)
 
             print "Nova idade: "
             if (!sc.hasNextInt()) {
@@ -374,22 +330,22 @@ class GerenciadorDePerfis {
 
             int idade = sc.nextInt()
             sc.nextLine()
-            ValidarCandidato.validarIdade(idade)
+            ValidarCandidatoService.validarIdade(idade)
 
             print "Novo país: "
             String pais = sc.nextLine().trim()
 
             print "Novo estado: "
             String estado = sc.nextLine().trim()
-            ValidarCandidato.validarEstado(estado)
+            ValidarCandidatoService.validarEstado(estado)
 
             print "Novo CEP: "
             String cep = sc.nextLine().trim()
-            ValidarCandidato.validarCep(cep)
+            ValidarCandidatoService.validarCep(cep)
 
             print "Nova descrição: "
             String descricao = sc.nextLine().trim()
-            ValidarCandidato.validarDescricao(descricao)
+            ValidarCandidatoService.validarDescricao(descricao)
 
             candidato.nome = nome
             candidato.email = email
@@ -418,27 +374,27 @@ class GerenciadorDePerfis {
         try {
             print "Novo nome da empresa: "
             String nome = sc.nextLine().trim()
-            ValidarEmpresa.validarNome(nome)
+            ValidarEmpresaService.validarNome(nome)
 
             print "Novo e-mail corporativo: "
             String email = sc.nextLine().trim()
-            ValidarEmpresa.validarEmail(email)
+            ValidarEmpresaService.validarEmail(email)
 
             print "Novo país: "
             String pais = sc.nextLine().trim()
-            ValidarEmpresa.validarPais(pais)
+            ValidarEmpresaService.validarPais(pais)
 
             print "Novo estado: "
             String estado = sc.nextLine().trim()
-            ValidarEmpresa.validarEstado(estado)
+            ValidarEmpresaService.validarEstado(estado)
 
             print "Novo CEP: "
             String cep = sc.nextLine().trim()
-            ValidarEmpresa.validarCep(cep)
+            ValidarEmpresaService.validarCep(cep)
 
             print "Nova descrição: "
             String descricao = sc.nextLine().trim()
-            ValidarEmpresa.validarDescricao(descricao)
+            ValidarEmpresaService.validarDescricao(descricao)
 
             empresa.nome = nome
             empresa.email = email

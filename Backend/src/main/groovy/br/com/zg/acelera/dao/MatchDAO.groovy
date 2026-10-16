@@ -1,6 +1,6 @@
 package br.com.zg.acelera.dao
 
-import br.com.zg.acelera.interfaces.IConexaoFactory
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.IMatchDAO
 
 import java.sql.Connection
@@ -9,9 +9,9 @@ import java.sql.ResultSet
 
 class MatchDAO implements IMatchDAO {
 
-    private final IConexaoFactory conexaoFactory
+    private final IConexao conexaoFactory
 
-    MatchDAO(IConexaoFactory conexaoFactory) {
+    MatchDAO(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
     }
 

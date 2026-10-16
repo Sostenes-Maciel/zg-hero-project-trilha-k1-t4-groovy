@@ -1,9 +1,10 @@
 package br.com.zg.acelera.service
 
-class ValidarEmpresa {
+
+class ValidarCandidatoService {
 
     static void validarNome(String nome) {
-        validarApenasLetras(nome, "Nome da empresa")
+        validarApenasLetras(nome,"Nome")
     }
 
     static void validarEmail(String email) {
@@ -12,12 +13,14 @@ class ValidarEmpresa {
         }
     }
 
-    static void validarCnpj(String cnpj) {
-        validarTamanhoNumerico(cnpj, 14, "CNPJ")
+    static void validarCpf(String cpf) {
+        validarTamanhoNumerico(cpf, 11, "CPF")
     }
 
-    static void validarPais(String pais) {
-        validarApenasLetras(pais, "País")
+    static void validarIdade(int idade) {
+        if (idade < 18 || idade > 120) {
+            throw new IllegalArgumentException("Idade inválida.")
+        }
     }
 
     static void validarEstado(String estado) {
@@ -25,7 +28,7 @@ class ValidarEmpresa {
     }
 
     static void validarCep(String cep) {
-        validarTamanhoNumerico(cep, 8, "CEP")
+       validarTamanhoNumerico(cep, 8, "CEP")
     }
 
     static void validarDescricao(String descricao) {
@@ -36,7 +39,9 @@ class ValidarEmpresa {
 
     static void validarCompetencias(List<String> competencias) {
         if (!competencias || competencias.isEmpty()) {
-            throw new IllegalArgumentException("Informe pelo menos uma competência.")
+            throw new IllegalArgumentException(
+                    "Informe pelo menos uma competência."
+            )
         }
     }
     private static void validarApenasLetras(String texto, String nomeCampo) {
@@ -46,7 +51,7 @@ class ValidarEmpresa {
     }
 
     private static void validarTamanhoNumerico(String valor, int tamanhoExato, String nomeCampo) {
-        String limpo = valor ? valor.replaceAll(/[.\/-]/, '') : ''
+        String limpo = valor ? valor.replaceAll(/[.-]/, '') : ''
         if (!limpo.matches("\\d{" + tamanhoExato + "}")) {
             throw new IllegalArgumentException("${nomeCampo} deve conter ${tamanhoExato} números.")
         }
