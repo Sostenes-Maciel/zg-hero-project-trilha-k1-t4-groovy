@@ -1,277 +1,121 @@
-#  Linketinder MVP — Acelera ZG
+# Linketinder MVP — Acelera ZG
 
-Projeto desenvolvido como parte do desafio técnico do **Acelera ZG**.
+Projeto desenvolvido como parte do desafio técnico do **Acelera ZG**. O **Linketinder** é uma plataforma de conexões profissionais executada via terminal (CLI), voltada para o cadastro, visualização e match entre **candidatos e empresas**.
 
-O **Linketinder** é um sistema de conexões profissionais executado via terminal (CLI), permitindo o cadastro e a visualização de **candidatos e empresas**.
-# Atualização
-
-O Linketinder é uma plataforma voltada para a conexão entre candidatos e empresas, permitindo o cadastro e a visualização de perfis e oportunidades de trabalho.
-
-O projeto possui uma versão de backend desenvolvida em Groovy e um frontend web desenvolvido com TypeScript, com foco em uma interface simples, organizada e fácil de utilizar.
-O projeto foi desenvolvido com foco em:
-
-* Programação Orientada a Objetos (POO)
-* Separação de responsabilidades
-* Organização e manutenção do código
-* Tratamento de erros
-* Versionamento semântico
-* Boas práticas de desenvolvimento
-
+O projeto conta com um backend em **Groovy** e um frontend web em **TypeScript**, estruturado com foco em Programação Orientada a Objetos (POO), separação de responsabilidades, Clean Code e versionamento semântico.
 
 ---
 
-## Tecnologias utilizadas
+##  Tecnologias Utilizadas
 
-* **Groovy** — Linguagem utilizada no desenvolvimento, aproveitando sua sintaxe concisa, construtores nomeados e recursos de manipulação de coleções.
-* **Gradle** — Gerenciamento do projeto, build e execução.
-* **Git** — Controle de versão.
-* **GitHub** — Hospedagem e gerenciamento do repositório.
+### Backend
+*   **Groovy:** Linguagem principal do backend.
+*   **Gradle:** Gerenciamento do projeto, build e execução.
+*   **PostgreSQL & JDBC:** Banco de dados relacional e persistência.
+*   **Spock Framework:** Testes automatizados.
 
----
+### Frontend
+*   **TypeScript, HTML5, CSS3:** Estrutura e estilização.
+*   **Vite:** Ferramenta de desenvolvimento e build.
+*   **Chart.js:** Gráficos de competências.
+*   **Country State City:** API para carregamento de países e estados.
+*   **LocalStorage:** Persistência local no navegador.
 
-## Funcionalidades
-
-### Listagem de candidatos
-
-Permite visualizar os candidatos cadastrados no sistema, apresentando:
-
-* Nome
-* CPF
-* Estado
-* Competências
-
-### Listagem de empresas
-
-Permite visualizar as empresas cadastradas, apresentando:
-
-* Nome
-* CNPJ
-* País
-* Estado
-* Competências desejadas
-
-### Cadastro dinâmico
-
-Permite cadastrar novos perfis durante a execução do programa:
-
-* Candidatos
-* Empresas
-
-As competências podem ser informadas separadas por vírgula.
-
-**Exemplo:**
-
-```text
-Java, Groovy, Python
-```
-
-O sistema transforma automaticamente a entrada em uma lista de competências.
-
-
-## Como executar
-
-### Via IntelliJ IDEA
-
-1. Clone este repositório.
-2. Abra a pasta do projeto no **IntelliJ IDEA**.
-3. Aguarde a sincronização do Gradle.
-4. Navegue até:
-
-```text
-src/main/groovy/br/com/zg/acelera/Main.groovy
-```
-
-5. Execute o método `main`.
-6. Interaja com o sistema através do console da IDE.
-
-### Via terminal
-
-Abra o terminal na raiz do projeto e execute:
-
-#### Linux / macOS
-
-```bash
-./gradlew run
-```
-
-#### Windows
-
-```bash
-gradlew run
-```
+### Controle de Versão
+*   **Git e GitHub**
 
 ---
 
-## Arquitetura e estrutura do projeto
+##  Funcionalidades
 
-O projeto utiliza uma organização baseada na **separação de responsabilidades**, distribuindo as classes em diferentes pacotes.
+### Listagem de Perfis
+*   **Candidatos:** Apresenta Nome, CPF, Estado e Competências.
+*   **Empresas:** Apresenta Nome, CNPJ, País, Estado e Competências desejadas.
 
-```text
-src/
-└── main/
-    └── groovy/
-        └── br/
-            └── com/
-                └── zg/
-                    └── acelera/
-                        ├── Main.groovy
-                        │
-                        ├── model/
-                        │   ├── IPessoa.groovy
-                        │   ├── Pessoa.groovy
-                        │   ├── Candidato.groovy
-                        │   └── Empresa.groovy
-                        │
-                        ├── view/
-                        │   └── Menu.groovy
-                        │
-                        ├── service/
-                        │   └── GerenciadorDePerfis.groovy
-                        │
-                        └── repository/
-                            └── BancodeDados.groovy
-```
-
-### `Main`
-
-Pacote:
-
-```text
-br.com.zg.acelera
-```
-
-Responsável pelo **ponto de entrada da aplicação** e inicialização do sistema.
-
-### `view`
-
-Pacote:
-
-```text
-br.com.zg.acelera.view
-```
-
-Contém a classe `MenuView`, responsável pela interação com o usuário através do terminal, incluindo:
-
-* Exibição do menu
-* Captura das opções
-* Entrada de dados
-* Exibição das informações
-
-### `service`
-
-Pacote:
-
-```text
-br.com.zg.acelera.service
-```
-
-Contém o `GerenciadorDePerfisService`, responsável pela **lógica de negócio** e pelo gerenciamento dos fluxos relacionados aos cadastros.
-
-### `dao`
-
-Pacote:
-
-```text
-br.com.zg.acelera.dao
-```
-
-Contém a classe `BancodeDados.ts`, responsável pelo armazenamento e gerenciamento dos dados em memória.
-
-### `model`
-
-Pacote:
-
-```text
-br.com.zg.acelera.model
-```
-
-Contém as entidades utilizadas pelo sistema:
-
-* `IPessoa` — contrato das entidades de pessoa.
-* `Pessoa` — classe abstrata com atributos e comportamentos compartilhados.
-* `Candidato` — representa os candidatos cadastrados.
-* `Empresa` — representa as empresas cadastradas.
+### Cadastro Dinâmico
+Permite cadastrar novos perfis durante a execução do programa. As competências podem ser informadas separadas por vírgula (ex: `Java, Groovy, Python`), e o sistema as converte automaticamente em uma lista.
 
 ---
 
-## Menu do sistema
+##  Como Executar
 
-Ao executar a aplicação, o usuário encontra as seguintes opções:
+### Via IntelliJ IDEA (Backend)
+1. Clone este repositório e abra a pasta no IntelliJ IDEA.
+2. Aguarde a sincronização do Gradle.
+3. Execute o método `main` em: `src/main/groovy/br/com/zg/acelera/Main.groovy`.
+4. Interaja através do console da IDE.
 
-```text
-1 - Listar candidatos
-2 - Listar Empresas
-3 - Cadastrar
-4 - Sair
-```
-
-A opção **Cadastrar** permite escolher entre:
-
-```text
-1 - Candidato
-2 - Empresa
-```
+### Via Terminal (Backend)
+Na raiz do projeto:
+*   **Linux / macOS:** `./gradlew run`
+*   **Windows:** `gradlew run`
 
 ---
 
-##  Atualização : Sistema de Curtidas e Painel de Matches
+##  Arquitetura e Estrutura do Projeto (Backend)
 
-O projeto foi atualizado com a implementação do núcleo de interações (curtidas e matches) entre candidatos, empresas e vagas, garantindo uma visualização clara do status de relacionamento na plataforma.
+O projeto utiliza uma organização baseada na separação de responsabilidades:
 
-### Principais Alterações
+```text
+src/main/groovy/br/com/zg/acelera/
+├── Main.groovy       # Ponto de entrada da aplicação
+├── model/            # Entidades e contratos (IPessoa, Candidato, Empresa)
+├── view/             # Interação com o usuário via terminal (MenuView)
+├── service/          # Lógica de negócio e fluxo (GerenciadorDePerfisService)
+├── dao/              # Persistência de dados e conexão JDBC
+└── repository/       # Armazenamento e gerenciamento de dados em memória
+```
+## Atualizações e Evolução do Projeto
 
-* **Nova Entidade `Curtida`:** Criada para atuar como o elo central do sistema[cite: 1], registrando o candidato, a vaga associada e o aceite da empresa.
-* **Lógica de Match Automatizada:** Implementação de método validador que confirma o *Match* apenas quando há reciprocidade — ou seja, quando o candidato curte a vaga e a respectiva empresa retribui a curtida na mesma instância de relacionamento[cite: 1].
-* **Isolamento de Dados (Amostra Segura):** Criação de um repositório dedicado na memória (`curtidasSimulacao`)[cite: 1] para gerenciar os dados de testes e demonstrações de forma isolada, evitando conflitos ou apagamentos indesejados no cadastro oficial de usuários e vagas do sistema.
-* **Painel Visual no Terminal:** Adicionada uma nova opção interativa no menu do console que exibe um relatório formatado em tempo real, diferenciando visualmente os status entre **[  MATCH! ]** e **[ PENDENTE ]**.
+### 1. Sistema de Curtidas e Painel de Matches
 
+Entidade Curtida: Elo central para registrar interesse do candidato na vaga e o aceite da empresa.
 
-* ## Atualização: Testes Unitários com Spock
+Match Automatizado: O Match exige reciprocidade na mesma instância de relacionamento.
 
-O projeto foi atualizado com a implementação de testes unitários utilizando o **Spock Framework** e **Groovy**, com foco no cadastro e validação de candidatos e empresas.
+Painel Visual: Relatório em tempo real no terminal, diferenciando os status [ MATCH! ] e [ PENDENTE ].
 
-### Principais Alterações
+Isolamento Seguro: Uso de repositório em memória (curtidasSimulacao) para proteger dados oficiais durante testes.
 
-* **Testes de Cadastro:** Implementados testes para verificar a inserção de novos candidatos e empresas nas listas do sistema, garantindo que o cadastro adicione corretamente os novos elementos.
-* **Testes de Criação de Objetos:** Adicionados testes para validar a criação das entidades `Candidato` e `Empresa`, verificando seus principais atributos.
-* **Testes de Validação:** Criados testes unitários para as regras de validação de candidatos e empresas, contemplando entradas válidas e inválidas.
-* **Testes de Fronteira:** Adicionados casos para verificar os limites das validações, como idade, CPF, CNPJ e CEP.
-* **Organização dos Testes:** Os testes foram separados em classes `Spec`, mantendo cada unidade do sistema testada de forma independente.
+### 2. Testes Automatizados (Spock Framework)
 
-## Atualização(Trilha TypeScript): Implementação FrontEnd
+Testes Unitários: Validação rigorosa de regras de negócio (CPF, CNPJ, e-mail, idade, CEP) independentes de infraestrutura.
 
-**Privacidade**
+Testes de Integração: Validação da comunicação direta dos DAOs com o PostgreSQL (CRUD completo e cleanup).
 
-O sistema possui anonimização entre os dois lados da plataforma:
+**Testes de Cadastro:** Implementados testes para verificar a inserção de novos candidatos e empresas nas listas do sistema, garantindo que o cadastro adicione corretamente os novos elementos. 
 
-Na visão da empresa, os candidatos são apresentados de forma anônima.
-Na visão do candidato, a empresa responsável pela vaga permanece confidencial.
+**Testes de Criação de Objetos:** Adicionados testes para validar a criação das entidades `Candidato` e `Empresa`, verificando seus principais atributos. 
+
+**Testes de Validação:** Criados testes unitários para as regras de validação de candidatos e empresas, contemplando entradas válidas e inválidas. 
+
+**Testes de Fronteira:** Adicionados casos para verificar os limites das validações, como idade, CPF, CNPJ e CEP. 
+
+**Organização dos Testes:** Os testes foram separados em classes `Spec`, mantendo cada unidade do sistema testada de forma independente. 
+
+### 3. Implementação FrontEnd (TypeScript)
+
+O sistema possui anonimização bilateral: candidatos são anônimos para a empresa, e a identidade da empresa é omitida na vaga vista pelo candidato.
 
 **Tecnologias utilizadas**
 
-Frontend
+TypeScript — linguagem utilizada para a implementação da lógica da aplicação. 
 
-* TypeScript — linguagem utilizada para a implementação da lógica da aplicação.
-* HTML5 — estrutura das páginas e formulários.
-* CSS3 — estilização, responsividade e organização visual da interface.
-* Vite — ferramenta utilizada para desenvolvimento e execução do frontend.
-* Chart.js — criação do gráfico de competências no perfil da empresa.
-* Country State City (@countrystatecity/countries-browser) — carregamento de países e estados no cadastro de empresas.
-* LocalStorage — persistência dos dados cadastrados no navegador.
+HTML5 — estrutura das páginas e formulários. 
 
-**Arquitetura**
+CSS3 — estilização, responsividade e organização visual da interface. 
 
-O frontend utiliza uma organização baseada na separação de responsabilidades:
+Vite — ferramenta utilizada para desenvolvimento e execução do frontend. 
 
-* Model: representa as entidades utilizadas pela aplicação.
-* Repository: responsável pelo armazenamento dos dados.
-* Service: concentra regras de negócio e cadastros.
-* View: responsável pela apresentação das telas.
-* Components: concentra componentes reutilizáveis, como o menu principal.
+Chart.js — criação do gráfico de competências no perfil da empresa. 
 
-**Estrutura do frontend**
+Country State City (@countrystatecity/countries-browser) — carregamento de países e estados no cadastro de empresas.
 
-### Estrutura do Frontend
+LocalStorage — persistência dos dados cadastrados no navegador. 
+
+
+Estrutura do Frontend:
+Plaintext
 
 ```text
 Frontend/
@@ -280,232 +124,122 @@ Frontend/
 ├── src/
 │   ├── main.ts
 │   ├── style.css
-│   │
-│   ├── components/
-│   │   └── Menu.ts
-│   │
-│   ├── model/
-│   │   ├── Candidato.ts
-│   │   ├── Empresa.ts
-│   │   └── Vaga.ts
-│   │
-│   ├── repository/
-│   │   └── BancodeDados.ts
-│   │
-│   ├── service/
-│   │   ├── CadastroCandidato.ts
-│   │   ├── CadastroEmpresa.ts
-│   │   ├── CadastroVaga.ts
-│   │   ├── ValidarCandidato.ts
-│   │   └── ValidarEmpresa.ts
-│   │
-│   └── view/
-│       ├── ListaCandidatos.ts
-│       ├── ListaEmpresas.ts
-│       ├── ListaVagas.ts
-│       ├── PerfilCandidato.ts
-│       ├── PerfilEmpresa.ts
-│       └── PerfilVaga.ts
+│   ├── components/  # Componentes reutilizáveis (Menu)
+│   ├── model/       # Entidades (Candidato, Empresa, Vaga)
+│   ├── repository/  # Armazenamento local
+│   ├── service/     # Regras de negócio e cadastros
+│   └── view/        # Telas e listas
 ```
 
+Como executar o frontend:
 
-**Como executar o frontend**
-
-Entre na pasta do frontend:
 ```text
 cd Frontend
-```
-
-Instale as dependências:
-```text
 npm install
-```
-Execute o ambiente de desenvolvimento:
-```text
 npm run dev
 ```
-O Vite exibirá no terminal o endereço local para acessar a aplicação pelo navegador.
+Para gerar a versão de produção: npm run build
 
-Gerar a versão de produção
+### 4. Índice de Afinidade
 
-Para verificar a compilação do projeto:
-```text
-npm run build
-```
-O comando deve finalizar sem erros de TypeScript.
-
-## Atualização: Índice de Afinidade
-
-Foi implementado um índice de afinidade entre candidatos e empresas com base nas competências cadastradas.
-
-Na lista de vagas, o candidato consegue visualizar o percentual de afinidade com a empresa responsável pela vaga, sem que a identidade da empresa seja revelada.
+Foi implementado um índice de afinidade entre candidatos e empresas com base nas competências em comum:
+Afinidade = (competências em comum / competências do candidato) × 100
+O sistema normaliza as entradas (ignorando case e espaços) e a regra foi centralizada em src/service/calcularAfinidade.ts.
 
 Também foi adicionada, de forma opcional, a exibição do percentual de afinidade na lista de candidatos do perfil da empresa, mantendo a identidade dos candidatos anônima.
 
-### Como funciona
+**Como funciona**
 
 O percentual é calculado pela quantidade de competências em comum entre candidato e empresa, dividida pela quantidade total de competências do candidato:
 
+
 ```text
+
 Afinidade = (competências em comum / competências do candidato) × 100
+
 ```
+
 
 Exemplo:
 
+
 ```text
+
 Candidato: Java, Groovy, Python, Git
+
 Empresa: Java, Python, React
 
-Competências em comum: Java e Python
-Afinidade: 2 / 4 × 100 = 50%
-```
 
+Competências em comum: Java e Python
+
+Afinidade: 2 / 4 × 100 = 50%
+
+```
 O sistema também normaliza as competências, ignorando diferenças de maiúsculas, minúsculas e espaços.
 
-### Implementação
+### 5. Modelagem de Banco de Dados (Parte 1)
 
-A regra de cálculo foi centralizada na função:
+Desenvolvimento da modelagem e criação do Banco de Dados Relacional (PostgreSQL).
 
-```text
-src/service/calcularAfinidade.ts
-```
+Estrutura Principal: candidato (PK CPF), empresa (PK CNPJ), competencia, vaga.
 
-Essa função é reutilizada tanto na lista de vagas quanto na lista de candidatos do perfil da empresa.
+Tabelas Auxiliares: candidato_competencia, empresa_competencia, vaga_competencia, curtida e match para lidar com relações N:N.
 
-# Atualização - Modelagem de Banco de Dados (Parte 1)
+Lógica de Match no Banco de Dados (Desafio Bônus)
 
-Este repositório contém a primeira parte do desenvolvimento da aplicação LinkeTinder (projeto ZG-HERO), focada na modelagem e criação do Banco de Dados Relacional.
-
-## O que foi feito
-- Criação do Diagrama Entidade-Relacionamento (DER).
-- Criação do script `.sql` para geração do banco de dados no PostgreSQL.
-- Inserção de dados para testes baseados nos modelos reais da aplicação (5 candidatos, 5 empresas, vagas e competências).
-- Criação de Queries SQL para validação dos relacionamentos.
-
-## Ferramentas Utilizadas
-- **Banco de Dados:** PostgreSQL
-- **Modelagem do DER:** Foi utilizado o software [erddocs.com](https://erddocs.com) para a criação do diagrama.
-
-## Estrutura do Banco de Dados (Tabelas)
-O banco foi modelado atendendo aos requisitos da aplicação:
-1. `candidato`: Armazena os dados dos candidatos (CPF como PK).
-2. `empresa`: Armazena os dados das empresas (CNPJ como PK).
-3. `competencia`: Tabela de habilidades/tecnologias.
-4. `vaga`: Vagas publicadas pelas empresas.
-   *Tabelas auxiliares:* `candidato_competencia`, `empresa_competencia`, `vaga_competencia`, `curtida` e `match` para lidar com os relacionamentos N:N e regras de negócio.
-
-## Modelo DER
-
-![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.png)
-
-## Como executar
-1. Clone este repositório.
-2. Abra o seu servidor PostgreSQL (via pgAdmin, DBeaver ou terminal).
-3. Crie um banco de dados vazio chamado `linketinder`.
-4. Execute o arquivo `linketinder_db.sql` contido neste repositório para criar a estrutura e inserir os dados.
-
-## Lógica de Match no Banco de Dados (Desafio Bônus)
 
 Para suportar o principal caso de uso do LinkeTinder (o "Match"), o banco de dados foi modelado introduzindo duas tabelas estratégicas: `curtida` e `match`.
 
+
 **Como funciona o fluxo de dados:**
-1. **Registro da Curtida do Candidato:** Quando um candidato curte uma vaga, um registro é inserido na tabela `curtida` preenchendo as chaves `candidato_id` e `vaga_id`.
-2. **Registro da Curtida da Empresa:** Quando a empresa, através do recrutador, curte o perfil de um candidato, um novo registro é inserido na tabela `curtida`, desta vez preenchendo as chaves `empresa_id` e `candidato_id`.
-3. **Validação e Integridade:** A tabela `curtida` possui uma `CHECK CONSTRAINT` que garante que uma curtida seja *ou* de um candidato para uma vaga, *ou* de uma empresa para um candidato, nunca ambos na mesma tupla.
-4. **O Evento de Match:** A aplicação (backend) é responsável por consultar o banco e verificar a intersecção de interesses (Candidato curtiu a Vaga X `AND` Empresa dona da Vaga X curtiu o Candidato). Ao identificar essa condição verdadeira, um registro final é inserido na tabela `match`, consolidando a conexão e permitindo o contato entre as partes.
+
+**Registro da Curtida da Empresa:** Quando a empresa, através do recrutador, curte o perfil de um candidato, um novo registro é inserido na tabela `curtida`, desta vez preenchendo as chaves `empresa_id` e `candidato_id`.
+
+**Validação e Integridade:** A tabela `curtida` possui uma `CHECK CONSTRAINT` que garante que uma curtida seja *ou* de um candidato para uma vaga, *ou* de uma empresa para um candidato, nunca ambos na mesma tupla.
+
+**O Evento de Match:** 
+A aplicação (backend) é responsável por consultar o banco e verificar a intersecção de interesses (Candidato curtiu a Vaga X `AND` Empresa dona da Vaga X curtiu o Candidato). Ao identificar essa condição verdadeira, um registro final é inserido na tabela `match`, consolidando a conexão e permitindo o contato entre as partes.
+
 
 As queries de inserção e simulação desta lógica encontram-se no arquivo SQL principal do repositório.
+## Modelo DER:
 
-## Atualização(Trilha BD): Migração para JDBC e DAO
+![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.png)
 
-Nesta etapa, o sistema deixou de utilizar o armazenamento em memória como forma principal de persistência e passou a utilizar **PostgreSQL através de JDBC**.
+### 6. Migração para JDBC e DAO (Parte 2)
 
-Foi criada uma classe exclusiva para realizar a conexão com o banco de dados:
+Transição do armazenamento em memória para PostgreSQL via JDBC.
 
-```text
-ConexaoBD
-```
+Criada a classe ConexaoBD e os DAOs específicos (CandidatoDAO, EmpresaDAO, CompetenciaDAO, VagaDAO).
 
-Também foram criadas classes DAO responsáveis pelas operações de acesso e persistência:
+Fluxo: Menu → Service → DAO → JDBC → PostgreSQL.
 
-```text
-CandidatoDAO
-EmpresaDAO
-CompetenciaDAO
-VagaDAO
-```
-
-Cada DAO possui as operações de **CRUD** correspondentes à sua tabela.
-
-A estrutura passou a seguir o fluxo:
-
-```text
-Menu
-  ↓
-Service
-  ↓
-DAO
-  ↓
-JDBC
-  ↓
-PostgreSQL
-```
-
-Essa separação permite manter a lógica de negócio nos `services` e concentrar o acesso ao banco nas classes DAO.
-
-
-
-### Organização dos menus
-
-As opções de cada CRUD ficam organizadas na camada de `view`, enquanto os `services` executam as operações utilizando os DAOs.
-
-No terminal, a navegação é organizada por contexto:
-
-```text
-Candidatos
-├── Listar
-├── Atualizar dados
-├── Gerenciar competências
-└── Excluir
-
-Empresas
-├── Listar
-├── Atualizar dados
-├── Gerenciar competências desejadas
-└── Excluir
-
-Vagas
-├── Cadastrar
-├── Listar
-├── Atualizar
-└── Excluir
-```
-
-As competências de candidatos e empresas são gerenciadas separadamente, enquanto as competências exigidas de uma vaga são definidas durante o cadastro ou atualização da vaga.
-
-As relações entre candidatos, empresas e vagas com competências são persistidas nas tabelas:
-
-```text
-candidato_competencia
-empresa_competencia
-vaga_competencia
-```
-
+ 
 ### Atualização - Boas Práticas
 
-- **Separação de Responsabilidades (SRP):** Desacoplamento da manipulação do DOM, regras de negócio e eventos em funções especializadas.
-- **Validações Padronizadas:** Isolamento de expressões regulares em constantes nomeadas e aplicação de métodos defensivos com `.trim()`.
-- **Integridade de Dados (Cascade Delete):** Remoção automática de registros órfãos (matches e curtidas) na camada de persistência simulada ao excluir entidades.
-- **Otimização DRY:** Reutilização de rotinas de normalização e cálculo de afinidade por competências.
+Separação de Responsabilidades (SRP):** Desacoplamento da manipulação do DOM, regras de negócio e eventos em funções especializadas. 
+
+Validações Padronizadas:** Isolamento de expressões regulares em constantes nomeadas e aplicação de métodos defensivos com `.trim()`. 
+
+Integridade de Dados (Cascade Delete):** Remoção automática de registros órfãos (matches e curtidas) na camada de persistência simulada ao excluir entidades. 
+
+Otimização DRY:** Reutilização de rotinas de normalização e cálculo de afinidade por competências. 
+
+
 
 
 ### Atualização - Aplicação dos princípios SOLID
 
+
 Aplicação dos Princípios SOLID
+
 
 A refatoração da camada de persistência e negócios foi guiada pelos pilares do SOLID:
 
-1. (Princípio da Responsabilidade Única - SRP)
+
+1. (Princípio da Responsabilidade Única - SRP) 
+
+
 
 Onde se aplica: As classes de validação (ValidarCandidato, ValidarEmpresa) e os DAOs possuem propósitos estritos. Os DAOs cuidam exclusivamente da persistência SQL, enquanto as regras de consistência de dados residem isoladamente nos serviços de validação, testadas de forma unitária e pura.
 
@@ -525,18 +259,31 @@ Onde se aplica: Em vez de uma interface monolítica genérica para todos os aces
 
 Onde se aplica: Os DAOs deixaram de acoplar instâncias estáticas de conexão de banco de dados. Agora, utilizam o princípio de Injeção de Dependência via Construtor, recebendo a interface IConexaoFactory (ConexaoBD), o que facilita imensamente o isolamento em testes de integração.
 
- Suíte de Testes Automatizados (Spock Framework)
 
-A suíte de testes foi estruturada utilizando o framework Spock com cenários de métodos isolados (def "..."), promovendo relatórios claros na IDE e alta legibilidade baseada no padrão Given-When-Then.
+### Atualização: Refatoração, Clean Code e Padrões de Projeto
 
-Testes de Integração (DAO): Validam a comunicação direta com o banco de dados PostgreSQL para as entidades de Candidato, Empresa, Vaga, Competência, Curtida e Match, garantindo o ciclo de vida completo de inserção, consulta e exclusão (cleanup).
+O sistema passou por uma rigorosa revisão arquitetural focada em excelência técnica, aplicando princípios avançados de Orientação a Objetos, SOLID e Clean Code:
 
-Testes Unitários (Validação): ValidarCandidatoSpec e ValidarEmpresaSpec asseguram a integridade de regras de negócio (formatos de CPF, CNPJ, e-mail, idades, CEPs e estados) de maneira rápida e independente de infraestrutura externa.
+**Padrões de Projeto (Design Patterns):**
 
-## Autor
+Command: Substituição da estrutura rígida de switch-case na camada de visualização (MenuView) por um roteamento dinâmico de comandos.
 
-**Sóstenes Marques Maciel**
+Factory & Singleton: Centralização e gerenciamento restrito das conexões com o banco de dados PostgreSQL.
 
-Projeto desenvolvido durante o **Acelera ZG**.
+**SOLID e Boas Práticas:**
 
----
+Princípio DRY (Don't Repeat Yourself): Centralização das lógicas de validação (como tamanho de CPF, CNPJ e CEP) na classe utilitária ValidacaoUtils.
+
+Princípio OCP (Open/Closed Principle): Menu principal refatorado para ser extensível sem necessidade de modificar o código base.
+
+Otimização: Resolução de warnings apontados por análise estática, remoção de código morto (variáveis, parâmetros e DAOs ociosos) e conversão de métodos sem estado para static.
+
+**Experiência de Uso (UX):**
+
+Adição de prompts de confirmação de segurança (S/N) no terminal para prevenir exclusões acidentais de registros.
+
+👤 Autor
+
+Sóstenes Marques Maciel
+
+Projeto desenvolvido durante o programa Acelera ZG.
