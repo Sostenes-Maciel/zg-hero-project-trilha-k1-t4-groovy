@@ -230,16 +230,10 @@ Otimização DRY:** Reutilização de rotinas de normalização e cálculo de af
 
 ### Atualização - Aplicação dos princípios SOLID
 
-
-Aplicação dos Princípios SOLID
-
-
 A refatoração da camada de persistência e negócios foi guiada pelos pilares do SOLID:
 
 
 1. (Princípio da Responsabilidade Única - SRP) 
-
-
 
 Onde se aplica: As classes de validação (ValidarCandidato, ValidarEmpresa) e os DAOs possuem propósitos estritos. Os DAOs cuidam exclusivamente da persistência SQL, enquanto as regras de consistência de dados residem isoladamente nos serviços de validação, testadas de forma unitária e pura.
 
@@ -267,6 +261,8 @@ O sistema passou por uma rigorosa revisão arquitetural focada em excelência t�
 **Padrões de Projeto (Design Patterns):**
 
 Command: Substituição da estrutura rígida de switch-case na camada de visualização (MenuView) por um roteamento dinâmico de comandos.
+
+Template Method: Aplicado na estrutura das classes DAO para padronizar a ordem de execução das operações repetitivas de persistência.
 
 Factory & Singleton: Centralização e gerenciamento restrito das conexões com o banco de dados PostgreSQL.
 
