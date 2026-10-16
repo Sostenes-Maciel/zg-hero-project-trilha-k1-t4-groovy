@@ -1,8 +1,11 @@
 package br.com.zg.acelera.view
 
-import br.com.zg.acelera.dao.CandidatoDAO
-import br.com.zg.acelera.dao.ConexaoPostgres
-import br.com.zg.acelera.dao.EmpresaDAO
+import br.com.zg.acelera.command.CadastrarCommand
+import br.com.zg.acelera.command.GerenciarCandidatosCommand
+import br.com.zg.acelera.command.GerenciarEmpresasCommand
+import br.com.zg.acelera.command.GerenciarVagasCommand
+import br.com.zg.acelera.interfaces.ICommand
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfisService
@@ -10,13 +13,19 @@ import br.com.zg.acelera.service.GerenciadorDeMatchesService
 
 class MenuView {
 
-    private final def conexaoFactory = new ConexaoPostgres()
+    private final IConexao conexaoFactory = ConexaoFactory.getBancoDeDados("POSTGRES")
 
-    private final def candidatoDAO = new CandidatoDAO(conexaoFactory)
-    private final def empresaDAO = new EmpresaDAO(conexaoFactory)
     private final GerenciadorDeMatchesService gerenciadorDeMatches = new GerenciadorDeMatchesService(conexaoFactory)
     private final GerenciadorDePerfisService gerenciador = new GerenciadorDePerfisService(conexaoFactory)
+
     Scanner sc = new Scanner(System.in)
+
+    private final Map<Integer, ICommand> menuPrincipal = [
+            1: new GerenciarCandidatosCommand(this, sc),
+            2: new GerenciarEmpresasCommand(this, sc),
+            3: new CadastrarCommand(gerenciador, sc),
+            4: new GerenciarVagasCommand(gerenciador, sc)
+    ]
 
     private static int lerOpcaoInt(Scanner sc) {
         if (!sc.hasNextInt()) {
@@ -42,13 +51,21 @@ class MenuView {
 
             opcao = lerOpcaoInt(sc)
 
-            switch (opcao) {
-                case 1: gerenciarCandidatos(sc); break
-                case 2: gerenciarEmpresas(sc); break
-                case 3: gerenciador.cadastroNovo(sc); break
-                case 4: gerenciador.gerenciarVagas(sc); break
-                case 5: println("Saindo do Linketinder. Até logo!"); break
-                default: println("Opção inválida.")
+            if (opcao == 5) {
+                println "Saindo do Linketinder. Até logo!"
+                break
+            }
+
+
+            ICommand comando = menuPrincipal.get(opcao)
+
+            if (comando != null) {
+                comando.executar()
+            } else {
+                if (opcao == 1) gerenciarCandidatos(sc)
+                else if (opcao == 2) gerenciarEmpresas(sc)
+                else if (opcao == 4) gerenciador.gerenciarVagas(sc)
+                else println "Opção inválida."
             }
         }
     }

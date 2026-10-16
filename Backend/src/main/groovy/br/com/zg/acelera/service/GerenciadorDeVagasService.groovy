@@ -61,10 +61,6 @@ class GerenciadorDeVagasService {
         return vaga
     }
 
-    void atualizarVaga(Vaga vaga) {
-        vagaDAO.atualizar(vaga)
-    }
-
     void excluirVaga(Integer id) {
         vagaDAO.excluir(id)
     }
@@ -175,7 +171,7 @@ class GerenciadorDeVagasService {
         println "Vaga excluída com sucesso!"
     }
 
-    private List<String> extrairCompetencias(String entrada) {
+    private static List<String> extrairCompetencias(String entrada) {
         if (!entrada) return []
         return entrada.tokenize(',').collect { it.trim() }.findAll { it }
     }

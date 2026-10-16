@@ -28,7 +28,7 @@ class GerenciadorDeMatchesService {
         }
     }
 
-    private void imprimirListaDeMatches(String titulo, List<Map<String, Object>> matches, String mensagemVazio, Closure formatacaoMatch) {
+    private static void imprimirListaDeMatches(String titulo, List<Map<String, Object>> matches, String mensagemVazio, Closure formatacaoMatch) {
         println "\n--- ${titulo} ---\n"
 
         if (matches.isEmpty()) {
@@ -44,7 +44,7 @@ class GerenciadorDeMatchesService {
         aguardarEnter()
     }
 
-    private void aguardarEnter() {
+    private static void aguardarEnter() {
         println "\nPressione [ENTER] para voltar ao menu..."
         System.in.newReader().readLine()
     }

@@ -366,8 +366,15 @@ class GerenciadorDePerfisService {
     }
 
     void excluirCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
-        candidatoDAO.excluir(candidato.cpf)
-        println "Candidato excluído com sucesso!"
+        print "Tem certeza que deseja excluir o perfil de ${candidato.nome}? (S/N): "
+        String confirmacao = sc.nextLine().trim().toUpperCase()
+
+        if (confirmacao == "S") {
+            candidatoDAO.excluir(candidato.cpf)
+            println "Candidato excluído com sucesso!"
+        } else {
+            println "Exclusão cancelada."
+        }
     }
 
     void atualizarEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
@@ -414,8 +421,15 @@ class GerenciadorDePerfisService {
     }
 
     void excluirEmpresaPeloTerminal(Scanner sc, Empresa empresa) {
-        empresaDAO.excluir(empresa.cnpj)
-        println "Empresa excluída com sucesso!"
+        print "Tem certeza que deseja excluir o perfil da empresa ${empresa.nome}? (S/N): "
+        String confirmacao = sc.nextLine().trim().toUpperCase()
+
+        if (confirmacao == "S") {
+            empresaDAO.excluir(empresa.cnpj)
+            println "Empresa excluída com sucesso!"
+        } else {
+            println "Exclusão cancelada."
+        }
     }
 
     List<String> listarCompetenciasDoCandidato(Candidato candidato) {
