@@ -1,5 +1,7 @@
 package br.com.zg.acelera.service
 
+import br.com.zg.acelera.utils.ValidacaoUtils
+
 class ValidarEmpresaService {
 
     static void validarNome(String nome) {
@@ -13,7 +15,7 @@ class ValidarEmpresaService {
     }
 
     static void validarCnpj(String cnpj) {
-        validarTamanhoNumerico(cnpj, 14, "CNPJ")
+        ValidacaoUtils.validarTamanhoNumerico(cnpj, 14, "CNPJ")
     }
 
     static void validarPais(String pais) {
@@ -42,13 +44,6 @@ class ValidarEmpresaService {
     private static void validarApenasLetras(String texto, String nomeCampo) {
         if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
             throw new IllegalArgumentException("${nomeCampo} inválido.")
-        }
-    }
-
-    private static void validarTamanhoNumerico(String valor, int tamanhoExato, String nomeCampo) {
-        String limpo = valor ? valor.replaceAll(/[.\/-]/, '') : ''
-        if (!limpo.matches("\\d{" + tamanhoExato + "}")) {
-            throw new IllegalArgumentException("${nomeCampo} deve conter ${tamanhoExato} números.")
         }
     }
 }
