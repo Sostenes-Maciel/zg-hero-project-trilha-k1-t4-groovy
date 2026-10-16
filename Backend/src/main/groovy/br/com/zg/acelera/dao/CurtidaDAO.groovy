@@ -2,52 +2,17 @@ package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.ICurtidaDAO
-
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CurtidaDAO implements ICurtidaDAO {
-
-    private final IConexao conexaoFactory
+class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
 
     CurtidaDAO(IConexao conexaoFactory) {
-        this.conexaoFactory = conexaoFactory
+        super(conexaoFactory)
     }
 
-    private void executarUpdate(String sql, List parametros) {
-        Connection conexao = null
-        PreparedStatement stmt = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
-            stmt.executeUpdate()
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao executar atualização no banco: ${e.message}", e)
-        } finally {
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-    }
-
-    private boolean executarQueryBooleana(String sql, List parametros) {
-        Connection conexao = null
-        PreparedStatement stmt = null
-        ResultSet rs = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
-            rs = stmt.executeQuery()
-            return rs.next()
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao verificar dados no banco: ${e.message}", e)
-        } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
+    @Override
+    protected Void mapearRegistro(ResultSet rs) {
+        return null
     }
 
     @Override

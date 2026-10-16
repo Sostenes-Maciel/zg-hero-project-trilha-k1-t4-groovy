@@ -2,78 +2,16 @@ package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.IMatchDAO
-
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class MatchDAO implements IMatchDAO {
-
-    private final IConexao conexaoFactory
+class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
 
     MatchDAO(IConexao conexaoFactory) {
-        this.conexaoFactory = conexaoFactory
+        super(conexaoFactory)
     }
 
-    private void executarUpdate(String sql, List parametros) {
-        Connection conexao = null
-        PreparedStatement stmt = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
-            stmt.executeUpdate()
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao executar atualização no banco: ${e.message}", e)
-        } finally {
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-    }
-
-    private boolean executarQueryBooleana(String sql, List parametros) {
-        Connection conexao = null
-        PreparedStatement stmt = null
-        ResultSet rs = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
-            rs = stmt.executeQuery()
-            return rs.next()
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao verificar dados no banco: ${e.message}", e)
-        } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-    }
-
-    private List<Map<String, Object>> executarQueryMatches(String sql, List parametros) {
-        List<Map<String, Object>> resultados = []
-        Connection conexao = null
-        PreparedStatement stmt = null
-        ResultSet rs = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement(sql)
-            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
-            rs = stmt.executeQuery()
-            while (rs.next()) {
-                resultados.add(mapearMatch(rs))
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar matches: ${e.message}", e)
-        } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
-        }
-        return resultados
-    }
-
-    private static Map<String, Object> mapearMatch(ResultSet rs) {
+    @Override
+    protected Map<String, Object> mapearRegistro(ResultSet rs) {
         return [
                 idMatch      : rs.getInt("id_match"),
                 nomeCandidato: rs.getString("nome_candidato"),
@@ -111,7 +49,7 @@ class MatchDAO implements IMatchDAO {
             JOIN vaga v ON v.id_vaga = m.id_vaga
             ORDER BY m.id_match
         """
-        return executarQueryMatches(sql, [])
+        return executarQuery(sql, [])
     }
 
     @Override
@@ -125,7 +63,7 @@ class MatchDAO implements IMatchDAO {
             WHERE m.cpf_candidato = ?
             ORDER BY m.id_match
         """
-        return executarQueryMatches(sql, [cpfCandidato])
+        return executarQuery(sql, [cpfCandidato])
     }
 
     @Override
@@ -139,6 +77,6 @@ class MatchDAO implements IMatchDAO {
             WHERE m.cnpj_empresa = ?
             ORDER BY m.id_match
         """
-        return executarQueryMatches(sql, [cnpjEmpresa])
+        return executarQuery(sql, [cnpjEmpresa])
     }
 }

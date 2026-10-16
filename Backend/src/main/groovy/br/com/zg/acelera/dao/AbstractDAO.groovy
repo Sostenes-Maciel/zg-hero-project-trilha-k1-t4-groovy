@@ -83,6 +83,23 @@ abstract class AbstractDAO<T> {
         }
         return resultados
     }
+    protected boolean executarQueryBooleana(String sql, List parametros) {
+        Connection conexao = null
+        PreparedStatement stmt = null
+        ResultSet rs = null
+        try {
+            conexao = conexaoFactory.conectar()
+            stmt = conexao.prepareStatement(sql)
+            parametros.eachWithIndex { param, i -> stmt.setObject(i + 1, param) }
+            rs = stmt.executeQuery()
+            return rs.next()
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao verificar dados no banco", e)
+        } finally {
+            if (rs != null) rs.close()
+            if (stmt != null) stmt.close()
+        }
+    }
 
     protected abstract T mapearRegistro(ResultSet rs)
 }
