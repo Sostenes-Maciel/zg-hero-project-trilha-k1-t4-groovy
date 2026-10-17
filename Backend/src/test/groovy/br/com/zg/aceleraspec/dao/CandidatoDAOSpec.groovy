@@ -1,17 +1,23 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
-import br.com.zg.acelera.dao.ConexaoPostgres
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import spock.lang.Specification
+import br.com.zg.acelera.dao.ConexaoFactory
+
 
 class CandidatoDAOSpec extends Specification {
 
     private CandidatoDAO candidatoDAO
 
     def setup() {
-        candidatoDAO = new CandidatoDAO(new ConexaoPostgres())
+        candidatoDAO = new CandidatoDAO(ConexaoFactory.getBancoDeDados("POSTGRES") as IConexao)
 
+        candidatoDAO.excluir("999.999.999-99")
+    }
+
+    def cleanup() {
         candidatoDAO.excluir("999.999.999-99")
     }
 

@@ -1,9 +1,10 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CompetenciaDAO
-import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
+import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 import spock.lang.Specification
@@ -15,10 +16,11 @@ class VagaCompetenciaDAOSpec extends Specification {
     private CompetenciaDAO competenciaDAO
 
     def setup() {
-        def conexaoFactory = new ConexaoPostgres()
-        vagaDAO = new VagaDAO(conexaoFactory)
-        empresaDAO = new EmpresaDAO(conexaoFactory)
-        competenciaDAO = new CompetenciaDAO(conexaoFactory)
+        IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
+
+        vagaDAO = new VagaDAO(conexao)
+        empresaDAO = new EmpresaDAO(conexao)
+        competenciaDAO = new CompetenciaDAO(conexao)
 
         vagaDAO.listarPorEmpresa("88.777.666/0001-55").each {
             vagaDAO.excluir(it.id)

@@ -1,10 +1,12 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.dao.VagaDAO
+import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
@@ -18,11 +20,11 @@ class MatchDAOSpec extends Specification {
     private VagaDAO vagaDAO
 
     def setup() {
-        def conexaoFactory = new ConexaoPostgres()
-        matchDAO = new MatchDAO(conexaoFactory)
-        candidatoDAO = new CandidatoDAO(conexaoFactory)
-        empresaDAO = new EmpresaDAO(conexaoFactory)
-        vagaDAO = new VagaDAO(conexaoFactory)
+        IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
+        matchDAO = new MatchDAO(conexao)
+        candidatoDAO = new CandidatoDAO(conexao)
+        empresaDAO = new EmpresaDAO(conexao)
+        vagaDAO = new VagaDAO(conexao)
 
         // Limpeza prévia para garantir estado limpo
         empresaDAO.excluir("66.555.444/0001-22")

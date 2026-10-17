@@ -1,6 +1,7 @@
-package br.com.zg.acelera.utils
+package br.com.zg.aceleraspec.backend
 
 import spock.lang.Specification
+import br.com.zg.acelera.utils.ValidacaoUtils
 
 class ValidacaoUtilsSpec extends Specification {
 

@@ -1,6 +1,8 @@
 package br.com.zg.aceleraspec.dao
 
-import br.com.zg.acelera.dao.ConexaoPostgres
+import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.dao.ConexaoFactory
+
 import spock.lang.Specification
 
 import java.sql.Connection
@@ -9,7 +11,7 @@ class ConexaoBDSpec extends Specification {
 
     def "deve conectar ao banco PostgreSQL"() {
         given: "a fabrica de conexao real"
-        ConexaoPostgres fabricaDeConexao = new ConexaoPostgres()
+        IConexao fabricaDeConexao = ConexaoFactory.getBancoDeDados("POSTGRES")
 
         when: "solicitamos a abertura da conexao"
         Connection conexao = fabricaDeConexao.conectar()

@@ -1,6 +1,7 @@
-package br.com.zg.acelera.dao
+package br.com.zg.aceleraspec.dao
 
 import spock.lang.Specification
+import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.interfaces.IConexao
 
 class ConexaoFactorySpec extends Specification {
