@@ -28,7 +28,7 @@ class MenuView {
             2: new GerenciarEmpresasCommand(this, sc),
             3: new CadastrarCommand(gerenciador, sc),
             4: new GerenciarVagasCommand(gerenciador, sc)
-    ]
+    ] as Map<Integer, ICommand>
 
     private static int lerOpcaoInt(Scanner sc) {
         if (!sc.hasNextInt()) {
