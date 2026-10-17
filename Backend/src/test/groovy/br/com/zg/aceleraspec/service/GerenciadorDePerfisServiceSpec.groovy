@@ -23,8 +23,6 @@ class GerenciadorDePerfisServiceSpec extends Specification {
 
         service = new GerenciadorDePerfisService(conexaoMock)
 
-        // 4. TRUQUE DO GROOVY: Sobrescrevemos os DAOs originais pelos nossos Mocks
-        // O "@" permite alterar variáveis que são "private" e "final" durante o teste!
         service.competenciaDAO = competenciaDAOMock
         service.curtidaDAO = curtidaDAOMock
         service.matchDAO = matchDAOMock
@@ -52,7 +50,6 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         int vagaId = 1
 
         when: "o sistema processa a curtida"
-        // Outro truque: No Groovy podemos testar métodos private diretamente!
         service.processarPossivelMatch(cpf, cnpj, vagaId, "Joao", "Empresa ZG")
 
         then: "se a curtida for mutua..."

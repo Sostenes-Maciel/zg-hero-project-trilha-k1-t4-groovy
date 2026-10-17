@@ -5,6 +5,7 @@ import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
+import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
@@ -28,7 +29,7 @@ class GerenciadorDePerfisService {
         this.empresaDAO = new EmpresaDAO(conexaoFactory)
         this.curtidaDAO = new CurtidaDAO(conexaoFactory)
         this.matchDAO = new MatchDAO(conexaoFactory)
-        this.gerenciadorDeVagas = new GerenciadorDeVagasService(conexaoFactory)
+        this.gerenciadorDeVagas = new GerenciadorDeVagasService(new VagaDAO(conexaoFactory), this.competenciaDAO)
     }
 
 
