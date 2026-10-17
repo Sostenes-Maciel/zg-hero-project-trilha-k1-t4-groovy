@@ -1,14 +1,13 @@
 package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.MatchDAO
-import br.com.zg.acelera.interfaces.IConexao
 
 class GerenciadorDeMatchesService {
 
     private final MatchDAO matchDAO
 
-    GerenciadorDeMatchesService(IConexao conexaoFactory) {
-        this.matchDAO = new MatchDAO(conexaoFactory)
+    GerenciadorDeMatchesService(MatchDAO matchDAO) {
+        this.matchDAO = matchDAO
     }
 
 
