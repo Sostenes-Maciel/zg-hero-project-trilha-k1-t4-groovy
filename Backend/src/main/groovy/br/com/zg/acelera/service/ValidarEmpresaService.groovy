@@ -27,7 +27,7 @@ class ValidarEmpresaService {
     }
 
     static void validarCep(String cep) {
-        validarTamanhoNumerico(cep, 8, "CEP")
+        ValidacaoUtils.validarTamanhoNumerico(cep, 8, "CEP")
     }
 
     static void validarDescricao(String descricao) {

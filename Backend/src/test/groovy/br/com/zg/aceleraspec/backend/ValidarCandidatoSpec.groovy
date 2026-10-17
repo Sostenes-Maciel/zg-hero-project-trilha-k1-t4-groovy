@@ -146,48 +146,27 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "Estado inválido."
     }
 
-
-    def "deve aceitar um CEP válido"() {
+    def "deve aceitar um CEP valido com ou sem formatacao"() {
         when:
-        ValidarCandidatoService.validarCep("55299-300")
+        ValidarCandidatoService.validarCep(cep)
 
         then:
         noExceptionThrown()
+
+        where: "testa tanto com traco quanto sem traco"
+        cep << ["55299-300", "55299300"]
     }
 
-    def "deve aceitar CEP com 8 números"() {
+    def "deve rejeitar CEPs com tamanho invalido"() {
         when:
-        ValidarCandidatoService.validarCep("55299300")
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deve rejeitar um CEP inválido"() {
-        when:
-        ValidarCandidatoService.validarCep("55299-30")
+        ValidarCandidatoService.validarCep(cepInvalido)
 
         then:
         def erro = thrown(IllegalArgumentException)
         erro.message == "CEP deve conter 8 números."
-    }
 
-    def "deve rejeitar CEP com 7 números"() {
-        when:
-        ValidarCandidatoService.validarCep("5529930")
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "CEP deve conter 8 números."
-    }
-
-    def "deve rejeitar CEP com 9 números"() {
-        when:
-        ValidarCandidatoService.validarCep("552993000")
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "CEP deve conter 8 números."
+        where: "testa CEP faltando numero com traco, sem traco, e sobrando numero"
+        cepInvalido << ["55299-30", "5529930", "552993000"]
     }
 
 
