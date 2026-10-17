@@ -4,8 +4,11 @@ import br.com.zg.acelera.command.CadastrarCommand
 import br.com.zg.acelera.command.GerenciarCandidatosCommand
 import br.com.zg.acelera.command.GerenciarEmpresasCommand
 import br.com.zg.acelera.command.GerenciarVagasCommand
+import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.interfaces.ICommand
 import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.dao.ConexaoFactory
+
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfisService
@@ -15,7 +18,7 @@ class MenuView {
 
     private final IConexao conexaoFactory = ConexaoFactory.getBancoDeDados("POSTGRES")
 
-    private final GerenciadorDeMatchesService gerenciadorDeMatches = new GerenciadorDeMatchesService(conexaoFactory)
+    private final GerenciadorDeMatchesService gerenciadorDeMatches = new GerenciadorDeMatchesService(new MatchDAO(conexaoFactory))
     private final GerenciadorDePerfisService gerenciador = new GerenciadorDePerfisService(conexaoFactory)
 
     Scanner sc = new Scanner(System.in)

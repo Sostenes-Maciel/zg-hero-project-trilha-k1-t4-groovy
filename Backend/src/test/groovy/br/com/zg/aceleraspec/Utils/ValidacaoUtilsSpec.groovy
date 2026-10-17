@@ -1,4 +1,4 @@
-package br.com.zg.aceleraspec.backend
+package br.com.zg.aceleraspec.Utils
 
 import spock.lang.Specification
 import br.com.zg.acelera.utils.ValidacaoUtils

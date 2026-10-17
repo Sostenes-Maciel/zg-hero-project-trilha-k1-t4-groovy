@@ -2,20 +2,17 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
-import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
 class GerenciadorDeVagasService {
 
-    private final IConexao conexaoFactory
     private final VagaDAO vagaDAO
     private final CompetenciaDAO competenciaDAO
 
-    GerenciadorDeVagasService(IConexao conexaoFactory) {
-        this.conexaoFactory = conexaoFactory
-        this.vagaDAO = new VagaDAO(conexaoFactory)
-        this.competenciaDAO = new CompetenciaDAO(conexaoFactory)
+    GerenciadorDeVagasService(VagaDAO vagaDAO, CompetenciaDAO competenciaDAO) {
+        this.vagaDAO = vagaDAO
+        this.competenciaDAO = competenciaDAO
     }
 
     Integer cadastrarVaga(Vaga vaga) {
@@ -171,7 +168,7 @@ class GerenciadorDeVagasService {
         println "Vaga excluída com sucesso!"
     }
 
-    private static List<String> extrairCompetencias(String entrada) {
+     static List<String> extrairCompetencias(String entrada) {
         if (!entrada) return []
         return entrada.tokenize(',').collect { it.trim() }.findAll { it }
     }

@@ -1,4 +1,4 @@
-package br.com.zg.aceleraspec.backend
+package br.com.zg.aceleraspec.service
 
 import br.com.zg.acelera.service.ValidarCandidatoService
 import spock.lang.Specification

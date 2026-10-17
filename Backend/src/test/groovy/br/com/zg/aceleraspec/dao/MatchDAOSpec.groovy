@@ -2,7 +2,6 @@ package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.ConexaoFactory
-import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.dao.VagaDAO
@@ -45,7 +44,7 @@ class MatchDAOSpec extends Specification {
         matchDAO.registrarMatch(candidato.cpf, empresa.cnpj, vaga.id)
 
         then: "o match deve existir no banco"
-        matchDAO.existeMatch(candidato.cpf, empresa.cnpj, vaga.id) == true
+        matchDAO.existeMatch(candidato.cpf, empresa.cnpj, vaga.id)
 
         cleanup:
         vagaDAO.listarPorEmpresa(empresa.cnpj).each { vagaDAO.excluir(it.id) }
