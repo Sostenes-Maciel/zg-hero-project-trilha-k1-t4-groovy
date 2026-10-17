@@ -5,26 +5,24 @@ import spock.lang.Specification
 
 class ValidarCandidatoSpec extends Specification {
 
-
-    def "deve aceitar um nome válido"() {
+    def "deve aceitar um nome valido"() {
         when:
-        ValidarCandidatoService.validarNome("João da Silva")
+        ValidarCandidatoService.validarNome("Joao da Silva")
 
         then:
         noExceptionThrown()
     }
 
-    def "deve rejeitar um nome inválido"() {
+    def "deve rejeitar um nome invalido"() {
         when:
-        ValidarCandidatoService.validarNome("João123")
+        ValidarCandidatoService.validarNome("Joao 123")
 
         then:
         def erro = thrown(IllegalArgumentException)
         erro.message == "Nome inválido."
     }
 
-
-    def "deve aceitar um email válido"() {
+    def "deve aceitar um email valido"() {
         when:
         ValidarCandidatoService.validarEmail("teste@email.com")
 
@@ -32,7 +30,7 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar um email inválido"() {
+    def "deve rejeitar um email invalido"() {
         when:
         ValidarCandidatoService.validarEmail("teste@email")
 
@@ -41,95 +39,53 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "E-mail inválido."
     }
 
-
-    def "deve aceitar um CPF válido"() {
+    def "deve aceitar CPF com ou sem formatacao"() {
         when:
-        ValidarCandidatoService.validarCpf("123.456.789-00")
+        ValidarCandidatoService.validarCpf(cpf)
 
         then:
         noExceptionThrown()
+
+        where:
+        cpf << ["123.456.789-00", "12345678900"]
     }
 
-    def "deve aceitar CPF com 11 números"() {
+    def "deve rejeitar CPF com tamanho invalido"() {
         when:
-        ValidarCandidatoService.validarCpf("12345678900")
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deve rejeitar um CPF inválido"() {
-        when:
-        ValidarCandidatoService.validarCpf("123.456.789")
+        ValidarCandidatoService.validarCpf(cpfInvalido)
 
         then:
         def erro = thrown(IllegalArgumentException)
         erro.message == "CPF deve conter 11 números."
+
+        where:
+        cpfInvalido << ["123.456.789", "1234567890", "123456789001"]
     }
 
-    def "deve rejeitar CPF com 10 números"() {
+    def "deve aceitar idades validas (entre 18 e 120)"() {
         when:
-        ValidarCandidatoService.validarCpf("1234567890")
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "CPF deve conter 11 números."
-    }
-
-    def "deve rejeitar CPF com 12 números"() {
-        when:
-        ValidarCandidatoService.validarCpf("123456789001")
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "CPF deve conter 11 números."
-    }
-
-
-    def "deve aceitar uma idade válida"() {
-        when:
-        ValidarCandidatoService.validarIdade(25)
+        ValidarCandidatoService.validarIdade(idade)
 
         then:
         noExceptionThrown()
+
+        where:
+        idade << [18, 25, 120]
     }
 
-    def "deve aceitar a idade mínima de 18 anos"() {
+    def "deve rejeitar idades invalidas"() {
         when:
-        ValidarCandidatoService.validarIdade(18)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deve aceitar a idade máxima de 120 anos"() {
-        when:
-        ValidarCandidatoService.validarIdade(120)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deve rejeitar uma idade menor que 18 anos"() {
-        when:
-        ValidarCandidatoService.validarIdade(17)
+        ValidarCandidatoService.validarIdade(idade)
 
         then:
         def erro = thrown(IllegalArgumentException)
         erro.message == "Idade inválida."
+
+        where:
+        idade << [17, 121]
     }
 
-    def "deve rejeitar uma idade maior que 120 anos"() {
-        when:
-        ValidarCandidatoService.validarIdade(121)
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "Idade inválida."
-    }
-
-
-    def "deve aceitar um estado válido"() {
+    def "deve aceitar um estado valido"() {
         when:
         ValidarCandidatoService.validarEstado("Pernambuco")
 
@@ -137,7 +93,7 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar um estado inválido"() {
+    def "deve rejeitar um estado invalido"() {
         when:
         ValidarCandidatoService.validarEstado("PE123")
 
@@ -146,14 +102,14 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "Estado inválido."
     }
 
-    def "deve aceitar um CEP valido com ou sem formatacao"() {
+    def "deve aceitar CEP com ou sem formatacao"() {
         when:
         ValidarCandidatoService.validarCep(cep)
 
         then:
         noExceptionThrown()
 
-        where: "testa tanto com traco quanto sem traco"
+        where:
         cep << ["55299-300", "55299300"]
     }
 
@@ -165,12 +121,11 @@ class ValidarCandidatoSpec extends Specification {
         def erro = thrown(IllegalArgumentException)
         erro.message == "CEP deve conter 8 números."
 
-        where: "testa CEP faltando numero com traco, sem traco, e sobrando numero"
+        where:
         cepInvalido << ["55299-30", "5529930", "552993000"]
     }
 
-
-    def "deve aceitar uma descrição preenchida"() {
+    def "deve aceitar uma descricao preenchida"() {
         when:
         ValidarCandidatoService.validarDescricao("Estudante de ADS")
 
@@ -178,7 +133,7 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar uma descrição vazia"() {
+    def "deve rejeitar uma descricao vazia"() {
         when:
         ValidarCandidatoService.validarDescricao("")
 
@@ -187,8 +142,7 @@ class ValidarCandidatoSpec extends Specification {
         erro.message == "Descrição não pode estar vazia."
     }
 
-
-    def "deve aceitar uma lista de competências preenchida"() {
+    def "deve aceitar uma lista de competencias preenchida"() {
         when:
         ValidarCandidatoService.validarCompetencias(["Java", "Groovy"])
 
@@ -196,21 +150,15 @@ class ValidarCandidatoSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "deve rejeitar uma lista de competências vazia"() {
+    def "deve rejeitar uma lista de competencias vazia ou nula"() {
         when:
-        ValidarCandidatoService.validarCompetencias([])
+        ValidarCandidatoService.validarCompetencias(competencias)
 
         then:
         def erro = thrown(IllegalArgumentException)
         erro.message == "Informe pelo menos uma competência."
-    }
 
-    def "deve rejeitar competências nulas"() {
-        when:
-        ValidarCandidatoService.validarCompetencias(null)
-
-        then:
-        def erro = thrown(IllegalArgumentException)
-        erro.message == "Informe pelo menos uma competência."
+        where:
+        competencias << [[], null]
     }
 }

@@ -2,7 +2,6 @@ package br.com.zg.acelera.service
 
 import br.com.zg.acelera.utils.ValidacaoUtils
 
-
 class ValidarCandidatoService {
 
     static void validarNome(String nome) {
@@ -30,7 +29,7 @@ class ValidarCandidatoService {
     }
 
     static void validarCep(String cep) {
-       ValidacaoUtils.validarTamanhoNumerico(cep, 8, "CEP")
+        ValidacaoUtils.validarTamanhoNumerico(cep, 8, "CEP")
     }
 
     static void validarDescricao(String descricao) {
@@ -46,6 +45,7 @@ class ValidarCandidatoService {
             )
         }
     }
+
     private static void validarApenasLetras(String texto, String nomeCampo) {
         if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
             throw new IllegalArgumentException("${nomeCampo} inválido.")

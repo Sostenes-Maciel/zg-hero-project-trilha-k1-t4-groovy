@@ -41,6 +41,7 @@ class ValidarEmpresaService {
             throw new IllegalArgumentException("Informe pelo menos uma competência.")
         }
     }
+
     private static void validarApenasLetras(String texto, String nomeCampo) {
         if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
             throw new IllegalArgumentException("${nomeCampo} inválido.")

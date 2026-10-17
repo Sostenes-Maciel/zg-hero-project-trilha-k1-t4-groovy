@@ -3,81 +3,113 @@ package br.com.zg.aceleraspec.service
 import br.com.zg.acelera.dao.*
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
+import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import spock.lang.Specification
 
 class GerenciadorDePerfisServiceSpec extends Specification {
 
-    private GerenciadorDePerfisService service
-
-    private CompetenciaDAO competenciaDAOMock
-    private CurtidaDAO curtidaDAOMock
-    private MatchDAO matchDAOMock
+    GerenciadorDePerfisService service
+    CandidatoDAO candidatoDAOMock
+    EmpresaDAO empresaDAOMock
+    CompetenciaDAO competenciaDAOMock
+    CurtidaDAO curtidaDAOMock
+    MatchDAO matchDAOMock
 
     def setup() {
         IConexao conexaoMock = Mock(IConexao)
+        service = new GerenciadorDePerfisService(conexaoMock)
 
+        candidatoDAOMock = Mock(CandidatoDAO)
+        empresaDAOMock = Mock(EmpresaDAO)
         competenciaDAOMock = Mock(CompetenciaDAO)
         curtidaDAOMock = Mock(CurtidaDAO)
         matchDAOMock = Mock(MatchDAO)
 
-        service = new GerenciadorDePerfisService(conexaoMock)
-
+        service.candidatoDAO = candidatoDAOMock
+        service.empresaDAO = empresaDAOMock
         service.competenciaDAO = competenciaDAOMock
         service.curtidaDAO = curtidaDAOMock
         service.matchDAO = matchDAOMock
     }
 
-    def "deve adicionar competencia garantindo que ela seja salva no banco global antes"() {
-        given: "um candidato e uma competencia"
-        Candidato candidato = new Candidato(cpf: "123.456.789-00")
-        String competencia = "Groovy"
+    def "deve cadastrar candidato com sucesso"() {
+        given:
+        Candidato candidato = new Candidato(nome: "Joao", email: "joao@email.com", cpf: "12345678901", idade: 25, estado: "SP", cep: "12345678", descricao: "Dev")
 
-        when: "acionamos a adicao de competencia"
-        service.adicionarCompetenciaAoCandidato(candidato, competencia)
+        when:
+        service.cadastrarCandidato(candidato)
 
-        then: "o DAO deve PRIMEIRO garantir que a competencia existe na tabela geral"
-        1 * competenciaDAOMock.garantirCompetencia("Groovy")
-
-        and: "DEPOIS, deve vincular a competencia ao CPF do candidato"
-        1 * competenciaDAOMock.adicionarAoCandidato("123.456.789-00", "Groovy")
+        then:
+        1 * candidatoDAOMock.cadastrar(candidato)
     }
 
-    def "nao deve registrar match se ja existir um registrado"() {
-        given: "dados do possivel match"
-        String cpf = "111.111.111-11"
-        String cnpj = "22.222.222/0001-22"
-        int vagaId = 1
+    def "deve cadastrar empresa com sucesso"() {
+        given:
+        Empresa empresa = new Empresa(nome: "Zup", email: "zup@email.com", cnpj: "12345678901234", pais: "Brasil", estado: "SP", cep: "12345678", descricao: "Tech")
 
-        when: "o sistema processa a curtida"
-        service.processarPossivelMatch(cpf, cnpj, vagaId, "Joao", "Empresa ZG")
+        when:
+        service.cadastrarEmpresa(empresa)
 
-        then: "se a curtida for mutua..."
-        1 * curtidaDAOMock.verificarMatch(cpf, cnpj, vagaId) >> true
-
-        and: "...e o match JA EXISTIR no banco"
-        1 * matchDAOMock.existeMatch(cpf, cnpj, vagaId) >> true
-
-        and: "entao o DAO de registrar match NUNCA deve ser chamado"
-        0 * matchDAOMock.registrarMatch(_, _, _)
+        then:
+        1 * empresaDAOMock.cadastrar(empresa)
     }
 
-    def "deve registrar um match novo com sucesso"() {
-        given: "dados do possivel match"
-        String cpf = "111.111.111-11"
-        String cnpj = "22.222.222/0001-22"
+    def "deve listar todos os candidatos e empresas"() {
+        when:
+        service.listarCandidatos()
+        service.listarEmpresas()
+
+        then:
+        1 * candidatoDAOMock.listarTodos()
+        1 * empresaDAOMock.listarTodos()
+    }
+
+    def "deve processar match corretamente quando as duas partes se curtem"() {
+        given:
+        String cpf = "12345678901"
+        String cnpj = "12345678901234"
         int vagaId = 1
+        curtidaDAOMock.verificarMatch(cpf, cnpj, vagaId) >> true
+        matchDAOMock.existeMatch(cpf, cnpj, vagaId) >> false
 
-        when: "o sistema processa a curtida"
-        service.processarPossivelMatch(cpf, cnpj, vagaId, "Joao", "Empresa ZG")
+        when:
+        boolean deuMatch = service.processarPossivelMatch(cpf, cnpj, vagaId)
 
-        then: "se a curtida for mutua..."
-        1 * curtidaDAOMock.verificarMatch(cpf, cnpj, vagaId) >> true
-
-        and: "...e o match AINDA NAO EXISTIR no banco"
-        1 * matchDAOMock.existeMatch(cpf, cnpj, vagaId) >> false
-
-        and: "entao o DAO de registrar match DEVE ser chamado exatamente 1 vez"
+        then:
+        deuMatch == true
         1 * matchDAOMock.registrarMatch(cpf, cnpj, vagaId)
+    }
+
+    def "nao deve registrar match se ja existir"() {
+        given:
+        String cpf = "12345678901"
+        String cnpj = "12345678901234"
+        int vagaId = 1
+        curtidaDAOMock.verificarMatch(cpf, cnpj, vagaId) >> true
+        matchDAOMock.existeMatch(cpf, cnpj, vagaId) >> true
+
+        when:
+        boolean deuMatch = service.processarPossivelMatch(cpf, cnpj, vagaId)
+
+        then:
+        deuMatch == true
+        0 * matchDAOMock.registrarMatch(cpf, cnpj, vagaId)
+    }
+
+    def "deve curtir vaga e verificar match"() {
+        given:
+        String cpf = "12345678901"
+        Empresa empresa = new Empresa(cnpj: "12345678901234")
+        Vaga vaga = new Vaga(id: 1, empresa: empresa)
+        curtidaDAOMock.verificarMatch(cpf, empresa.cnpj, vaga.id) >> false
+
+        when:
+        boolean deuMatch = service.curtirVaga(cpf, vaga)
+
+        then:
+        1 * curtidaDAOMock.registrarCurtidaCandidato(cpf, vaga.id)
+        deuMatch == false
     }
 }

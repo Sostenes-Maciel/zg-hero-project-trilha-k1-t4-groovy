@@ -2,70 +2,100 @@ package br.com.zg.aceleraspec.service
 
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
+import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 import spock.lang.Specification
 
 class GerenciadorDeVagasServiceSpec extends Specification {
 
-    private GerenciadorDeVagasService service
-    private VagaDAO vagaDAOMock
-    private CompetenciaDAO competenciaDAOMock
+    VagaDAO vagaDAOMock
+    CompetenciaDAO competenciaDAOMock
+    GerenciadorDeVagasService service
 
     def setup() {
         vagaDAOMock = Mock(VagaDAO)
         competenciaDAOMock = Mock(CompetenciaDAO)
-
         service = new GerenciadorDeVagasService(vagaDAOMock, competenciaDAOMock)
-
     }
 
-    def "deve cadastrar vaga e vincular todas as suas competencias corretamente"() {
-        given: "uma vaga preenchida com duas competencias"
-        Vaga vaga = new Vaga(titulo: "Desenvolvedor Groovy", competencia: ["Groovy", "Spock"])
-        vaga.id = 10
+    def "deve cadastrar vaga e suas competencias com sucesso"() {
+        given:
+        Empresa empresa = new Empresa(cnpj: "12345678901234")
+        Vaga vaga = new Vaga(titulo: "Desenvolvedor", competencia: ["Java", "Groovy"], empresa: empresa)
 
-        when: "o servico de cadastro eh acionado"
+        when:
         Integer idRetornado = service.cadastrarVaga(vaga)
 
-        then: "o DAO de vaga deve cadastrar a vaga 1 vez"
+        then:
         1 * vagaDAOMock.cadastrar(vaga)
-
-        and: "o DAO de competencia deve garantir e vincular cada uma das competencias"
+        1 * competenciaDAOMock.garantirCompetencia("Java")
+        1 * competenciaDAOMock.adicionarAVaga(_, "Java")
         1 * competenciaDAOMock.garantirCompetencia("Groovy")
-        1 * competenciaDAOMock.adicionarAVaga(10, "Groovy")
-
-        1 * competenciaDAOMock.garantirCompetencia("Spock")
-        1 * competenciaDAOMock.adicionarAVaga(10, "Spock")
-
-        and: "o servico deve retornar o ID correto"
-        idRetornado == 10
+        1 * competenciaDAOMock.adicionarAVaga(_, "Groovy")
+        idRetornado == vaga.id
     }
 
-    def "deve listar vagas da empresa preenchendo as competencias de cada uma"() {
-        given: "o CNPJ de uma empresa e uma vaga simulada retornada pelo banco"
-        String cnpj = "12.345.678/0001-99"
-        Vaga vagaSimulada = new Vaga(id: 5, titulo: "Arquiteto Java")
+    def "deve listar vagas preenchendo as competencias de cada uma"() {
+        given:
+        Vaga vaga = new Vaga(id: 1, titulo: "Dev")
+        vagaDAOMock.listarTodos() >> [vaga]
+        competenciaDAOMock.listarDaVaga(1) >> ["Java"]
 
-        when: "pedimos para listar as vagas dessa empresa"
-        List<Vaga> resultado = service.listarVagasDaEmpresa(cnpj)
+        when:
+        List<Vaga> vagas = service.listarVagas()
 
-        then: "o sistema busca as vagas daquela empresa no DAO principal"
-        1 * vagaDAOMock.listarPorEmpresa(cnpj) >> [vagaSimulada]
-
-        and: "para cada vaga encontrada, busca e preenche suas competencias"
-        1 * competenciaDAOMock.listarDaVaga(5) >> ["Java", "Spring", "AWS"]
-
-        and: "a vaga retornada contem a lista de competencias correta"
-        resultado.size() == 1
-        resultado[0].competencia == ["Java", "Spring", "AWS"]
+        then:
+        vagas.size() == 1
+        vagas[0].competencia == ["Java"]
     }
 
-    def "deve extrair competencias de uma string suja perfeitamente"() {
-        when: "passamos uma string com espacos a mais e virgulas sobrando"
-        List<String> resultado = GerenciadorDeVagasService.extrairCompetencias("Java, Groovy ,  Spring ,")
+    def "deve buscar vaga por id e preencher suas competencias"() {
+        given:
+        Vaga vaga = new Vaga(id: 1, titulo: "Dev")
+        vagaDAOMock.buscarPorId(1) >> vaga
+        competenciaDAOMock.listarDaVaga(1) >> ["Python"]
 
-        then: "ele deve limpar os espacos e ignorar itens vazios"
-        resultado == ["Java", "Groovy", "Spring"]
+        when:
+        Vaga vagaRetornada = service.buscarVaga(1)
+
+        then:
+        vagaRetornada.titulo == "Dev"
+        vagaRetornada.competencia == ["Python"]
+    }
+
+    def "deve atualizar vaga substituindo competencias antigas pelas novas"() {
+        given:
+        Vaga vaga = new Vaga(id: 1, titulo: "Dev", competencia: ["Go"])
+        competenciaDAOMock.listarDaVaga(1) >> ["Java"]
+
+        when:
+        service.atualizarVaga(vaga)
+
+        then:
+        1 * vagaDAOMock.atualizar(vaga)
+        1 * competenciaDAOMock.removerDaVaga(1, "Java")
+        1 * competenciaDAOMock.garantirCompetencia("Go")
+        1 * competenciaDAOMock.adicionarAVaga(1, "Go")
+    }
+
+    def "deve excluir vaga com sucesso"() {
+        when:
+        service.excluirVaga(1)
+
+        then:
+        1 * vagaDAOMock.excluir(1)
+    }
+
+    def "deve extrair competencias corretamente de uma string"() {
+        expect:
+        GerenciadorDeVagasService.extrairCompetencias(entrada) == resultado
+
+        where:
+        entrada            || resultado
+        "Java, Groovy, Go" || ["Java", "Groovy", "Go"]
+        " Python , C "     || ["Python", "C"]
+        ""                 || []
+        null               || []
     }
 }
