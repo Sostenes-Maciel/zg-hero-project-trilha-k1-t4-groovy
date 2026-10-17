@@ -14,12 +14,12 @@ class GerenciadorDePerfisService {
 
     private final IConexao conexaoFactory
 
-    final CandidatoDAO candidatoDAO
-    final CompetenciaDAO competenciaDAO
-    final EmpresaDAO empresaDAO
-    final CurtidaDAO curtidaDAO
-    final MatchDAO matchDAO
-    final GerenciadorDeVagasService gerenciadorDeVagas
+     CandidatoDAO candidatoDAO
+     CompetenciaDAO competenciaDAO
+     EmpresaDAO empresaDAO
+     CurtidaDAO curtidaDAO
+     MatchDAO matchDAO
+     GerenciadorDeVagasService gerenciadorDeVagas
 
     GerenciadorDePerfisService(IConexao conexaoFactory) {
         this.conexaoFactory = conexaoFactory
@@ -174,21 +174,7 @@ class GerenciadorDePerfisService {
 
         print "Selecione a empresa: "
 
-        if (!sc.hasNextInt()) {
-            println "Erro: informe apenas o número da empresa."
-            sc.nextLine()
-            return null
-        }
-
-        int opcao = sc.nextInt()
-        sc.nextLine()
-
-        if (opcao < 1 || opcao > empresas.size()) {
-            println "Empresa inválida."
-            return null
-        }
-
-        return empresas[opcao - 1]
+        return lerOpcaoDaLista(sc, empresas, "Erro: informe apenas o número da empresa.", "Empresa inválida.")
     }
 
     void gerenciarVagas(Scanner sc) {
@@ -257,21 +243,8 @@ class GerenciadorDePerfisService {
 
         print "Selecione o candidato pelo ID: "
 
-        if (!sc.hasNextInt()) {
-            println "Erro: informe apenas o número do candidato."
-            sc.nextLine()
-            return null
-        }
+        return lerOpcaoDaLista(sc, candidatos, "Erro: informe apenas o número do candidato.", "Candidato inválido.")
 
-        int opcao = sc.nextInt()
-        sc.nextLine()
-
-        if (opcao < 1 || opcao > candidatos.size()) {
-            println "Candidato inválido."
-            return null
-        }
-
-        return candidatos[opcao - 1]
     }
 
     Candidato selecionarCandidatoParaCurtir(Scanner sc) {
@@ -295,21 +268,7 @@ class GerenciadorDePerfisService {
 
         print "Selecione o candidato: "
 
-        if (!sc.hasNextInt()) {
-            println "Erro: informe apenas o número do candidato."
-            sc.nextLine()
-            return null
-        }
-
-        int opcao = sc.nextInt()
-        sc.nextLine()
-
-        if (opcao < 1 || opcao > candidatos.size()) {
-            println "Candidato inválido."
-            return null
-        }
-
-        return candidatos[opcao - 1]
+        return lerOpcaoDaLista(sc, candidatos, "Erro: informe apenas o número do candidato.", "Candidato inválido.")
     }
 
     void atualizarCandidatoPeloTerminal(Scanner sc, Candidato candidato) {
@@ -516,27 +475,14 @@ class GerenciadorDePerfisService {
 
         print "Selecione a vaga: "
 
-        if (!sc.hasNextInt()) {
-            println "Erro: informe apenas o número da vaga."
-            sc.nextLine()
-            return
-        }
-
-        int opcao = sc.nextInt()
-        sc.nextLine()
-
-        if (opcao < 1 || opcao > vagas.size()) {
-            println "Vaga inválida."
-            return
-        }
-
-        Vaga vaga = vagas[opcao - 1]
+        Vaga vaga = lerOpcaoDaLista(sc, vagas, "Erro: informe apenas o número da vaga.", "Vaga inválida.")
+        if (vaga == null) return
 
         curtidaDAO.registrarCurtidaEmpresa(candidato.cpf, empresa.cnpj)
         processarPossivelMatch(candidato.cpf, empresa.cnpj, vaga.id, empresa.nome, candidato.nome)
     }
 
-    private void processarPossivelMatch(String cpf, String cnpj, int vagaId, String nome1, String nome2) {
+     void processarPossivelMatch(String cpf, String cnpj, int vagaId, String nome1, String nome2) {
         if (curtidaDAO.verificarMatch(cpf, cnpj, vagaId)) {
             if (matchDAO.existeMatch(cpf, cnpj, vagaId)) {
                 println "\nEsse match já está registrado."
@@ -548,5 +494,22 @@ class GerenciadorDePerfisService {
         } else {
             println "\nVaga curtida com sucesso! Aguardando o match."
         }
+    }
+    private static <T> T lerOpcaoDaLista(Scanner sc, List<T> lista, String msgErroFormato, String msgErroInvalido) {
+        if (!sc.hasNextInt()) {
+            println msgErroFormato
+            sc.nextLine()
+            return null
+        }
+
+        int opcao = sc.nextInt()
+        sc.nextLine()
+
+        if (opcao < 1 || opcao > lista.size()) {
+            println msgErroInvalido
+            return null
+        }
+
+        return lista[opcao - 1]
     }
 }
