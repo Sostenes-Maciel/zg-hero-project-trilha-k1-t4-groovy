@@ -3,7 +3,6 @@ package br.com.zg.acelera.command
 import br.com.zg.acelera.controller.CandidatoController
 import br.com.zg.acelera.interfaces.ICommand
 import br.com.zg.acelera.model.Candidato
-import java.util.Scanner
 
 class GerenciarCompetenciasCandidatoCommand implements ICommand {
 
@@ -31,7 +30,7 @@ class GerenciarCompetenciasCandidatoCommand implements ICommand {
 
             try {
                 opcao = Integer.parseInt(sc.nextLine().trim())
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
                 opcao = 0
             }
 

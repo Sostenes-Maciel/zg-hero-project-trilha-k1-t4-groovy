@@ -1,5 +1,6 @@
 package br.com.zg.acelera.dao
 
+import br.com.zg.acelera.interfaces.ICompetenciaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.IEmpresaDAO
 import br.com.zg.acelera.model.Empresa
@@ -8,8 +9,11 @@ import java.sql.ResultSet
 
 class EmpresaDAO extends AbstractDAO<Empresa> implements IEmpresaDAO {
 
-    EmpresaDAO(IConexao conexaoFactory) {
+    private final ICompetenciaDAO competenciaDAO
+
+    EmpresaDAO(IConexao conexaoFactory, ICompetenciaDAO competenciaDAO) {
         super(conexaoFactory)
+        this.competenciaDAO = competenciaDAO
     }
 
     @Override
@@ -21,7 +25,8 @@ class EmpresaDAO extends AbstractDAO<Empresa> implements IEmpresaDAO {
                 pais: rs.getString("pais"),
                 estado: rs.getString("estado"),
                 cep: rs.getString("cep"),
-                descricao: rs.getString("descricao")
+                descricao: rs.getString("descricao"),
+                competencias: []
         )
     }
 
@@ -40,14 +45,28 @@ class EmpresaDAO extends AbstractDAO<Empresa> implements IEmpresaDAO {
     @Override
     List<Empresa> listarTodos() {
         String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa ORDER BY nome"
-        return executarQuery(sql, [])
+        List<Empresa> empresas = executarQuery(sql, [])
+
+        empresas.each { e ->
+            e.competencias = competenciaDAO.listarDaEmpresa(e.cnpj)
+        }
+
+        return empresas
     }
 
     @Override
     Empresa buscarPorId(String cnpj) {
         String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa WHERE cnpj = ?"
         List<Empresa> resultados = executarQuery(sql, [cnpj])
-        return resultados.isEmpty() ? null : resultados[0]
+
+        if (resultados.isEmpty()) {
+            return null
+        }
+
+        Empresa empresa = resultados[0]
+        empresa.competencias = competenciaDAO.listarDaEmpresa(empresa.cnpj)
+
+        return empresa
     }
 
     @Override

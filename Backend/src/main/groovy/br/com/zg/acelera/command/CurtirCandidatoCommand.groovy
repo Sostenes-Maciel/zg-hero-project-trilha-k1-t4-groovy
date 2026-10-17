@@ -34,7 +34,7 @@ class CurtirCandidatoCommand implements ICommand {
 
         println "\n--- CANDIDATOS DISPONÍVEIS ---"
         List<Candidato> candidatos = respCandidatos.dados as List<Candidato>
-        candidatos.eachWithIndex { c, i -> println "${i + 1} - ${c.nome} (Competências: ${c.competencias})" }
+        candidatos.eachWithIndex { c, i -> println "${i + 1} - (Competências: ${c.competencias})" }
         print "Selecione o número do candidato para curtir (ou 0 para cancelar): "
 
         int idxCandidato = lerOpcaoInt(sc) - 1

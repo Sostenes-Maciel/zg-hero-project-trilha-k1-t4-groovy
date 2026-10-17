@@ -50,4 +50,11 @@ class EmpresaController {
             return [status: 500, mensagem: "Erro ao excluir empresa: ${e.message}"]
         }
     }
+    void adicionarCompetencia(Empresa empresa, String competencia) {
+        perfilService.adicionarCompetenciaAEmpresa(empresa, competencia)
+    }
+
+    void removerCompetencia(Empresa empresa, String competencia) {
+        perfilService.removerCompetenciaDaEmpresa(empresa, competencia)
+    }
 }

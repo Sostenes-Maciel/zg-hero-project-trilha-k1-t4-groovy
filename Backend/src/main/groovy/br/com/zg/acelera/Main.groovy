@@ -24,7 +24,7 @@ class Main {
         CompetenciaDAO competenciaDAO = new CompetenciaDAO(conexao)
 
         CandidatoDAO candidatoDAO = new CandidatoDAO(conexao, competenciaDAO)
-        EmpresaDAO empresaDAO = new EmpresaDAO(conexao)
+        EmpresaDAO empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
         VagaDAO vagaDAO = new VagaDAO(conexao)
         CurtidaDAO curtidaDAO = new CurtidaDAO(conexao)
         MatchDAO matchDAO = new MatchDAO(conexao)
