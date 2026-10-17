@@ -1,14 +1,18 @@
 package br.com.zg.acelera.dao
 
 import br.com.zg.acelera.interfaces.ICandidatoDAO
+import br.com.zg.acelera.interfaces.ICompetenciaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import java.sql.ResultSet
 
 class CandidatoDAO extends AbstractDAO<Candidato> implements ICandidatoDAO {
 
-    CandidatoDAO(IConexao conexaoFactory) {
+    private ICompetenciaDAO competenciaDAO
+
+    CandidatoDAO(IConexao conexaoFactory, ICompetenciaDAO competenciaDAO) {
         super(conexaoFactory)
+        this.competenciaDAO = competenciaDAO
     }
 
     @Override
@@ -21,7 +25,8 @@ class CandidatoDAO extends AbstractDAO<Candidato> implements ICandidatoDAO {
                 estado: rs.getString("estado"),
                 cep: rs.getString("cep"),
                 descricao: rs.getString("descricao"),
-                idade: rs.getInt("idade")
+                idade: rs.getInt("idade"),
+                competencias: []
         )
     }
 
@@ -40,14 +45,28 @@ class CandidatoDAO extends AbstractDAO<Candidato> implements ICandidatoDAO {
     @Override
     List<Candidato> listarTodos() {
         String sql = "SELECT cpf, nome, email, pais, estado, cep, descricao, idade FROM candidato ORDER BY nome"
-        return executarQuery(sql, [])
+        List<Candidato> candidatos = executarQuery(sql, [])
+
+        candidatos.each { c ->
+            c.competencias = competenciaDAO.listarDoCandidato(c.cpf)
+        }
+
+        return candidatos
     }
 
     @Override
     Candidato buscarPorId(String cpf) {
         String sql = "SELECT cpf, nome, email, pais, estado, cep, descricao, idade FROM candidato WHERE cpf = ?"
         List<Candidato> resultados = executarQuery(sql, [cpf])
-        return resultados.isEmpty() ? null : resultados[0]
+
+        if (resultados.isEmpty()) {
+            return null
+        }
+
+        Candidato candidato = resultados[0]
+        candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
+
+        return candidato
     }
 
     @Override

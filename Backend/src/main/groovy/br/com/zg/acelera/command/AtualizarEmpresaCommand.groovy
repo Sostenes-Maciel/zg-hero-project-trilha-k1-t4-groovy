@@ -18,12 +18,36 @@ class AtualizarEmpresaCommand implements ICommand {
 
     @Override
     void executar() {
-        print "Novo Nome da Empresa (deixe em branco para manter o atual): "
-        String novoNome = sc.nextLine().trim()
+        println "\n--- ATUALIZAR EMPRESA ---"
+        println "Dica: Para manter o valor atual, apenas aperte ENTER vazia."
 
-        if (!novoNome.isEmpty()) {
-            empresa.nome = novoNome
-        }
+        print "Nome [${empresa.nome}]: "
+        String nome = sc.nextLine().trim()
+        if (!nome.isEmpty()) empresa.nome = nome
+
+        print "E-mail [${empresa.email}]: "
+        String email = sc.nextLine().trim()
+        if (!email.isEmpty()) empresa.email = email
+
+        print "País [${empresa.pais}]: "
+        String pais = sc.nextLine().trim()
+        if (!pais.isEmpty()) empresa.pais = pais
+
+        print "Estado [${empresa.estado}]: "
+        String estado = sc.nextLine().trim()
+        if (!estado.isEmpty()) empresa.estado = estado
+
+        print "CEP [${empresa.cep}]: "
+        String cep = sc.nextLine().trim()
+        if (!cep.isEmpty()) empresa.cep = cep
+
+        print "Descrição [${empresa.descricao}]: "
+        String descricao = sc.nextLine().trim()
+        if (!descricao.isEmpty()) empresa.descricao = descricao
+
+        print "Competências [${empresa.competencias?.join(', ')}]: "
+        String competencias = sc.nextLine().trim()
+        if (!competencias.isEmpty()) empresa.competencias = competencias.split(",").collect { it.trim() }
 
         def resposta = empresaController.atualizar(empresa)
         println "\n[${resposta.status}] - ${resposta.mensagem}"

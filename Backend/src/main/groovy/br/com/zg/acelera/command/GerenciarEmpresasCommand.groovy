@@ -33,7 +33,7 @@ class GerenciarEmpresasCommand implements ICommand {
 
         println "\n--- SELECIONE A EMPRESA ---"
         List<Empresa> empresas = respostaListagem.dados as List<Empresa>
-        empresas.eachWithIndex { emp, i -> println "${i + 1} - ${emp.nome} (CNPJ: ${emp.cnpj})" }
+        empresas.eachWithIndex { emp, i -> println "${i + 1} - ${emp.nome}" }
         print "Opção: "
 
         int index = lerOpcaoInt(sc) - 1
@@ -56,15 +56,16 @@ class GerenciarEmpresasCommand implements ICommand {
         int opcao = 0
         while (opcao != 5) {
             println "\n--- PERFIL DA EMPRESA: ${empresa.nome} ---"
-            println "1 - Curtir Candidato"
-            println "2 - Ver meus Matches"
-            println "3 - Excluir meu perfil"
-            println "4 - Voltar"
+            println "1 - Atualizar perfil"
+            println "2 - Curtir candidato"
+            println "3 - Ver matches"
+            println "4 - Deletar empresa"
+            println "5 - Voltar"
             print "Escolha: "
 
             opcao = lerOpcaoInt(sc)
 
-            if (opcao == 4) {
+            if (opcao == 5) {
                 println "Voltando..."
                 break
             }

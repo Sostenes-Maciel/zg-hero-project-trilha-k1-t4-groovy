@@ -27,7 +27,7 @@ class GerenciarVagasCommand implements ICommand {
 
         println "\n--- SELECIONE A EMPRESA ---"
         List<Empresa> empresas = respostaListagem.dados as List<Empresa>
-        empresas.eachWithIndex { emp, i -> println "${i + 1} - ${emp.nome} (CNPJ: ${emp.cnpj})" }
+        empresas.eachWithIndex { emp, i -> println "${i + 1} - ${emp.nome}" }
         print "Opção: "
 
         int index = lerOpcaoInt(sc) - 1

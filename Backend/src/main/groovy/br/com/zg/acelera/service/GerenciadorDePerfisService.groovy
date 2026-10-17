@@ -1,32 +1,32 @@
 package br.com.zg.acelera.service
 
-import br.com.zg.acelera.dao.CandidatoDAO
-import br.com.zg.acelera.dao.CompetenciaDAO
-import br.com.zg.acelera.dao.CurtidaDAO
-import br.com.zg.acelera.dao.EmpresaDAO
-import br.com.zg.acelera.dao.MatchDAO
-import br.com.zg.acelera.dao.VagaDAO
-import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.interfaces.ICandidatoDAO
+import br.com.zg.acelera.interfaces.ICompetenciaDAO
+import br.com.zg.acelera.interfaces.ICurtidaDAO
+import br.com.zg.acelera.interfaces.IEmpresaDAO
+import br.com.zg.acelera.interfaces.IMatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 
 class GerenciadorDePerfisService {
 
-    private  CandidatoDAO candidatoDAO
-    private  CompetenciaDAO competenciaDAO
-    private  EmpresaDAO empresaDAO
-    private  CurtidaDAO curtidaDAO
-    private  MatchDAO matchDAO
-    private  GerenciadorDeVagasService gerenciadorDeVagas
+    private final ICandidatoDAO candidatoDAO
+    private final ICompetenciaDAO competenciaDAO
+    private final IEmpresaDAO empresaDAO
+    private final ICurtidaDAO curtidaDAO
+    private final IMatchDAO matchDAO
+    private final GerenciadorDeVagasService gerenciadorDeVagas
 
-    GerenciadorDePerfisService(IConexao conexaoFactory) {
-        this.candidatoDAO = new CandidatoDAO(conexaoFactory)
-        this.competenciaDAO = new CompetenciaDAO(conexaoFactory)
-        this.empresaDAO = new EmpresaDAO(conexaoFactory)
-        this.curtidaDAO = new CurtidaDAO(conexaoFactory)
-        this.matchDAO = new MatchDAO(conexaoFactory)
-        this.gerenciadorDeVagas = new GerenciadorDeVagasService(new VagaDAO(conexaoFactory), this.competenciaDAO)
+    GerenciadorDePerfisService(ICandidatoDAO candidatoDAO, ICompetenciaDAO competenciaDAO,
+                               IEmpresaDAO empresaDAO, ICurtidaDAO curtidaDAO,
+                               IMatchDAO matchDAO, GerenciadorDeVagasService gerenciadorDeVagas) {
+        this.candidatoDAO = candidatoDAO
+        this.competenciaDAO = competenciaDAO
+        this.empresaDAO = empresaDAO
+        this.curtidaDAO = curtidaDAO
+        this.matchDAO = matchDAO
+        this.gerenciadorDeVagas = gerenciadorDeVagas
     }
 
     void cadastrarCandidato(Candidato candidato) {

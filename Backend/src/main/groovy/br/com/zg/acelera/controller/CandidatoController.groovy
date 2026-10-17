@@ -50,4 +50,11 @@ class CandidatoController {
             return [status: 500, mensagem: "Erro ao excluir candidato: ${e.message}"]
         }
     }
+    void adicionarCompetencia(Candidato candidato, String competencia) {
+        perfilService.adicionarCompetenciaAoCandidato(candidato, competencia)
+    }
+
+    void removerCompetencia(Candidato candidato, String competencia) {
+        perfilService.removerCompetenciaDoCandidato(candidato, competencia)
+    }
 }
