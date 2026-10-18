@@ -18,9 +18,9 @@ class VagaCompetenciaDAOSpec extends Specification {
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
 
-        vagaDAO = new VagaDAO(conexao)
-        empresaDAO = new EmpresaDAO(conexao)
         competenciaDAO = new CompetenciaDAO(conexao)
+        vagaDAO = new VagaDAO(conexao)
+        empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
 
         vagaDAO.listarPorEmpresa("88.777.666/0001-55").each {
             vagaDAO.excluir(it.id)

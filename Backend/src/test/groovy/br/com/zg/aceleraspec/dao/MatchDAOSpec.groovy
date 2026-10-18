@@ -1,6 +1,7 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
@@ -17,15 +18,16 @@ class MatchDAOSpec extends Specification {
     private CandidatoDAO candidatoDAO
     private EmpresaDAO empresaDAO
     private VagaDAO vagaDAO
+    private CompetenciaDAO competenciaDAO
 
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
+        competenciaDAO = new CompetenciaDAO(conexao)
         matchDAO = new MatchDAO(conexao)
-        candidatoDAO = new CandidatoDAO(conexao)
-        empresaDAO = new EmpresaDAO(conexao)
+        candidatoDAO = new CandidatoDAO(conexao, competenciaDAO)
+        empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
         vagaDAO = new VagaDAO(conexao)
 
-        // Limpeza prévia para garantir estado limpo
         empresaDAO.excluir("66.555.444/0001-22")
         candidatoDAO.excluir("55566677788")
     }

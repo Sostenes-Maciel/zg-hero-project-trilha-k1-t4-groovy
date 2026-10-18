@@ -1,18 +1,21 @@
 package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import spock.lang.Specification
-import br.com.zg.acelera.dao.ConexaoFactory
-
 
 class CandidatoDAOSpec extends Specification {
 
     private CandidatoDAO candidatoDAO
+    private CompetenciaDAO competenciaDAO
 
     def setup() {
-        candidatoDAO = new CandidatoDAO(ConexaoFactory.getBancoDeDados("POSTGRES") as IConexao)
+        IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES") as IConexao
+        competenciaDAO = new CompetenciaDAO(conexao)
+        candidatoDAO = new CandidatoDAO(conexao, competenciaDAO)
 
         candidatoDAO.excluir("999.999.999-99")
     }

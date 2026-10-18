@@ -10,38 +10,39 @@ class GerenciarVagasCommandSpec extends Specification {
 
     EmpresaController empresaControllerMock
     VagaController vagaControllerMock
+    Empresa empresaTeste
 
     def setup() {
         empresaControllerMock = Mock(EmpresaController)
         vagaControllerMock = Mock(VagaController)
+        empresaTeste = new Empresa(nome: "ZG Solucoes", cnpj: "12345678901234")
     }
 
-    def "deve listar empresas, selecionar a primeira e voltar do menu de vagas com sucesso"() {
-        given: "uma empresa cadastrada, input escolhendo a empresa (1) e depois voltando (5)"
-        def empresa = new Empresa(nome: "ZG Solucoes", cnpj: "12345678901234")
-        String inputUsuario = "1\n5\n"
+    def "deve exibir o menu de gerenciamento de vagas e voltar com a opcao 5"() {
+        given: "input do usuario selecionando a opcao 5 para voltar"
+        String inputUsuario = "5\n"
         def scanner = new Scanner(inputUsuario)
 
-        def comando = new GerenciarVagasCommand(empresaControllerMock, vagaControllerMock, scanner)
+        def comando = new GerenciarVagasCommand(empresaControllerMock, vagaControllerMock, scanner, empresaTeste)
 
         when: "o comando eh executado"
         comando.executar()
 
-        then: "o controller lista as empresas"
-        1 * empresaControllerMock.listar() >> [status: 200, dados: [empresa]]
+        then: "a execucao finaliza sem erros"
+        notThrown(Exception)
     }
 
-    def "deve encerrar a execucao caso nao exista nenhuma empresa cadastrada para gerenciar vagas"() {
-        given: "uma listagem vazia de empresas"
-        String inputUsuario = "1\n"
+    def "deve tratar entrada invalida e permitir sair em seguida"() {
+        given: "input do usuario com opcao invalida seguida de 5 para voltar"
+        String inputUsuario = "9\n5\n"
         def scanner = new Scanner(inputUsuario)
 
-        def comando = new GerenciarVagasCommand(empresaControllerMock, vagaControllerMock, scanner)
+        def comando = new GerenciarVagasCommand(empresaControllerMock, vagaControllerMock, scanner, empresaTeste)
 
         when: "o comando eh executado"
         comando.executar()
 
-        then: "o controller tenta listar mas retorna vazio"
-        1 * empresaControllerMock.listar() >> [status: 200, dados: []]
+        then: "a execucao finaliza sem erros"
+        notThrown(Exception)
     }
 }

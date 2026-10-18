@@ -3,7 +3,6 @@ package br.com.zg.aceleraspec.dao
 import br.com.zg.acelera.dao.CandidatoDAO
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.ConexaoFactory
-import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import spock.lang.Specification
@@ -16,8 +15,8 @@ class CandidatoCompetenciaDAOSpec extends Specification {
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
 
-        candidatoDAO = new CandidatoDAO(conexao)
         competenciaDAO = new CompetenciaDAO(conexao)
+        candidatoDAO = new CandidatoDAO(conexao, competenciaDAO)
 
         candidatoDAO.excluir("111.222.333-44")
         competenciaDAO.excluir("Groovy Teste")

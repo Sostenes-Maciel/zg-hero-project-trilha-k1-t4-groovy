@@ -1,11 +1,15 @@
 package br.com.zg.aceleraspec.service
 
-import br.com.zg.acelera.dao.*
-import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.dao.CandidatoDAO
+import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.dao.CurtidaDAO
+import br.com.zg.acelera.dao.EmpresaDAO
+import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.service.GerenciadorDeVagasService
 import spock.lang.Specification
 
 class GerenciadorDePerfisServiceSpec extends Specification {
@@ -16,22 +20,24 @@ class GerenciadorDePerfisServiceSpec extends Specification {
     CompetenciaDAO competenciaDAOMock
     CurtidaDAO curtidaDAOMock
     MatchDAO matchDAOMock
+    GerenciadorDeVagasService vagaServiceMock
 
     def setup() {
-        IConexao conexaoMock = Mock(IConexao)
-        service = new GerenciadorDePerfisService(conexaoMock)
-
         candidatoDAOMock = Mock(CandidatoDAO)
         empresaDAOMock = Mock(EmpresaDAO)
         competenciaDAOMock = Mock(CompetenciaDAO)
         curtidaDAOMock = Mock(CurtidaDAO)
         matchDAOMock = Mock(MatchDAO)
+        vagaServiceMock = Mock(GerenciadorDeVagasService)
 
-        service.candidatoDAO = candidatoDAOMock
-        service.empresaDAO = empresaDAOMock
-        service.competenciaDAO = competenciaDAOMock
-        service.curtidaDAO = curtidaDAOMock
-        service.matchDAO = matchDAOMock
+        service = new GerenciadorDePerfisService(
+                candidatoDAOMock,
+                competenciaDAOMock,
+                empresaDAOMock,
+                curtidaDAOMock,
+                matchDAOMock,
+                vagaServiceMock
+        )
     }
 
     def "deve cadastrar candidato com sucesso"() {
@@ -91,10 +97,11 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         matchDAOMock.existeMatch(cpf, cnpj, vagaId) >> true
 
         when:
-        boolean deuMatch = service.processarPossivelMatch(cpf, cnpj, vagaId)
+        service.processarPossivelMatch(cpf, cnpj, vagaId)
 
         then:
-        deuMatch == true
+        IllegalStateException e = thrown()
+        e.message == "Atenção: Vocês já deram Match anteriormente!"
         0 * matchDAOMock.registrarMatch(cpf, cnpj, vagaId)
     }
 

@@ -23,9 +23,9 @@ class GerenciarEmpresasCommandSpec extends Specification {
     }
 
     def "deve listar empresas, selecionar a primeira e voltar do menu com sucesso"() {
-        given: "uma empresa cadastrada, input escolhendo a empresa (1) e depois escolhendo voltar (5)"
+        given: "uma empresa cadastrada, input escolhendo a empresa (1) e depois escolhendo voltar (7)"
         def empresa = new Empresa(nome: "ZG Solucoes", cnpj: "12345678901234")
-        String inputUsuario = "1\n5\n"
+        String inputUsuario = "1\n7\n"
         def scanner = new Scanner(inputUsuario)
 
         def comando = new GerenciarEmpresasCommand(empresaControllerMock, candidatoControllerMock, vagaControllerMock, matchControllerMock, scanner)

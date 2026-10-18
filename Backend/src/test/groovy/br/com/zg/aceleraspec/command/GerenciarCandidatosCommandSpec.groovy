@@ -20,9 +20,9 @@ class GerenciarCandidatosCommandSpec extends Specification {
     }
 
     def "deve listar candidatos, selecionar o primeiro e voltar do menu com sucesso"() {
-        given: "um candidato cadastrado, input escolhendo o candidato (1) e depois escolhendo voltar (5)"
+        given: "um candidato cadastrado, input escolhendo o candidato (1) e depois escolhendo voltar (6)"
         def candidato = new Candidato(nome: "Maria", cpf: "12345678901")
-        String inputUsuario = "1\n5\n"
+        String inputUsuario = "1\n6\n"
         def scanner = new Scanner(inputUsuario)
 
         def comando = new GerenciarCandidatosCommand(candidatoControllerMock, vagaControllerMock, matchControllerMock, scanner)

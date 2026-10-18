@@ -2,7 +2,6 @@ package br.com.zg.aceleraspec.dao
 
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.ConexaoFactory
-import br.com.zg.acelera.dao.ConexaoPostgres
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Empresa
@@ -15,8 +14,8 @@ class EmpresaCompetenciaDAOSpec extends Specification {
 
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
-        empresaDAO = new EmpresaDAO(conexao)
         competenciaDAO = new CompetenciaDAO(conexao)
+        empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
 
         empresaDAO.excluir("99.888.777/0001-66")
         competenciaDAO.excluir("Java Empresa Teste")

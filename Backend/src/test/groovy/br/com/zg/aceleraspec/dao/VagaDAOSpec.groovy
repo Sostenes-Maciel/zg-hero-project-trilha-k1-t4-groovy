@@ -1,5 +1,6 @@
 package br.com.zg.aceleraspec.dao
 
+import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.VagaDAO
@@ -12,11 +13,13 @@ class VagaDAOSpec extends Specification {
 
     private VagaDAO vagaDAO
     private EmpresaDAO empresaDAO
+    private CompetenciaDAO competenciaDAO
 
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
+        competenciaDAO = new CompetenciaDAO(conexao)
         vagaDAO = new VagaDAO(conexao)
-        empresaDAO = new EmpresaDAO(conexao)
+        empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
 
         vagaDAO.listarPorEmpresa("11.222.333/0001-44").each {
             vagaDAO.excluir(it.id)
