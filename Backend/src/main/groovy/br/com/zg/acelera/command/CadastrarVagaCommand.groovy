@@ -21,8 +21,21 @@ class CadastrarVagaCommand implements ICommand {
     void executar() {
         Vaga vaga = new Vaga()
         vaga.empresa = empresa
+
+        println "\n--- CADASTRAR NOVA VAGA ---"
+
         print "Título da Vaga: "
         vaga.titulo = sc.nextLine().trim()
+
+        print "Descrição: "
+        vaga.descricao = sc.nextLine().trim()
+
+        print "País: "
+        vaga.pais = sc.nextLine().trim()
+
+        print "Estado: "
+        vaga.estado = sc.nextLine().trim()
+
         print "Competências necessárias (separadas por vírgula): "
         vaga.competencia = sc.nextLine().split(",").collect { it.trim() }
 

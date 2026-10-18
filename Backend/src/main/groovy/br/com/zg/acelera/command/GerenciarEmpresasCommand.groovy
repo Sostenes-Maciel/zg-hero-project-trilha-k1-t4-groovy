@@ -51,7 +51,8 @@ class GerenciarEmpresasCommand implements ICommand {
                 2: new GerenciarCompetenciasEmpresaCommand(empresaController, sc, empresa),
                 3: new CurtirCandidatoCommand(candidatoController, vagaController, matchController, sc, empresa),
                 4: new VerMatchesEmpresaCommand(matchController, empresa),
-                5: new ExcluirEmpresaCommand(empresaController, empresa)
+                5: new GerenciarVagasCommand(empresaController, vagaController, sc, empresa),
+                6: new ExcluirEmpresaCommand(empresaController, empresa)
         ] as Map<Integer, ICommand>
 
         int opcao = 0
@@ -61,13 +62,14 @@ class GerenciarEmpresasCommand implements ICommand {
             println "2 - Gerenciar Competências"
             println "3 - Curtir Candidato"
             println "4 - Ver Matches"
-            println "5 - Excluir perfil"
-            println "6 - Voltar"
+            println "5 - Gerenciar Vagas"
+            println "6 - Excluir Perfil"
+            println "7 - Voltar"
             print "Escolha: "
 
             opcao = lerOpcaoInt(sc)
 
-            if (opcao == 5) {
+            if (opcao == 7) {
                 println "Voltando..."
                 break
             }
@@ -75,7 +77,7 @@ class GerenciarEmpresasCommand implements ICommand {
             ICommand comando = acoesEmpresa.get(opcao)
             if (comando != null) {
                 comando.executar()
-                if (opcao == 6) break
+                if (opcao == 8) break
             } else {
                 println "Opção inválida."
             }

@@ -10,45 +10,27 @@ class GerenciarVagasCommand implements ICommand {
     private final EmpresaController empresaController
     private final VagaController vagaController
     private final Scanner sc
+    private final Empresa empresa
 
-    GerenciarVagasCommand(EmpresaController empresaController, VagaController vagaController, Scanner sc) {
+    GerenciarVagasCommand(EmpresaController empresaController, VagaController vagaController, Scanner sc, Empresa empresa) {
         this.empresaController = empresaController
         this.vagaController = vagaController
         this.sc = sc
+        this.empresa = empresa
     }
 
     @Override
     void executar() {
-        def respostaListagem = empresaController.listar()
-        if (respostaListagem.status != 200 || !respostaListagem.dados) {
-            println "\nNenhuma empresa cadastrada para gerenciar vagas."
-            return
-        }
 
-        println "\n--- SELECIONE A EMPRESA ---"
-        List<Empresa> empresas = respostaListagem.dados as List<Empresa>
-        empresas.eachWithIndex { emp, i -> println "${i + 1} - ${emp.nome}" }
-        print "Opção: "
+        int opcao = 0
 
-        int index = lerOpcaoInt(sc) - 1
-        if (index < 0 || index >= empresas.size()) {
-            println "Opção inválida."
-            return
-        }
-
-        Empresa empresa = empresas[index]
-        menuVagas(empresa)
-    }
-
-    private void menuVagas(Empresa empresa) {
         Map<Integer, ICommand> acoesVagas = [
                 1: new ListarVagasCommand(vagaController, empresa),
                 2: new CadastrarVagaCommand(vagaController, sc, empresa),
                 3: new AtualizarVagaCommand(vagaController, sc, empresa),
-                4: new ExcluirVagaCommand(vagaController, sc)
+                4: new ExcluirVagaCommand(vagaController, sc, empresa)
         ] as Map<Integer, ICommand>
 
-        int opcao = 0
         while (opcao != 5) {
             println "\n--- GERENCIAR VAGAS: ${empresa.nome} ---"
             println "1 - Listar vagas da empresa"

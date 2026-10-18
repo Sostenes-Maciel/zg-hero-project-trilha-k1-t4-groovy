@@ -22,7 +22,6 @@ class MenuView {
                 1: new GerenciarCandidatosCommand(candidatoController, vagaController, matchController, sc),
                 2: new GerenciarEmpresasCommand(empresaController, candidatoController, vagaController, matchController, sc),
                 3: new CadastrarCommand(candidatoController, empresaController, sc),
-                4: new GerenciarVagasCommand(empresaController, vagaController, sc)
         ] as Map<Integer, ICommand>
     }
 
@@ -34,8 +33,7 @@ class MenuView {
             println "\n1 - Gerenciar Candidatos"
             println "2 - Gerenciar Empresas"
             println "3 - Cadastrar (Candidato/Empresa)"
-            println "4 - Gerenciar Vagas"
-            println "5 - Sair"
+            println "4 - Sair"
             print "Escolha uma opção: "
 
             opcao = lerOpcaoInt(sc)
