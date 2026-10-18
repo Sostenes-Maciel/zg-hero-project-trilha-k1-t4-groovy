@@ -274,9 +274,37 @@ Princípio OCP (Open/Closed Principle): Menu principal refatorado para ser exten
 
 Otimização: Resolução de warnings apontados por análise estática, remoção de código morto (variáveis, parâmetros e DAOs ociosos) e conversão de métodos sem estado para static.
 
-**Experiência de Uso (UX):**
+# Relatório de Refatoração e Correções do Projeto
 
-Adição de prompts de confirmação de segurança (S/N) no terminal para prevenir exclusões acidentais de registros.
+
+---
+
+## 1. Principais Correções Pontuais no Código
+
+* **Adequação de Injeção de Dependências:**
+    * Correção no construtor de `EmpresaDAO`, garantindo a injeção explícita de `CompetenciaDAO` para gerenciamento atômico das competências da organização.
+    * Reestruturação do `GerenciadorDePerfisService` para receber seus DAOs e sub-serviços (`GerenciadorDeVagasService`) via construtor, eliminando dependências estáticas ocultas ou inicializações acopladas.
+* **Consistência de Retorno e Exceções de Domínio:**
+    * Correção no tratamento de integridade de regras de negócio em `processarPossivelMatch`: agora lança adequadamente `IllegalStateException` quando um match duplicado é detectado, impedindo escritas redundantes.
+* **Tratamento de I/O e Conversão de Tipos nos Commands:**
+    * Tratamento defensivo de parsing numérico (`NumberFormatException`) para inputs de usuário em opções de menu, IDs e idade, evitando que falhas de digitação quebrem o fluxo do terminal.
+    * Sanitização de entradas em lote com `.split(",").collect { it.trim() }` para cadastro e atualização de competências.
+* **Cobertura Abrangente de Testes Automatizados (Spock):**
+    * Criação de especificações unitárias para a camada de comandos (`CommandPattern`), isolando interações de I/O via simulação de `Scanner` e mockando chamadas dos Controllers.
+    * Correção dos testes de integração de DAOs (`VagaDAOSpec` e `VagaCompetenciaDAOSpec`) com isolamento por ambiente e blocos `cleanup:` explícitos para limpeza no PostgreSQL.
+
+---
+
+## 2. Ganhos Arquiteturais com o MVC
+
+* **Desacoplamento Rigoroso entre Visão e Negócio:**
+    * A camada de apresentação (View / CLI Commands) foi restrita à captura de entradas do usuário e renderização de saídas no console. Nenhuma regra de banco de dados ou cálculo de match reside mais dentro dos comandos.
+* **Centralização das Ações nos Controllers:**
+    * As classes Controller atuam agora como fronteiras claras da aplicação, recebendo os modelos da View, validando os dados, acionando os Services correspondentes e devolvendo estruturas padronizadas de resposta (`status` e `dados/mensagem`).
+* **Preservação e Integridade da Camada Model:**
+    * As entidades (`Candidato`, `Empresa`, `Vaga`) tornaram-se modelos de dados puros, com persistência delegada aos DAOs e orquestração controlada pelos Services, eliminando lógica dispersa.
+* **Alta Testabilidade e Manutenibilidade:**
+    * A separação de responsabilidades viabilizou o isolamento completo de cada camada com o Spock Framework: comandos são testados mockando controllers, controllers são testados mockando services, e DAOs são validados com base em transações reais ou conexões isoladas.
 
 👤 Autor
 
