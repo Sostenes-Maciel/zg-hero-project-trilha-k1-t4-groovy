@@ -87,9 +87,6 @@ class GerenciadorDePerfisService {
         empresaDAO.excluir(cnpj)
     }
 
-    List<String> listarCompetenciasDoCandidato(Candidato candidato) {
-        return competenciaDAO.listarDoCandidato(candidato.cpf)
-    }
 
     void adicionarCompetenciaAoCandidato(Candidato candidato, String competencia) {
         competenciaDAO.garantirCompetencia(competencia)
@@ -100,9 +97,6 @@ class GerenciadorDePerfisService {
         competenciaDAO.removerDoCandidato(candidato.cpf, competencia)
     }
 
-    List<String> listarCompetenciasDaEmpresa(Empresa empresa) {
-        return competenciaDAO.listarDaEmpresa(empresa.cnpj)
-    }
 
     void adicionarCompetenciaAEmpresa(Empresa empresa, String competencia) {
         competenciaDAO.garantirCompetencia(competencia)
@@ -114,20 +108,29 @@ class GerenciadorDePerfisService {
     }
 
     boolean curtirVaga(String cpfCandidato, Vaga vaga) {
+        if (curtidaDAO.jaCurtiuVaga(cpfCandidato, vaga.id)) {
+            throw new IllegalStateException("Você já curtiu esta vaga!")
+        }
+
         curtidaDAO.registrarCurtidaCandidato(cpfCandidato, vaga.id)
         return processarPossivelMatch(cpfCandidato, vaga.empresa.cnpj, vaga.id)
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
+        if (curtidaDAO.jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) {
+            throw new IllegalStateException("Sua empresa já curtiu este candidato!")
+        }
+
         curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa)
         return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
     }
 
     boolean processarPossivelMatch(String cpf, String cnpj, int vagaId) {
         if (curtidaDAO.verificarMatch(cpf, cnpj, vagaId)) {
-            if (!matchDAO.existeMatch(cpf, cnpj, vagaId)) {
-                matchDAO.registrarMatch(cpf, cnpj, vagaId)
+            if (matchDAO.existeMatch(cpf, cnpj, vagaId)) {
+                throw new IllegalStateException("Atenção: Vocês já deram Match anteriormente!")
             }
+            matchDAO.registrarMatch(cpf, cnpj, vagaId)
             return true
         }
         return false

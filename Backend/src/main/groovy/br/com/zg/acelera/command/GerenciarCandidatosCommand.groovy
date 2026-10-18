@@ -64,7 +64,7 @@ class GerenciarCandidatosCommand implements ICommand {
 
             opcao = lerOpcaoInt(sc)
 
-            if (opcao == 5) {
+            if (opcao == 6) {
                 println "Voltando..."
                 break
             }
@@ -72,7 +72,7 @@ class GerenciarCandidatosCommand implements ICommand {
             ICommand comando = acoesCandidato.get(opcao)
             if (comando != null) {
                 comando.executar()
-                if (opcao == 6) break
+                if (opcao == 5) break
             } else {
                 println "Opção inválida."
             }

@@ -19,6 +19,8 @@ class MatchController {
             boolean deuMatch = perfilService.curtirVaga(cpfCandidato, vaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Vaga curtida com sucesso!"
             return [status: 201, mensagem: msg, match: deuMatch]
+        } catch (IllegalStateException e) {
+            return [status: 400, mensagem: e.message]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao registrar curtida: ${e.message}"]
         }
@@ -29,6 +31,8 @@ class MatchController {
             boolean deuMatch = perfilService.curtirCandidato(cnpjEmpresa, cpfCandidato, idVaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Candidato curtido com sucesso!"
             return [status: 201, mensagem: msg, match: deuMatch]
+        } catch (IllegalStateException e) {
+            return [status: 400, mensagem: e.message]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao registrar curtida: ${e.message}"]
         }

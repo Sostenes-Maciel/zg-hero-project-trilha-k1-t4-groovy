@@ -16,12 +16,20 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
-    void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga) {
+    boolean jaCurtiuVaga(String cpfCandidato, Integer idVaga) {
         String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND id_vaga = ? AND cnpj_empresa IS NULL"
+        return executarQueryBooleana(sqlVerificar, [cpfCandidato, idVaga])
+    }
 
-        if (executarQueryBooleana(sqlVerificar, [cpfCandidato, idVaga])) {
-            return
-        }
+    @Override
+    boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato) {
+        String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga IS NULL"
+        return executarQueryBooleana(sqlVerificar, [cpfCandidato, cnpjEmpresa])
+    }
+
+    @Override
+    void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga) {
+        if (jaCurtiuVaga(cpfCandidato, idVaga)) return
 
         String sqlInserir = "INSERT INTO curtida (cpf_candidato, id_vaga) VALUES (?, ?)"
         executarUpdate(sqlInserir, [cpfCandidato, idVaga])
@@ -29,11 +37,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
 
     @Override
     void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa) {
-        String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga IS NULL"
-
-        if (executarQueryBooleana(sqlVerificar, [cpfCandidato, cnpjEmpresa])) {
-            return
-        }
+        if (jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) return
 
         String sqlInserir = "INSERT INTO curtida (cpf_candidato, cnpj_empresa) VALUES (?, ?)"
         executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa])

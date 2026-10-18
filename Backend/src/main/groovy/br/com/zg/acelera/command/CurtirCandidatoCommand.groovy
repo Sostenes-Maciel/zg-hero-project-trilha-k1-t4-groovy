@@ -13,10 +13,10 @@ class CurtirCandidatoCommand implements ICommand {
     private final CandidatoController candidatoController
     private final VagaController vagaController
     private final MatchController matchController
-    private final Scanner sc
+    private final Object sc
     private final Empresa empresa
 
-    CurtirCandidatoCommand(CandidatoController candidatoController, VagaController vagaController, MatchController matchController, Scanner sc, Empresa empresa) {
+    CurtirCandidatoCommand(CandidatoController candidatoController, VagaController vagaController, MatchController matchController, Object sc, Empresa empresa) {
         this.candidatoController = candidatoController
         this.vagaController = vagaController
         this.matchController = matchController
@@ -26,54 +26,89 @@ class CurtirCandidatoCommand implements ICommand {
 
     @Override
     void executar() {
-        def respCandidatos = candidatoController.listar()
-        if (respCandidatos.status != 200 || !respCandidatos.dados) {
-            println "Nenhum candidato disponível no momento."
-            return
+        println "\n--- CANDIDATOS DISPONÍVEIS (MODO ANÔNIMO) ---"
+
+        try {
+            def respCandidatos = candidatoController.listar()
+            if (respCandidatos.status != 200 || !respCandidatos.dados) {
+                println "Nenhum candidato disponível no momento."
+                return
+            }
+
+            List<Candidato> candidatos = respCandidatos.dados as List<Candidato>
+
+            candidatos.eachWithIndex { c, i ->
+                println "[Opção ${i + 1}] - Perfil Profissional"
+                println "   Local: ${c.estado ?: 'N/A'}"
+                println "   Competências: ${c.competencias ?: 'N/A'}"
+                println "   Descrição: ${c.descricao ?: 'N/A'}"
+                println "------------------------------------------------"
+            }
+
+            print "Selecione o número do candidato para curtir (ou 0 para cancelar): "
+            String inputCandidato = sc.nextLine().trim()
+
+            if (!inputCandidato.isInteger()) {
+                throw new IllegalArgumentException("Opção inválida. Digite um número.")
+            }
+
+            int opcaoCandidato = inputCandidato.toInteger()
+
+            if (opcaoCandidato == 0) {
+                println "Operação cancelada."
+                return
+            }
+
+            int idxCandidato = opcaoCandidato - 1
+
+            if (idxCandidato < 0 || idxCandidato >= candidatos.size()) {
+                throw new IllegalArgumentException("Número de candidato inexistente.")
+            }
+
+            Candidato candidatoSelecionado = candidatos[idxCandidato]
+
+            def respVagas = vagaController.listarDaEmpresa(empresa.cnpj)
+            if (respVagas.status != 200 || !respVagas.dados) {
+                throw new IllegalStateException("Você precisa cadastrar vagas antes de curtir um candidato.")
+            }
+
+            List<Vaga> vagas = respVagas.dados as List<Vaga>
+            if (!vagas) {
+                throw new IllegalStateException("Você precisa cadastrar vagas antes de curtir um candidato.")
+            }
+
+            println "\n--- PARA QUAL VAGA? ---"
+            vagas.eachWithIndex { v, i -> println "[Opção ${i + 1}] - ID: ${v.id} | ${v.titulo}" }
+            print "Selecione o número da vaga (ou 0 para cancelar): "
+
+            String inputVaga = sc.nextLine().trim()
+
+            if (!inputVaga.isInteger()) {
+                throw new IllegalArgumentException("Opção de vaga inválida. Digite um número.")
+            }
+
+            int opcaoVaga = inputVaga.toInteger()
+
+            if (opcaoVaga == 0) {
+                println "Operação cancelada."
+                return
+            }
+
+            int idxVaga = opcaoVaga - 1
+
+            if (idxVaga < 0 || idxVaga >= vagas.size()) {
+                throw new IllegalArgumentException("Número de vaga inexistente.")
+            }
+
+            Vaga vagaSelecionada = vagas[idxVaga]
+
+            def respostaMatch = matchController.curtirCandidato(empresa.cnpj, candidatoSelecionado.cpf, vagaSelecionada.id)
+            println "\n[${respostaMatch.status}] - ${respostaMatch.mensagem}"
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            println "\n[Atenção]: ${e.message}"
+        } catch (Exception e) {
+            println "\n[Erro Crítico]: Ocorreu um problema inesperado - ${e.message}"
         }
-
-        println "\n--- CANDIDATOS DISPONÍVEIS ---"
-        List<Candidato> candidatos = respCandidatos.dados as List<Candidato>
-        candidatos.eachWithIndex { c, i -> println "${i + 1} - (Competências: ${c.competencias})" }
-        print "Selecione o número do candidato para curtir (ou 0 para cancelar): "
-
-        int idxCandidato = lerOpcaoInt(sc) - 1
-        if (idxCandidato == -1) return
-        if (idxCandidato < 0 || idxCandidato >= candidatos.size()) {
-            println "Opção inválida."
-            return
-        }
-        Candidato candidato = candidatos[idxCandidato]
-
-        def respVagas = vagaController.listarDaEmpresa(empresa.cnpj)
-        if (respVagas.status != 200 || !respVagas.dados) {
-            println "Você precisa cadastrar vagas antes de curtir um candidato."
-            return
-        }
-
-        println "\n--- PARA QUAL VAGA? ---"
-        List<Vaga> vagas = respVagas.dados as List<Vaga>
-        vagas.eachWithIndex { v, i -> println "${i + 1} - ID: ${v.id} | ${v.titulo}" }
-        print "Selecione o número da vaga: "
-
-        int idxVaga = lerOpcaoInt(sc) - 1
-        if (idxVaga < 0 || idxVaga >= vagas.size()) {
-            println "Opção de vaga inválida."
-            return
-        }
-        Vaga vagaSelecionada = vagas[idxVaga]
-
-        def respostaMatch = matchController.curtirCandidato(empresa.cnpj, candidato.cpf, vagaSelecionada.id)
-        println "\n[${respostaMatch.status}] - ${respostaMatch.mensagem}"
-    }
-
-    private static int lerOpcaoInt(Scanner sc) {
-        if (!sc.hasNextInt()) {
-            sc.nextLine()
-            return -1
-        }
-        int op = sc.nextInt()
-        sc.nextLine()
-        return op
     }
 }

@@ -77,7 +77,7 @@ class GerenciarEmpresasCommand implements ICommand {
             ICommand comando = acoesEmpresa.get(opcao)
             if (comando != null) {
                 comando.executar()
-                if (opcao == 8) break
+                if (opcao == 6) break
             } else {
                 println "Opção inválida."
             }
