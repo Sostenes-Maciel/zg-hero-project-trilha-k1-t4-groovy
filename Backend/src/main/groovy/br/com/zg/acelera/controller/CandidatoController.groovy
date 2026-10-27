@@ -16,9 +16,9 @@ class CandidatoController {
             perfilService.cadastrarCandidato(candidato)
             return [status: 201, mensagem: "Candidato cadastrado com sucesso!"]
         } catch (IllegalArgumentException e) {
-            return [status: 400, mensagem: "Erro de validação: ${e.message}"]
+            return [status: 400, mensagem: "Erro de validação: ${e.message}".toString()]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro interno: ${e.message}"]
+            return [status: 500, mensagem: "Erro interno: ${e.message}".toString()]
         }
     }
 
@@ -27,7 +27,7 @@ class CandidatoController {
             List<Candidato> candidatos = perfilService.listarCandidatos()
             return [status: 200, dados: candidatos]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao listar candidatos: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao listar candidatos: ${e.message}".toString()]
         }
     }
 
@@ -36,9 +36,9 @@ class CandidatoController {
             perfilService.atualizarCandidato(candidato)
             return [status: 200, mensagem: "Candidato atualizado com sucesso!"]
         } catch (IllegalArgumentException e) {
-            return [status: 400, mensagem: "Erro de validação: ${e.message}"]
+            return [status: 400, mensagem: "Erro de validação: ${e.message}".toString()]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro interno: ${e.message}"]
+            return [status: 500, mensagem: "Erro interno: ${e.message}".toString()]
         }
     }
 
@@ -47,9 +47,10 @@ class CandidatoController {
             perfilService.excluirCandidato(cpf)
             return [status: 200, mensagem: "Candidato excluído com sucesso!"]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao excluir candidato: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao excluir candidato: ${e.message}".toString()]
         }
     }
+
     void adicionarCompetencia(Candidato candidato, String competencia) {
         perfilService.adicionarCompetenciaAoCandidato(candidato, competencia)
     }

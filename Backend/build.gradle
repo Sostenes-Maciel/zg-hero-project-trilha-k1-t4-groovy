@@ -1,5 +1,7 @@
 plugins {
     id 'groovy'
+    id 'war'
+    id 'org.gretty' version '4.1.10'
 }
 
 group = 'com.zg.acelera'
@@ -11,16 +13,22 @@ repositories {
 
 dependencies {
     implementation 'org.apache.groovy:groovy:5.1.1'
+    implementation 'org.postgresql:postgresql:42.7.14'
+
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
 
     testImplementation 'org.spockframework:spock-core:2.4-groovy-5.0'
     testImplementation 'net.bytebuddy:byte-buddy:1.14.10'
     testImplementation 'org.objenesis:objenesis:3.3'
-
-    implementation 'org.postgresql:postgresql:42.7.14'
-
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+gretty {
+    servletContainer = 'tomcat10'
+    contextPath = '/'
 }
 
 test {

@@ -5,6 +5,8 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
+import groovy.transform.CompileStatic
+
 class ConexaoPostgres implements IConexao {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/LinkeTinder_BD"
@@ -23,9 +25,12 @@ class ConexaoPostgres implements IConexao {
         return instancia
     }
 
-    @Override
+    @CompileStatic
     Connection conectar() throws SQLException {
         try {
+
+            Class.forName("org.postgresql.Driver")
+
             if (conexaoAberta == null || conexaoAberta.isClosed()) {
                 conexaoAberta = DriverManager.getConnection(URL, USUARIO, SENHA)
             }

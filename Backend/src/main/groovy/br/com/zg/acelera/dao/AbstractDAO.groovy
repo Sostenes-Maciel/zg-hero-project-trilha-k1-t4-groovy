@@ -26,6 +26,7 @@ abstract class AbstractDAO<T> {
 
             stmt.executeUpdate()
         } catch (Exception e) {
+            e.printStackTrace()
             throw new RuntimeException("Falha ao executar query", e)
         } finally {
             if (stmt != null) stmt.close()
