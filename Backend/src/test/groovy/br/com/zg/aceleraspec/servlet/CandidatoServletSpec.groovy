@@ -52,4 +52,47 @@ class CandidatoServletSpec extends Specification {
         and: "A resposta final deve conter a mensagem esperada"
         stringWriter.toString().contains("Candidato cadastrado com sucesso!")
     }
+    def "deve retornar status 400 quando os dados do candidato falharem na validacao"() {
+        given: "Um JSON com CPF incompleto vindo da requisição"
+        String jsonRequest = '{"nome":"Douglas", "cpf":"123"}' // CPF inválido
+        BufferedReader reader = new BufferedReader(new StringReader(jsonRequest))
+
+        when: "O Servlet processa a requisição"
+        servlet.doPost(requestMock, responseMock)
+
+        then: "Deve ler o corpo e repassar ao controller"
+        1 * requestMock.getReader() >> reader
+
+        and: "O controller barra a operação retornando status 400"
+        1 * controllerMock.cadastrar(_) >> [status: 400, mensagem: "Erro de validação: CPF deve conter 11 números."]
+
+        and: "O Servlet deve configurar o response com HTTP 400 Bad Request"
+        1 * responseMock.setContentType("application/json")
+        1 * responseMock.setCharacterEncoding("UTF-8")
+        1 * responseMock.setStatus(400)
+        1 * responseMock.getWriter() >> printWriter
+
+        and: "A mensagem de erro deve estar no JSON de resposta"
+        stringWriter.toString().contains("Erro de validação: CPF deve conter 11 números.")
+    }
+
+    def "deve retornar status 500 quando ocorrer um erro interno no servidor"() {
+        given: "Um JSON válido"
+        String jsonRequest = '{"nome":"Douglas", "cpf":"09876543211"}'
+        BufferedReader reader = new BufferedReader(new StringReader(jsonRequest))
+
+        when: "O Servlet processa a requisição"
+        servlet.doPost(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getReader() >> reader
+
+        and: "O controller simula uma falha grave (ex: banco fora do ar) retornando 500"
+        1 * controllerMock.cadastrar(_) >> [status: 500, mensagem: "Erro interno: Falha de conexão"]
+
+        and: "O Servlet deve devolver HTTP 500 Internal Server Error"
+        1 * responseMock.setStatus(500)
+        1 * responseMock.getWriter() >> printWriter
+        stringWriter.toString().contains("Erro interno: Falha de conexão")
+    }
 }
