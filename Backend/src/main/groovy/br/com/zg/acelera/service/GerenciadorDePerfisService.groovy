@@ -59,6 +59,14 @@ class GerenciadorDePerfisService {
         return empresaDAO.listarTodos()
     }
 
+    Candidato buscarCandidatoPorCpf(String cpf) {
+        return candidatoDAO.buscarPorId(cpf)
+    }
+
+    Empresa buscarEmpresaPorCnpj(String cnpj) {
+        return empresaDAO.buscarPorId(cnpj)
+    }
+
     void atualizarCandidato(Candidato candidato) {
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)

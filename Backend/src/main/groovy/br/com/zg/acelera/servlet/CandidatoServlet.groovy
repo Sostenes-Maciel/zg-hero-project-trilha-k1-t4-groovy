@@ -74,4 +74,82 @@ class CandidatoServlet extends HttpServlet {
             response.getWriter().write(gson.toJson([status: 400, mensagem: "Erro ao processar o JSON: ${e.message}"]))
         }
     }
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+
+        try {
+            String cpfParam = req.getParameter("cpf")
+
+            if (cpfParam != null && !cpfParam.trim().isEmpty()) {
+                def candidato = candidatoController.buscarPorCpf(cpfParam)
+
+                if (candidato) {
+                    resp.setStatus(200)
+                    resp.getWriter().write(gson.toJson(candidato))
+                } else {
+                    resp.setStatus(404)
+                    def erro = [status: 404, mensagem: "Candidato não encontrado."]
+                    resp.getWriter().write(gson.toJson(erro))
+                }
+            } else {
+                def listaCandidatos = candidatoController.listar()
+
+                resp.setStatus(200) /
+                resp.getWriter().write(gson.toJson(listaCandidatos))
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace()
+            resp.setStatus(500)
+            def erro = [status: 500, mensagem: "Erro interno: ${e.message}".toString()]
+            resp.getWriter().write(gson.toJson(erro))
+        }
+    }
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        configurarResposta(resp)
+        try {
+            BufferedReader reader = req.getReader()
+            Candidato candidatoAtualizado = gson.fromJson(reader, Candidato.class)
+
+            Map resultado = candidatoController.atualizar(candidatoAtualizado)
+            enviarResposta(resp, resultado)
+
+        } catch (Exception e) {
+            e.printStackTrace()
+            enviarResposta(resp, [status: 500, mensagem: "Erro interno: ${e.message}".toString()])
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        configurarResposta(resp)
+        try {
+            String cpf = req.getParameter("cpf")
+
+            if (cpf == null || cpf.trim().isEmpty()) {
+                enviarResposta(resp, [status: 400, mensagem: "O CPF é obrigatório para exclusão."])
+                return
+            }
+
+            Map resultado = candidatoController.excluir(cpf)
+            enviarResposta(resp, resultado)
+
+        } catch (Exception e) {
+            e.printStackTrace()
+            enviarResposta(resp, [status: 500, mensagem: "Erro interno: ${e.message}".toString()])
+        }
+    }
+
+    private static void configurarResposta(HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+    }
+
+    private void enviarResposta(HttpServletResponse resp, Map resultado) {
+        resp.setStatus(resultado.status as int)
+        resp.getWriter().write(gson.toJson(resultado))
+    }
 }

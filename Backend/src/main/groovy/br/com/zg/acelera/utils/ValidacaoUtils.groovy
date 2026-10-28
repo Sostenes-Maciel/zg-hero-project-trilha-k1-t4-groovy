@@ -11,4 +11,8 @@ class ValidacaoUtils {
 
         return limpo
     }
+
+    static String limparFormatacao(String valor) {
+        return valor ? valor.replaceAll(/\D/, "") : ""
+    }
 }

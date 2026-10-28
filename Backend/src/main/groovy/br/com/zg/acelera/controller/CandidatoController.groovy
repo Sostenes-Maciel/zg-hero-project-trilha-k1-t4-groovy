@@ -2,6 +2,7 @@ package br.com.zg.acelera.controller
 
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.utils.ValidacaoUtils
 
 class CandidatoController {
 
@@ -57,5 +58,20 @@ class CandidatoController {
 
     void removerCompetencia(Candidato candidato, String competencia) {
         perfilService.removerCompetenciaDoCandidato(candidato, competencia)
+    }
+
+    Map buscarPorCpf(String cpf) {
+        try {
+            String cpfLimpo = ValidacaoUtils.limparFormatacao(cpf)
+            Candidato candidato = perfilService.buscarCandidatoPorCpf(cpfLimpo)
+
+            if (candidato) {
+                return [status: 200, dados: candidato]
+            } else {
+                return [status: 404, mensagem: "Candidato não encontrado."]
+            }
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar candidato: ${e.message}".toString()]
+        }
     }
 }
