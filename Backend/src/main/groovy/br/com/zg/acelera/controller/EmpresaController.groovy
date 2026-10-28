@@ -2,6 +2,8 @@ package br.com.zg.acelera.controller
 
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.utils.ValidacaoUtils
+
 
 class EmpresaController {
 
@@ -56,5 +58,19 @@ class EmpresaController {
 
     void removerCompetencia(Empresa empresa, String competencia) {
         perfilService.removerCompetenciaDaEmpresa(empresa, competencia)
+    }
+    Map buscarPorCnpj(String cnpj) {
+        try {
+            String cnpjLimpo = ValidacaoUtils.limparFormatacao(cnpj)
+            Empresa empresa = perfilService.buscarEmpresaPorCnpj(cnpjLimpo)
+
+            if (empresa) {
+                return [status: 200, dados: empresa]
+            } else {
+                return [status: 404, mensagem: "Empresa não encontrada."]
+            }
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar empresa: ${e.message}".toString()]
+        }
     }
 }

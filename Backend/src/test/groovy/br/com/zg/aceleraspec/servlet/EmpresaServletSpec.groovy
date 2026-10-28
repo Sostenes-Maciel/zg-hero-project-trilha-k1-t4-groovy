@@ -90,4 +90,112 @@ class EmpresaServletSpec extends Specification {
         and: "A resposta devolve a mensagem formatada pelo catch do próprio Servlet"
         stringWriter.toString().contains("Erro interno no Servlet: Conexão de rede interrompida")
     }
+    // --- TESTES DO GET ---
+    def "deve retornar 200 e listar todas as empresas quando não passar CNPJ"() {
+        when:
+        servlet.doGet(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getParameter("cnpj") >> null
+        1 * controllerMock.listar() >> [status: 200, dados: [[nome: "Veritas", cnpj: "12345678901234"]]]
+
+        and:
+        1 * responseMock.setStatus(200)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("Veritas")
+    }
+
+    def "deve retornar 200 e a empresa quando passar CNPJ valido no GET"() {
+        when:
+        servlet.doGet(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getParameter(_) >> "12345678901234"
+        1 * controllerMock.buscarPorCnpj(_) >> [status: 200, dados: [nome: "ZG Solucoes"]]
+
+        and:
+        1 * responseMock.setStatus(200)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("ZG Solucoes")
+    }
+
+    def "deve retornar 404 quando o CNPJ não for encontrado no GET"() {
+        when:
+        servlet.doGet(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getParameter(_) >> "00000000000000"
+        1 * controllerMock.buscarPorCnpj(_) >> null
+
+        and:
+        1 * responseMock.setStatus(404)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("Empresa não encontrada")
+    }
+
+    // --- TESTES DO PUT ---
+    def "deve retornar 200 ao atualizar empresa com sucesso no PUT"() {
+        given:
+        String jsonRequest = '{"nome":"Veritas Atualizada", "cnpj":"12345678901234", "pais":"Brasil"}'
+        BufferedReader reader = new BufferedReader(new StringReader(jsonRequest))
+
+        when:
+        servlet.doPut(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getReader() >> reader
+        1 * controllerMock.atualizar(_) >> [status: 200, mensagem: "Empresa atualizada com sucesso!"]
+
+        and:
+        1 * responseMock.setStatus(200)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("Empresa atualizada com sucesso!")
+    }
+
+    // --- TESTES DO DELETE ---
+    def "deve retornar 200 ao excluir empresa informando CNPJ no DELETE"() {
+        when:
+        servlet.doDelete(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getParameter(_) >> "12345678901234"
+        1 * controllerMock.excluir(_) >> [status: 200, mensagem: "Empresa excluída com sucesso!"]
+
+        and:
+        1 * responseMock.setStatus(200)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("Empresa excluída com sucesso!")
+    }
+
+    def "deve retornar 400 se tentar deletar sem informar CNPJ na URL"() {
+        when:
+        servlet.doDelete(requestMock, responseMock)
+
+        then:
+        1 * requestMock.getParameter("cnpj") >> null
+        0 * controllerMock.excluir(_)
+
+        and:
+        1 * responseMock.setStatus(400)
+        _ * responseMock.setContentType(_)
+        _ * responseMock.setCharacterEncoding(_)
+        _ * responseMock.getWriter() >> printWriter
+
+        stringWriter.toString().contains("O CNPJ é obrigatório para exclusão")
+    }
 }
