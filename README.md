@@ -306,6 +306,58 @@ Otimização: Resolução de warnings apontados por análise estática, remoçã
 * **Alta Testabilidade e Manutenibilidade:**
     * A separação de responsabilidades viabilizou o isolamento completo de cada camada com o Spock Framework: comandos são testados mockando controllers, controllers são testados mockando services, e DAOs são validados com base em transações reais ou conexões isoladas.
 
+# Atualização - Backend API REST
+
+API RESTful do projeto Linketinder
+
+## Recursos Utilizados
+
+* **Linguagem:** Groovy e Java
+* **Servidor de Aplicação:** Apache Tomcat
+* **Banco de Dados:** PostgreSQL (Driver JDBC puro)
+* **Manipulação de JSON:** biblioteca Gson (Google)
+* **Testes Unitários:** Spock Framework (BDD) e JUnit
+
+##  Estratégia e Arquitetura
+
+Para suprir a ausência de frameworks mágicos, a arquitetura foi desenhada aplicando padrões de projeto clássicos:
+
+1. **Roteamento e Endpoints:** Utilização da anotação `@WebServlet("/api/...")` para mapeamento direto das rotas.
+2. **Injeção de Dependências (Manual):** O ciclo de vida do Servlet foi aproveitado sobrescrevendo o método `init()`. Nele, a conexão, DAOs, Services e Controllers são instanciados e encadeados manualmente (Inversão de Controle raiz).
+3. **Parse de Requisições:** A leitura dos payloads é feita processando os fluxos nativos `req.getReader()` com um `BufferedReader`, convertendo o texto puro para objetos da modelagem através do `Gson`.
+4. **Respostas HTTP:** Configuração manual dos cabeçalhos (`setContentType`, `setCharacterEncoding`) e definição explícita dos status codes (`200 OK`, `201 Created`, `400 Bad Request`).
+5. **Persistência (DAO):** Abstração das regras de SQL em classes DAO, utilizando transações manuais e o método `EXISTS` para consultas de alta performance no banco.
+
+## ▶️ Como Executar e Testar o Projeto
+
+A forma mais recomendada de rodar este projeto é utilizando a sua IDE (IntelliJ IDEA ou Eclipse) com um servidor Tomcat local configurado, e testar as rotas utilizando o Postman ou Insomnia.
+
+**Passo a passo no IntelliJ IDEA:**
+
+1. **Clone o repositório e abra o projeto:**
+   Faça o git clone e abra a pasta do projeto no IntelliJ. Deixe o Gradle sincronizar as dependências.
+
+2. **Configure o Servidor Tomcat Local:**
+  * No canto superior direito do IntelliJ, clique em **"Add Configuration"** (ou "Edit Configurations").
+  * Clique no botão **`+`** (Add New Configuration) e escolha **Tomcat Server -> Local**.
+  * Em "Application server", aponte para a pasta onde o Tomcat está instalado no seu computador.
+
+3. **Adicione o Projeto ao Servidor:**
+  * Ainda na tela de configuração do Tomcat, vá para a aba **Deployment**.
+  * Clique no botão **`+`** e selecione **Artifact**.
+  * Escolha a opção terminada em **`war exploded`** (ex: `linketinder:war exploded`).
+  * No campo **Application context** (logo abaixo), deixe apenas `/` para facilitar as URLs. Clique em Apply e OK.
+
+4. **Subir a Aplicação:**
+  * Clique no botão verde de **Play** (Run) ou **Debug**.
+  * O servidor Tomcat vai iniciar e a sua API estará rodando localmente.
+
+5. **Testando com o Postman:**
+  * Abra o Postman (ou Insomnia).
+  * Crie requisições apontando para o seu `localhost`.
+  * Exemplo de requisição GET: `http://localhost:8080/api/matches?cpf=11122233394`
+  * Exemplo de requisição POST (JSON) para a rota `http://localhost:8080/api/matches` para testar curtidas.
+
 👤 Autor
 
 Sóstenes Marques Maciel
