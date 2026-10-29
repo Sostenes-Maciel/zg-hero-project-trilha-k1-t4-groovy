@@ -88,19 +88,23 @@ class VagaServletSpec extends Specification {
     }
 
     def "deve retornar 200 e listar vagas da empresa quando passar CNPJ"() {
-        given:
-        _ * requestMock.getParameter(_) >> "12345678901234"
-        _ * controllerMock.listarDaEmpresa(_) >> [status: 200, dados: [[titulo: "Dev Backend", empresa: [cnpj: "12345678901234"]]]]
+        given: "Ensinamos ao Mock o que ele deve ter na URL e preparamos o Writer"
+        requestMock.getParameter("cnpj") >> "12345678901234"
+        requestMock.getParameter("cpf") >> null
+        requestMock.getParameter("id") >> null
 
-        when:
+        responseMock.getWriter() >> printWriter
+
+        and: "Simulamos o retorno do Controller"
+        controllerMock.listarDaEmpresa("12345678901234") >> [status: 200, dados: [[titulo: "Dev Backend", empresa: [cnpj: "12345678901234"]]]]
+
+        when: "O Servlet recebe o GET"
         servlet.doGet(requestMock, responseMock)
 
-        then:
+        then: "O status 200 deve ser setado exatamente 1 vez"
         1 * responseMock.setStatus(200)
-        _ * responseMock.setContentType(_)
-        _ * responseMock.setCharacterEncoding(_)
-        _ * responseMock.getWriter() >> printWriter
 
+        and: "O JSON resultante deve conter a vaga"
         stringWriter.toString().contains("Dev Backend")
     }
 

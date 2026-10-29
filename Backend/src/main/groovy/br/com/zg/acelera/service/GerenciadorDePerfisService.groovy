@@ -130,12 +130,18 @@ class GerenciadorDePerfisService {
     }
 
     boolean curtirVaga(String cpfCandidato, Vaga vaga) {
-        if (curtidaDAO.jaCurtiuVaga(cpfCandidato, vaga.id)) {
+        Vaga vagaCompleta = gerenciadorDeVagas.buscarVagaPorId(vaga.id)
+
+        if (vagaCompleta == null) {
+            throw new IllegalStateException("Vaga não encontrada com o ID informado.")
+        }
+
+        if (curtidaDAO.jaCurtiuVaga(cpfCandidato, vagaCompleta.id)) {
             throw new IllegalStateException("Você já curtiu esta vaga!")
         }
 
-        curtidaDAO.registrarCurtidaCandidato(cpfCandidato, vaga.id)
-        return processarPossivelMatch(cpfCandidato, vaga.empresa.cnpj, vaga.id)
+        curtidaDAO.registrarCurtidaCandidato(cpfCandidato, vagaCompleta.id)
+        return processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, vagaCompleta.id)
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {

@@ -4,6 +4,7 @@ import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.interfaces.ICurtidaDAO
 import java.sql.ResultSet
 
+
 class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
 
     CurtidaDAO(IConexao conexaoFactory) {

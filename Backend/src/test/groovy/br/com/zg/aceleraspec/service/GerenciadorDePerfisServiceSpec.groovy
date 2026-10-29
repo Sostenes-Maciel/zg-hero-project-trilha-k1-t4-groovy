@@ -110,13 +110,20 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         String cpf = "12345678901"
         Empresa empresa = new Empresa(cnpj: "12345678901234")
         Vaga vaga = new Vaga(id: 1, empresa: empresa)
-        curtidaDAOMock.verificarMatch(cpf, empresa.cnpj, vaga.id) >> false
 
         when:
         boolean deuMatch = service.curtirVaga(cpf, vaga)
 
         then:
+        1 * vagaServiceMock.buscarVagaPorId(vaga.id) >> vaga
+        1 * curtidaDAOMock.jaCurtiuVaga(cpf, vaga.id) >> false
         1 * curtidaDAOMock.registrarCurtidaCandidato(cpf, vaga.id)
-        deuMatch == false
+        1 * curtidaDAOMock.verificarMatch(cpf, empresa.cnpj, vaga.id) >> false
+
+        and: "Nenhum match deve ser registrado"
+        0 * matchDAOMock.registrarMatch(_, _, _)
+
+        and:
+        !deuMatch
     }
 }
