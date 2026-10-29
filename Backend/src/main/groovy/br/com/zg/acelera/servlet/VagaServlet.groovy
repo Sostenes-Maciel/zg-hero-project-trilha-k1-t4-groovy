@@ -51,12 +51,22 @@ class VagaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         configurarResposta(resp)
         try {
+            String idParam = req.getParameter("id")
             String cnpjParam = req.getParameter("cnpj")
             Map resultado
 
-            if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
+            if (idParam != null && !idParam.trim().isEmpty()) {
+                try {
+                    Integer id = Integer.parseInt(idParam)
+                    resultado = vagaController.buscarPorId(id)
+                } catch (NumberFormatException ignored) {
+                    resultado = [status: 400, mensagem: "O ID da vaga deve ser um número válido."]
+                }
+            }
+            else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
                 resultado = vagaController.listarDaEmpresa(cnpjParam)
-            } else {
+            }
+            else {
                 resultado = vagaController.listar()
             }
 

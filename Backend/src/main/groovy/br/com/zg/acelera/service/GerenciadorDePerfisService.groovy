@@ -37,7 +37,14 @@ class GerenciadorDePerfisService {
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
         ValidarCandidatoService.validarDescricao(candidato.descricao)
+
         candidatoDAO.cadastrar(candidato)
+
+        candidato.competencias?.each { String competencia ->
+            if (competencia?.trim()) {
+                adicionarCompetenciaAoCandidato(candidato, competencia.trim())
+            }
+        }
     }
 
     void cadastrarEmpresa(Empresa empresa) {
@@ -48,7 +55,14 @@ class GerenciadorDePerfisService {
         ValidarEmpresaService.validarEstado(empresa.estado)
         ValidarEmpresaService.validarCep(empresa.cep)
         ValidarEmpresaService.validarDescricao(empresa.descricao)
+
         empresaDAO.cadastrar(empresa)
+
+        empresa.competencias?.each { String competencia ->
+            if (competencia?.trim()) {
+                adicionarCompetenciaAEmpresa(empresa, competencia.trim())
+            }
+        }
     }
 
     List<Candidato> listarCandidatos() {

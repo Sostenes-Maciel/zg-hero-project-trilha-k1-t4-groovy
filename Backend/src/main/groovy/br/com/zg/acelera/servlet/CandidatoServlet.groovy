@@ -60,6 +60,7 @@ class CandidatoServlet extends HttpServlet {
 
         try {
             BufferedReader reader = request.getReader()
+            request.setCharacterEncoding("UTF-8")
 
             Candidato novoCandidato = gson.fromJson(reader, Candidato.class)
 

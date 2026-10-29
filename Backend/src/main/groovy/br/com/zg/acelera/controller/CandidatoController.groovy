@@ -3,10 +3,12 @@ package br.com.zg.acelera.controller
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import br.com.zg.acelera.utils.ValidacaoUtils
+import br.com.zg.acelera.dao.CompetenciaDAO
 
 class CandidatoController {
 
     private GerenciadorDePerfisService perfilService
+    private CompetenciaDAO competenciaDAO
 
     CandidatoController(GerenciadorDePerfisService perfilService) {
         this.perfilService = perfilService
@@ -15,6 +17,7 @@ class CandidatoController {
     Map cadastrar(Candidato candidato) {
         try {
             perfilService.cadastrarCandidato(candidato)
+
             return [status: 201, mensagem: "Candidato cadastrado com sucesso!"]
         } catch (IllegalArgumentException e) {
             return [status: 400, mensagem: "Erro de validação: ${e.message}".toString()]

@@ -46,6 +46,10 @@ class GerenciadorDeVagasService {
         return vagas
     }
 
+    Vaga buscarVagaPorId(Integer id) {
+        return vagaDAO.buscarPorId(id)
+    }
+
     Vaga buscarVaga(Integer id) {
         Vaga vaga = vagaDAO.buscarPorId(id)
 

@@ -55,4 +55,18 @@ class VagaController {
             return [status: 500, mensagem: "Erro ao excluir vaga: ${e.message}"]
         }
     }
+
+    Map buscarPorId(Integer id) {
+        try {
+            Vaga vaga = vagaService.buscarVagaPorId(id)
+
+            if (vaga != null) {
+                return [status: 200, dados: vaga]
+            } else {
+                return [status: 404, mensagem: "Vaga não encontrada."]
+            }
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar vaga: " + e.message]
+        }
+    }
 }
