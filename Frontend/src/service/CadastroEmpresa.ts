@@ -1,5 +1,4 @@
 import type { Empresa } from '../model/Empresa.ts'
-import { BancodeDados } from '../dao/BancodeDados.ts'
 import { ValidarEmpresa } from './ValidarEmpresa.ts'
 import {
     getCountries,
@@ -114,13 +113,13 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
 
 function configurarEventosFormulario(): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-empresa')
-    formulario?.addEventListener('submit', (evento) => {
+    formulario?.addEventListener('submit', async (evento) => {
         evento.preventDefault()
-        processarSubmissao(formulario)
+        await processarSubmissao(formulario)
     })
 }
 
-function processarSubmissao(formulario: HTMLFormElement): void {
+async function processarSubmissao(formulario: HTMLFormElement): Promise<void> {
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
 
@@ -132,15 +131,26 @@ function processarSubmissao(formulario: HTMLFormElement): void {
     try {
         const empresa = extrairEValidarDados(formulario, selectPais)
 
-        BancodeDados.cadastrarEmpresa(empresa)
-        console.log('Empresa cadastrada:', empresa)
+        const resposta = await fetch('http://localhost:8080/api/empresas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(empresa)
+        });
 
-        exibirMensagem(mensagem, 'Empresa cadastrada com sucesso!', 'mensagem-sucesso')
-        formulario.reset()
+        if (resposta.status === 201) {
+            console.log('Empresa cadastrada no banco real:', empresa)
+            exibirMensagem(mensagem, 'Empresa cadastrada com sucesso!', 'mensagem-sucesso')
+            formulario.reset()
+        } else {
+            const erroBackend = await resposta.json();
+            exibirMensagem(mensagem, "Erro: " + (erroBackend.mensagem || "Dados inválidos."), 'mensagem-erro')
+        }
 
     } catch (erro) {
         console.error('Erro ao cadastrar empresa:', erro)
-        const textoErro = erro instanceof Error ? erro.message : 'Não foi possível cadastrar a empresa. Tente novamente.'
+        const textoErro = erro instanceof Error ? erro.message : 'Servidor indisponível. Verifique se o Tomcat está rodando.'
         exibirMensagem(mensagem, textoErro, 'mensagem-erro')
     }
 }
