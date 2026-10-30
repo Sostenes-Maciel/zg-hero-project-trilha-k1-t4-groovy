@@ -163,4 +163,10 @@ class GerenciadorDePerfisService {
         }
         return false
     }
+    Candidato validarLoginCandidato(String email, String cpf) {
+        return candidatoDAO.validarLogin(email, cpf)
+    }
+    Empresa validarLoginEmpresa(String email, String cnpj) {
+        return empresaDAO.validarLogin(email, cnpj)
+    }
 }

@@ -73,4 +73,17 @@ class EmpresaController {
             return [status: 500, mensagem: "Erro ao buscar empresa: ${e.message}".toString()]
         }
     }
+    Map login(String email, String cnpj) {
+        try {
+            Empresa empresa = perfilService.validarLoginEmpresa(email, cnpj)
+
+            if (empresa) {
+                return [status: 200, empresa: empresa]
+            } else {
+                return [status: 401, mensagem: "E-mail ou CNPJ incorretos."]
+            }
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro interno no servidor."]
+        }
+    }
 }

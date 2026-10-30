@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 
-@WebServlet(name = "CandidatoServlet", urlPatterns = "/api/candidatos")
+@WebServlet(name = "CandidatoServlet", urlPatterns = ["/api/candidatos", "/api/candidatos/login"])
 class CandidatoServlet extends HttpServlet {
 
      CandidatoController candidatoController
@@ -55,25 +55,38 @@ class CandidatoServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json")
-        response.setCharacterEncoding("UTF-8")
+        configurarResposta(response)
+        String caminho = request.getServletPath()
 
         try {
-            BufferedReader reader = request.getReader()
-            request.setCharacterEncoding("UTF-8")
-
-            Candidato novoCandidato = gson.fromJson(reader, Candidato.class)
-
-            Map resultado = candidatoController.cadastrar(novoCandidato)
-
-            response.setStatus(resultado.status as int)
-
-            response.getWriter().write(gson.toJson(resultado))
-
+            if (caminho != null && caminho.endsWith("/login")) {
+                processarLogin(request, response)
+            } else {
+                processarCadastro(request, response)
+            }
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
-            response.getWriter().write(gson.toJson([status: 400, mensagem: "Erro ao processar o JSON: ${e.message}"]))
+            enviarResposta(response, [status: 400, mensagem: "Erro ao processar a requisição: ${e.message}".toString()])
         }
+    }
+
+    private void processarCadastro(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        BufferedReader reader = request.getReader()
+        request.setCharacterEncoding("UTF-8")
+        Candidato novoCandidato = gson.fromJson(reader, Candidato.class)
+        Map resultado = candidatoController.cadastrar(novoCandidato)
+        enviarResposta(response, resultado)
+    }
+
+    private void processarLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        BufferedReader reader = request.getReader()
+        request.setCharacterEncoding("UTF-8")
+        Map<String, String> credenciais = gson.fromJson(reader, Map.class)
+
+        String email = credenciais.get("email")
+        String cpf = credenciais.get("cpf")
+        Map resultado = candidatoController.login(email, cpf)
+
+        enviarResposta(response, resultado)
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -97,7 +110,7 @@ class CandidatoServlet extends HttpServlet {
             } else {
                 def listaCandidatos = candidatoController.listar()
 
-                resp.setStatus(200) /
+                resp.setStatus(200)
                 resp.getWriter().write(gson.toJson(listaCandidatos))
             }
 

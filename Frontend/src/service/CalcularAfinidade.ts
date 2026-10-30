@@ -14,8 +14,15 @@ export function calcularAfinidade(candidato: Candidato, empresa: Empresa): numbe
     return Math.round((competenciasEmComum / competenciasCandidato.size) * 100)
 }
 
-function normalizarCompetencias(competencias: string[]): Set<string> {
+function normalizarCompetencias(competencias: unknown): Set<string> {
+    if (!Array.isArray(competencias)) {
+        return new Set<string>()
+    }
+
     const arrayLimpo = competencias
+        .filter((competencia): competencia is string =>
+            typeof competencia === 'string'
+        )
         .map(competencia => competencia.trim().toLowerCase())
         .filter(competencia => competencia.length > 0)
 

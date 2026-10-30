@@ -1,14 +1,13 @@
-import { BancodeDados } from '../dao/BancodeDados'
 import { renderPerfilCandidato } from "./PerfilCandidato.ts"
 import { confirmarExclusao } from "../components/Confirmacao.ts"
+import type { Candidato } from '../model/Candidato'
 
-export function renderListaCandidatos(mensagemSucesso?: string): void {
+export async function renderListaCandidatos(mensagemSucesso?: string): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
     renderizarTabelaBase(app, mensagemSucesso)
-    renderizarLinhasCandidatos()
-    configurarEventosBotoes()
+    await renderizarLinhasCandidatos()
 }
 
 function renderizarTabelaBase(app: HTMLDivElement, mensagemSucesso?: string): void {
@@ -29,50 +28,62 @@ function renderizarTabelaBase(app: HTMLDivElement, mensagemSucesso?: string): vo
                     </tr>
                 </thead>
                 <tbody id="lista-candidatos">
-                    <!-- Linhas injetadas via JavaScript -->
+                    <tr><td colspan="4">Carregando candidatos...</td></tr>
                 </tbody>
             </table>
         </section>
     `
 }
 
-function renderizarLinhasCandidatos(): void {
+async function renderizarLinhasCandidatos(): Promise<void> {
     const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos')
     if (!lista) return
 
-    const candidatos = BancodeDados.candidatos
+    try {
+        const resposta = await fetch('http://localhost:8080/api/candidatos')
 
-    if (candidatos.length === 0) {
-        lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Nenhum candidato cadastrado.</td></tr>'
-        return
+        if (!resposta.ok) {
+            lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Erro ao carregar os candidatos do servidor.</td></tr>'
+            return
+        }
+
+        const dadosDoServidor = await resposta.json()
+
+        const candidatos: Candidato[] = dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+        console.log("Chegou do backend:", candidatos)
+
+        if (!Array.isArray(candidatos) || candidatos.length === 0) {
+            lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Nenhum candidato encontrado.</td></tr>'
+            return
+        }
+
+        lista.innerHTML = ''
+
+        candidatos.forEach(candidato => {
+            const linha = document.createElement('tr')
+
+            linha.innerHTML = `
+                <td class="nome-hover" data-email="${candidato.email}" data-descricao="${candidato.descricao}">
+                    ${candidato.nome}
+                </td>
+                <td>${candidato.estado}</td>
+                <td>${candidato.competencias.join(', ')}</td>
+                <td>
+                    <button class="btn-perfil" data-cpf="${candidato.cpf}">Ver perfil</button>
+                    <button class="btn-excluir" data-cpf="${candidato.cpf}">Excluir</button>
+                </td>
+            `
+            lista.appendChild(linha)
+        })
+
+
+        configurarEventosBotoes()
+
+    } catch (erro) {
+        lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Falha na conexão com o servidor.</td></tr>'
+        console.error("Erro na API:", erro)
     }
-
-    candidatos.forEach(candidato => {
-        const linha = document.createElement('tr')
-
-        linha.innerHTML = `
-            <td
-                class="nome-hover"
-                data-email="${candidato.email}"
-                data-descricao="${candidato.descricao}"
-            >
-                ${candidato.nome}
-            </td>
-            <td>${candidato.estado}</td>
-            <td>${candidato.competencias.join(', ')}</td>
-            <td>
-                <button class="btn-perfil" data-cpf="${candidato.cpf}">
-                    Ver perfil
-                </button>
-                <button class="btn-excluir" data-cpf="${candidato.cpf}">
-                    Excluir
-                </button>
-            </td>
-        `
-        lista.appendChild(linha)
-    })
 }
-
 
 function configurarEventosBotoes(): void {
     const botoesPerfil = document.querySelectorAll<HTMLButtonElement>('.btn-perfil')
@@ -87,16 +98,21 @@ function configurarEventosBotoes(): void {
     })
 }
 
-function abrirPerfil(cpf?: string): void {
+async function abrirPerfil(cpf?: string): Promise<void> {
     if (!cpf) return
 
-    const candidato = BancodeDados.candidatos.find(c => c.cpf === cpf)
-    if (!candidato) {
-        console.error('Candidato não encontrado.')
-        return
-    }
+    try {
+        const resposta = await fetch(`http://localhost:8080/api/candidatos?cpf=${cpf}`)
 
-    renderPerfilCandidato(candidato)
+        if (resposta.ok) {
+            const candidato: Candidato = await resposta.json()
+            renderPerfilCandidato(candidato)
+        } else {
+            console.error('Candidato não encontrado no banco.')
+        }
+    } catch (erro) {
+        console.error('Erro de conexão ao abrir perfil:', erro)
+    }
 }
 
 async function processarExclusao(cpf?: string): Promise<void> {
@@ -113,12 +129,19 @@ async function processarExclusao(cpf?: string): Promise<void> {
     if (!confirmar) return
 
     try {
-          BancodeDados.excluirCandidato(cpf)
+        const resposta = await fetch(`http://localhost:8080/api/candidatos?cpf=${cpf}`, {
+            method: 'DELETE'
+        })
 
-        renderListaCandidatos('Candidato excluído com sucesso!')
+        if (resposta.ok) {
+            renderListaCandidatos('Candidato excluído com sucesso do banco de dados!')
+        } else {
+            const erroApi = await resposta.json()
+            window.alert(`Erro do Servidor: ${erroApi.mensagem}`)
+        }
 
     } catch (erro) {
         console.error('Erro ao excluir candidato:', erro)
-        window.alert('Não foi possível excluir o candidato. Tente novamente.')
+        window.alert('Não foi possível excluir o candidato. Servidor offline.')
     }
 }

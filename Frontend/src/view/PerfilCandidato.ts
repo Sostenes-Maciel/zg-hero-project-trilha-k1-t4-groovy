@@ -1,5 +1,4 @@
 import type { Candidato } from '../model/Candidato'
-import { renderListaCandidatos } from "./ListaCandidatos.ts"
 import { renderListaVagas } from "./ListaVagas.ts"
 import { renderListaMatchesCandidato } from "./ListaMatchesCandidato.ts"
 
@@ -35,22 +34,18 @@ function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): vo
             </div>
 
             <div class="acoes-perfil">
-                <button id="voltar-candidatos">Voltar</button>
                 <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
                 <button id="btn-meus-matches">Meus Matches</button>
+                <button type="button" id="btn-sair-perfil">Sair</button>
             </div>
         </section>
     `
 }
 
 function configurarEventosNavegacao(candidato: Candidato): void {
-    const botaoVoltar = document.querySelector<HTMLButtonElement>('#voltar-candidatos')
     const botaoVagas = document.querySelector<HTMLButtonElement>('#btn-vagas-disponiveis')
     const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
-
-    botaoVoltar?.addEventListener('click', () => {
-        renderListaCandidatos()
-    })
+    const botaoSair = document.querySelector<HTMLButtonElement>('#btn-sair-perfil')
 
     botaoVagas?.addEventListener('click', () => {
         renderListaVagas(() => {
@@ -63,4 +58,17 @@ function configurarEventosNavegacao(candidato: Candidato): void {
             renderPerfilCandidato(candidato)
         })
     })
-}
+
+    botaoSair?.addEventListener('click', (evento) => {
+            evento.preventDefault()
+
+            localStorage.removeItem('usuarioLogado')
+            localStorage.removeItem('tipoUsuario')
+
+            // Atualiza o botão Login do menu
+            window.dispatchEvent(new Event('auth-change'))
+
+            // Avisa ao menu para abrir a tela de login
+            window.dispatchEvent(new Event('app:logout'))
+        })
+    }

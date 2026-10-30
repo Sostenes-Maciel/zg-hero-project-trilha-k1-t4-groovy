@@ -87,4 +87,19 @@ class CandidatoDAO extends AbstractDAO<Candidato> implements ICandidatoDAO {
         String sql = "DELETE FROM candidato WHERE cpf = ?"
         executarUpdate(sql, [cpf])
     }
+
+    @Override
+    Candidato validarLogin(String email, String cpf) {
+        String sql = "SELECT cpf, nome, email, pais, estado, cep, descricao, idade FROM candidato WHERE email = ? AND cpf = ?"
+        List<Candidato> resultados = executarQuery(sql, [email, cpf])
+
+        if (resultados.isEmpty()) {
+            return null
+        }
+
+        Candidato candidato = resultados[0]
+        candidato.competencias = competenciaDAO.listarDoCandidato(candidato.cpf)
+
+        return candidato
+    }
 }

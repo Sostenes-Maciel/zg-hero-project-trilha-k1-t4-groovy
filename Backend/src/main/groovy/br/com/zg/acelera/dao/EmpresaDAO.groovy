@@ -87,4 +87,21 @@ class EmpresaDAO extends AbstractDAO<Empresa> implements IEmpresaDAO {
         String sql = "DELETE FROM empresa WHERE cnpj = ?"
         executarUpdate(sql, [cnpj])
     }
+
+    @Override
+    Empresa validarLogin(String email, String cnpj) {
+        String sql = "SELECT cnpj, nome, email, pais, estado, cep, descricao FROM empresa WHERE email = ? AND cnpj = ?"
+
+        List<Empresa> resultados = executarQuery(sql, [email, cnpj])
+
+        if (resultados.isEmpty()) {
+            return null
+        }
+
+        Empresa empresa = resultados[0]
+
+        empresa.competencias = competenciaDAO.listarDaEmpresa(empresa.cnpj)
+
+        return empresa
+    }
 }

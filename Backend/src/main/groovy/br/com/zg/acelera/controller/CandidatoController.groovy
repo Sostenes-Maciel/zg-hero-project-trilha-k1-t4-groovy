@@ -77,4 +77,17 @@ class CandidatoController {
             return [status: 500, mensagem: "Erro ao buscar candidato: ${e.message}".toString()]
         }
     }
+    Map login(String email, String cpf) {
+        try {
+            Candidato candidato = perfilService.validarLoginCandidato(email, cpf)
+
+            if (candidato) {
+                return [status: 200, candidato: candidato]
+            } else {
+                return [status: 401, mensagem: "E-mail ou CPF incorretos."]
+            }
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro interno no servidor."]
+        }
+    }
 }
