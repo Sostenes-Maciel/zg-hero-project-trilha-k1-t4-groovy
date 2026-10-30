@@ -189,7 +189,10 @@ function extrairEValidarDados(formulario: HTMLFormElement, selectPais: HTMLSelec
     ValidarCandidato.validarDescricao(descricao)
     ValidarCandidato.validarCompetencias(competencias)
 
-    return { nome, email, idade, cpf, pais, estado, cep: codigoPostal, descricao, competencias }
+    const cpfLimpo = cpf.replace(/\D/g, '')
+    const codigoPostalLimpo = codigoPostal.replace(/\D/g, '')
+
+    return { nome, email, idade, cpf: cpfLimpo, pais, estado, cep: codigoPostalLimpo, descricao, competencias }
 }
 
 function exibirMensagem(elemento: HTMLParagraphElement | null, texto: string, classeCSS: string): void {

@@ -180,7 +180,10 @@ function extrairEValidarDados(formulario: HTMLFormElement, selectPais: HTMLSelec
     ValidarEmpresa.validarDescricao(descricao)
     ValidarEmpresa.validarCompetencias(competencias)
 
-    return { nome, email, cnpj, pais, estado, cep: codigoPostal, descricao, competencias }
+    const cnpjLimpo = cnpj.replace(/\D/g, '')
+    const codigoPostalLimpo = codigoPostal.replace(/\D/g, '')
+
+    return { nome, email, cnpj: cnpjLimpo, pais, estado, cep: codigoPostalLimpo, descricao, competencias }
 }
 
 function exibirMensagem(elemento: HTMLParagraphElement | null, texto: string, classeCSS: string): void {
