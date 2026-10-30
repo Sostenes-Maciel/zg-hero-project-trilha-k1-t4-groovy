@@ -166,7 +166,15 @@ function extrairEValidarDados(formulario: HTMLFormElement, selectPais: HTMLSelec
     const codigoPostal = dados.get('codigoPostal') as string
     const descricao = dados.get('descricao') as string
 
-    const competencias = (dados.get('competencias') as string)
+    const competenciasStr = dados.get('competencias') as string
+
+    if (competenciasStr.trim().includes(' ') && !competenciasStr.includes(',')) {
+        if (competenciasStr.trim().split(/\s+/).length > 2) {
+            throw new Error('Por favor, separe as competências usando vírgulas (Ex: Java, Python, Groovy).')
+        }
+    }
+
+    const competencias = competenciasStr
         .split(',')
         .map(competencia => competencia.trim())
         .filter(competencia => competencia.length > 0)
