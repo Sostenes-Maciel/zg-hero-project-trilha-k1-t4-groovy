@@ -193,8 +193,8 @@ function configurarBotaoCadastrarVaga(empresa: Empresa): void {
     const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>('#btn-cadastrar-vaga')
     botaoCadastrarVaga?.addEventListener('click', (e) => {
         e.preventDefault()
-        void renderViewCadastroVaga(() => {
-            void renderPerfilEmpresa(empresa)
+        void renderViewCadastroVaga(empresa, (mensagem) => {
+            void renderPerfilEmpresa(empresa, mensagem)
         })
     })
 }

@@ -1,40 +1,67 @@
-import { BancodeDados } from '../dao/BancodeDados'
 import type { Empresa } from '../model/Empresa.ts'
 import type { Vaga } from "../model/Vaga.ts"
 import { getCountries, getStatesOfCountry } from "@countrystatecity/countries-browser"
 
 export class CadastroVagasService {
-    static cadastrar(
+    static async cadastrar(
         titulo: string,
         descricao: string,
         pais: string,
         estado: string,
         competencias: string[],
         empresa: Empresa
-    ): Vaga {
+    ): Promise<Vaga> {
 
         this.validarCampos(titulo, descricao, pais, estado, competencias)
 
-        const maiorId = BancodeDados.vagas.reduce(
-            (maior, vaga) => Math.max(maior, vaga.id),
-            0
-        )
-
-        const vaga: Vaga = {
-            id: maiorId + 1,
+        const dadosVaga = {
             titulo: titulo.trim(),
             descricao: descricao.trim(),
             pais: pais.trim(),
             estado: estado.trim(),
+
+            // O backend utiliza "competencia" no singular
+            competencia: competencias,
+
+            // O backend precisa apenas do CNPJ para vincular a vaga
+            empresa: {
+                cnpj: empresa.cnpj.replace(/\D/g, '')
+            }
+        }
+
+        const resposta = await fetch('http://localhost:8080/api/vagas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dadosVaga)
+        })
+
+        const resultado = await resposta.json()
+
+        if (!resposta.ok) {
+            throw new Error(resultado.mensagem || 'Erro ao cadastrar vaga.')
+        }
+
+        return {
+            id: resultado.id,
+            titulo: dadosVaga.titulo,
+            descricao: dadosVaga.descricao,
+            pais: dadosVaga.pais,
+            estado: dadosVaga.estado,
             competencias,
             empresa
         }
-
-        BancodeDados.cadastrarVaga(vaga)
-        return vaga
     }
 
-    private static validarCampos(titulo: string, descricao: string, pais: string, estado: string, competencias: string[]): void {
+    private static validarCampos(
+        titulo: string,
+        descricao: string,
+        pais: string,
+        estado: string,
+        competencias: string[]
+    ): void {
+
         if (!titulo.trim()) {
             throw new Error('Título da vaga não pode estar vazio.')
         }
@@ -57,14 +84,16 @@ export class CadastroVagasService {
     }
 }
 
-export async function renderViewCadastroVaga(onVoltar?: (mensagem?: string) => void): Promise<void> {
+export async function renderViewCadastroVaga(
+    empresa: Empresa,
+    onVoltar?: (mensagem?: string) => void
+): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
     renderizarFormulario(app)
-    popularSelectEmpresas()
     await configurarSelectsLocalizacao()
-    configurarEventosFormulario(onVoltar)
+    configurarEventosFormulario(empresa, onVoltar)
 }
 
 function renderizarFormulario(app: HTMLDivElement): void {
@@ -101,13 +130,6 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Spring, Git" required>
                 </div>
 
-                <div>
-                    <label for="empresa">Empresa</label>
-                    <select id="empresa" name="empresa" required>
-                        <option value="">Selecione uma empresa</option>
-                    </select>
-                </div>
-
                 <button type="submit">Cadastrar</button> 
                 <button type="button" id="btn-voltar-vaga">Voltar</button>
 
@@ -115,18 +137,6 @@ function renderizarFormulario(app: HTMLDivElement): void {
             </form>
         </section>
     `
-}
-
-function popularSelectEmpresas(): void {
-    const selectEmpresa = document.querySelector<HTMLSelectElement>('#empresa')
-    if (!selectEmpresa) return
-
-    BancodeDados.empresas.forEach(empresa => {
-        const option = document.createElement('option')
-        option.value = empresa.cnpj
-        option.textContent = empresa.nome
-        selectEmpresa.appendChild(option)
-    })
 }
 
 async function configurarSelectsLocalizacao(): Promise<void> {
@@ -172,7 +182,7 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
     }
 }
 
-function configurarEventosFormulario(onVoltar?: (mensagem?: string) => void): void {
+function configurarEventosFormulario(empresa: Empresa, onVoltar?: (mensagem?: string) => void): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-vaga')
     const botaoVoltar = document.querySelector<HTMLButtonElement>('#btn-voltar-vaga')
 
@@ -182,15 +192,14 @@ function configurarEventosFormulario(onVoltar?: (mensagem?: string) => void): vo
 
     formulario?.addEventListener('submit', (evento) => {
         evento.preventDefault()
-        processarSubmissao(formulario, onVoltar)
+        void processarSubmissao(formulario, empresa, onVoltar)
     })
 }
 
-function processarSubmissao(formulario: HTMLFormElement, onVoltar?: (mensagem?: string) => void): void {
+async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa, onVoltar?: (mensagem?: string) => void): Promise<void> {
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
 
-    // Limpa a mensagem anterior
     if (mensagem) {
         mensagem.className = ''
         mensagem.textContent = ''
@@ -198,12 +207,6 @@ function processarSubmissao(formulario: HTMLFormElement, onVoltar?: (mensagem?: 
 
     try {
         const dados = new FormData(formulario)
-        const cnpjEmpresa = dados.get('empresa') as string
-
-        const empresa = BancodeDados.empresas.find(e => e.cnpj === cnpjEmpresa)
-        if (!empresa) {
-            throw new Error('Empresa não encontrada.')
-        }
 
         const titulo = dados.get('titulo') as string
         const descricao = dados.get('descricao') as string
@@ -214,11 +217,17 @@ function processarSubmissao(formulario: HTMLFormElement, onVoltar?: (mensagem?: 
             .map(c => c.trim())
             .filter(c => c.length > 0)
 
-        const vaga = CadastroVagasService.cadastrar(titulo, descricao, pais, estado, competencias, empresa)
+        const vaga = await CadastroVagasService.cadastrar(
+            titulo,
+            descricao,
+            pais,
+            estado,
+            competencias,
+            empresa
+        )
 
         console.log('Vaga cadastrada:', vaga)
 
-        // Executa o callback informando o sucesso
         onVoltar?.('Vaga cadastrada com sucesso!')
 
     } catch (erro) {
