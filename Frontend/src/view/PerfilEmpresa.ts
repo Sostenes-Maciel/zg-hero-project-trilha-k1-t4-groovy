@@ -86,7 +86,9 @@ async function buscarCandidatosDoBanco(): Promise<Candidato[]> {
         const resposta = await fetch('http://localhost:8080/api/candidatos')
         if (resposta.ok) {
             const dadosDoServidor = await resposta.json()
-            return dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+            const resultado = dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+
+            return Array.isArray(resultado) ? resultado : []
         }
         return []
     } catch (erro) {
@@ -97,6 +99,7 @@ async function buscarCandidatosDoBanco(): Promise<Candidato[]> {
 
 function renderizarGraficoCompetencias(candidatos: Candidato[]): void {
     try {
+        if (!Array.isArray(candidatos)) return;
         const quantidadePorCompetencia: Record<string, number> = {}
 
         candidatos.forEach(candidato => {
