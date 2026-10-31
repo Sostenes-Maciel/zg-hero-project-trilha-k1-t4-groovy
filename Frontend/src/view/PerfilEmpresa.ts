@@ -5,17 +5,24 @@ import { renderViewCadastroVaga } from '../service/CadastroVaga.ts'
 import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
 import { renderListaMatchesEmpresa } from "./ListaMatchesEmpresa.ts"
 
+interface StatusMatch {
+    cpf: string
+    status: 'curtido' | 'match'
+}
 export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
     renderizarTemplatePerfil(app, empresa, mensagemSucesso, animarTransicao)
 
-    // Agora buscamos os candidatos REAIS do banco antes de desenhar
-    const candidatosDoBanco = await buscarCandidatosDoBanco()
+    // Busca candidatos e os status de curtida/match em paralelo
+    const [candidatosDoBanco, statusMatches] = await Promise.all([
+        buscarCandidatosDoBanco(),
+        buscarStatusMatches(empresa.cnpj.replace(/\D/g, ''))
+    ])
 
     renderizarGraficoCompetencias(candidatosDoBanco)
-    renderizarTabelaCandidatos(empresa, candidatosDoBanco)
+    renderizarTabelaCandidatos(empresa, candidatosDoBanco, statusMatches)
     configurarEventos(empresa)
 }
 
@@ -122,7 +129,7 @@ function renderizarGraficoCompetencias(candidatos: Candidato[]): void {
     }
 }
 
-function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[]): void {
+function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], statusMatches: StatusMatch[]): void {
     const lista = document.querySelector<HTMLTableSectionElement>('#lista-candidatos-empresa')
     if (!lista) return
 
@@ -137,9 +144,12 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[]): 
         const linha = document.createElement('tr')
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
 
-        const curtiu = false
-        const temMatch = false
-        const iconeCurtida = '♡'
+        // Verifica se a empresa curtiu ou deu match com este candidato
+        const status = statusMatches.find(s => s.cpf === candidato.cpf)?.status
+
+        const curtiu = status === 'curtido' || status === 'match'
+        const temMatch = status === 'match'
+        const iconeCurtida = temMatch ? '🤝' : curtiu ? '♥' : '♡'
 
         linha.innerHTML = `
             <td class="coluna-candidato">
@@ -155,7 +165,8 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[]): 
                 <button
                     class="btn-curtir-candidato"
                     data-cpf="${candidato.cpf}"
-                    title="${temMatch ? 'Match confirmado' : curtiu ? 'Candidato curtido' : 'Curtir candidato'}"
+                    data-curtido="${curtiu}" 
+                    title="${temMatch ? 'Match confirmado' : curtiu ? 'Descurtir' : 'Curtir candidato'}"
                     ${temMatch ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
@@ -188,12 +199,54 @@ function configurarBotoesCurtirCandidato(empresa: Empresa): void {
     const botoesCurtir = document.querySelectorAll<HTMLButtonElement>('.btn-curtir-candidato')
 
     botoesCurtir.forEach(botao => {
-        botao.addEventListener('click', (e) => {
+        botao.addEventListener('click', async (e) => {
             e.preventDefault()
-            const cpf = botao.dataset.cpf
-            if (!cpf) return
+            const cpfCandidato = botao.dataset.cpf
+            if (!cpfCandidato) return
 
-            alert(`A empresa ${empresa.nome} curtiu o candidato com CPF: ${cpf}! (Lógica do banco em breve)`)
+            const jaCurtido = botao.dataset.curtido === 'true'
+            const metodoHTTP = jaCurtido ? 'DELETE' : 'POST'
+
+            try {
+                const cnpjLimpo = empresa.cnpj.replace(/\D/g, '')
+                const payload = {
+                    autor: "EMPRESA",
+                    cnpjEmpresa: cnpjLimpo,
+                    cpfCandidato: cpfCandidato
+                }
+
+                const resposta = await fetch('http://localhost:8080/api/matches', {
+                    method: metodoHTTP,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+
+                if (resposta.ok) {
+                    if (jaCurtido) {
+                        botao.innerHTML = '♡'
+                        botao.title = 'Curtir candidato'
+                        botao.dataset.curtido = 'false'
+                    } else {
+                        const resultado = await resposta.json()
+                        if (resultado.mensagem && resultado.mensagem.toLowerCase().includes('match')) {
+                            botao.innerHTML = '🤝'
+                            botao.title = 'Match confirmado!'
+                            botao.disabled = true
+                        } else {
+                            botao.innerHTML = '♥'
+                            botao.title = 'Descurtir'
+                        }
+                        botao.dataset.curtido = 'true'
+                    }
+                } else {
+                    const resultado = await resposta.json()
+                    alert(`Erro: ${resultado.mensagem}`)
+                }
+            } catch (erro) {
+                console.error("Erro ao processar ação:", erro)
+            } finally {
+                if (botao.title !== 'Match confirmado!') botao.disabled = false
+            }
         })
     })
 }
@@ -238,6 +291,19 @@ function configurarBotaoSair(): void {
         // Avisa ao menu para abrir a tela de login
         window.dispatchEvent(new Event('app:logout'))
     })
+}
+async function buscarStatusMatches(cnpj: string): Promise<StatusMatch[]> {
+    try {
+        const resposta = await fetch(`http://localhost:8080/api/matches?cnpj=${cnpj}`)
+        if (resposta.ok) {
+            const dados = await resposta.json()
+            return dados.dados ? dados.dados : dados
+        }
+        return []
+    } catch (erro) {
+        console.error("Erro ao buscar matches:", erro)
+        return []
+    }
 }
 
 export default renderPerfilEmpresa

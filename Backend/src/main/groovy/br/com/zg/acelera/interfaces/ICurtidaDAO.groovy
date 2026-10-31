@@ -6,4 +6,5 @@ interface ICurtidaDAO {
     boolean verificarMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga)
     boolean jaCurtiuVaga(String cpfCandidato, Integer idVaga)
     boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato)
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato)
 }

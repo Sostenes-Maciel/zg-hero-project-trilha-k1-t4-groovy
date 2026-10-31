@@ -153,7 +153,16 @@ class GerenciadorDePerfisService {
         return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
     }
 
-    boolean processarPossivelMatch(String cpf, String cnpj, int vagaId) {
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato) {
+        // Verifica se os dados chegaram corretamente
+        if (!cnpjEmpresa || !cpfCandidato) {
+            return false
+        }
+
+        return curtidaDAO.removerCurtidaEmpresa(cnpjEmpresa, cpfCandidato)
+    }
+
+    boolean processarPossivelMatch(String cpf, String cnpj, Integer vagaId) {
         if (curtidaDAO.verificarMatch(cpf, cnpj, vagaId)) {
             if (matchDAO.existeMatch(cpf, cnpj, vagaId)) {
                 throw new IllegalStateException("Atenção: Vocês já deram Match anteriormente!")

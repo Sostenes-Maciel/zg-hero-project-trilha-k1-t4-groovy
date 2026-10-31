@@ -17,7 +17,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
                 nomeCandidato: rs.getString("nome_candidato"),
                 nomeEmpresa  : rs.getString("nome_empresa"),
                 tituloVaga   : rs.getString("titulo_vaga")
-        ]
+        ] as Map<String, Object>
     }
 
     @Override

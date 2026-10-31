@@ -62,4 +62,16 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
         """
         return executarQueryBooleana(sql, [cpfCandidato, idVaga, cpfCandidato, cnpjEmpresa])
     }
+    @Override
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato) {
+        if (!jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) {
+            return false
+        }
+
+        String sqlDeletar = "DELETE FROM curtida WHERE cnpj_empresa = ? AND cpf_candidato = ? AND id_vaga IS NULL"
+
+        executarUpdate(sqlDeletar, [cnpjEmpresa, cpfCandidato])
+
+        return true
+    }
 }

@@ -55,4 +55,19 @@ class MatchController {
             return [status: 500, mensagem: "Erro ao buscar matches: ${e.message}"]
         }
     }
+    Map removerCurtidaEmpresa(String cnpj, String cpf) {
+        try {
+            // Repassa para a regra de negócio no Service
+            boolean sucesso = perfilService.removerCurtidaEmpresa(cnpj, cpf)
+
+            if (sucesso) {
+                return [status: 200, mensagem: "Curtida removida com sucesso."]
+            } else {
+                return [status: 400, mensagem: "Não foi possível remover a curtida (talvez ela não exista ou já seja um Match)."]
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            return [status: 500, mensagem: "Erro ao remover curtida: ${e.message}"]
+        }
+    }
 }

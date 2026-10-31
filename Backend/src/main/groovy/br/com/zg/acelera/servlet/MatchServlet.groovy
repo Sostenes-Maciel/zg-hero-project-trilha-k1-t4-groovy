@@ -120,4 +120,31 @@ class MatchServlet extends HttpServlet {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        configurarResposta(resp)
+        try {
+            BufferedReader reader = req.getReader()
+            Map payload = gson.fromJson(reader, Map.class)
+
+            String autor = payload.autor
+            Map resultado
+
+            if (autor == "EMPRESA") {
+                String cnpj = payload.cnpjEmpresa
+                String cpf = payload.cpfCandidato
+
+                resultado = matchController.removerCurtidaEmpresa(cnpj, cpf)
+            } else {
+                resultado = [status: 400, mensagem: "Autor inválido. Só Empresa pode descurtir por aqui."]
+            }
+
+            enviarResposta(resp, resultado)
+
+        } catch (Exception e) {
+            e.printStackTrace()
+            enviarResposta(resp, [status: 500, mensagem: "Erro interno: " + e.message])
+        }
+    }
 }
