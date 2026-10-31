@@ -1,13 +1,18 @@
 import { renderPerfilVaga } from './PerfilVaga.ts'
 import type { Candidato } from "../model/Candidato.ts"
 import type { Vaga } from '../model/Vaga.ts'
-import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
+import { calcularAfinidadePorCompetencias } from "../service/CalcularAfinidade.ts"
 import { mostrarAnimacaoMatch } from "./AnimacaoMatch.ts"
 
 // Tipagem para a resposta de status das curtidas do candidato
 interface StatusMatchVaga {
     idVaga: number
     status: 'curtido' | 'match'
+}
+
+type VagaDaApi = Omit<Vaga, 'competencias'> & {
+    competencias?: string[]
+    competencia?: string[]
 }
 
 export async function renderListaVagas(onVoltar?: () => void, candidato?: Candidato, animarTransicao: boolean = true): Promise<void> {
@@ -63,8 +68,15 @@ async function buscarVagasDoBanco(): Promise<Vaga[]> {
     try {
         const resposta = await fetch('http://localhost:8080/api/vagas')
         if (resposta.ok) {
-            const dadosDoServidor = await resposta.json()
-            return dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+            const dadosDoServidor: { dados?: VagaDaApi[] } | VagaDaApi[] = await resposta.json()
+            const vagas = Array.isArray(dadosDoServidor)
+                ? dadosDoServidor
+                : dadosDoServidor.dados ?? []
+
+            return vagas.map(vaga => ({
+                ...vaga,
+                competencias: vaga.competencias ?? vaga.competencia ?? []
+            }))
         }
         return []
     } catch (erro) {
@@ -107,7 +119,9 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
         const linha = document.createElement('tr')
         linha.dataset.titulo = vaga.titulo.toLowerCase()
 
-        const afinidade = candidato ? calcularAfinidade(candidato, vaga.empresa) : null
+        const afinidade = candidato
+            ? calcularAfinidadePorCompetencias(candidato.competencias, vaga.competencias)
+            : null
 
         // Verifica o status no array retornado pelo backend
         const status = statusMatches.find(s => s.idVaga === vaga.id)?.status

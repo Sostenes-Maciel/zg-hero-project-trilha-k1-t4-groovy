@@ -1,17 +1,24 @@
 import type { Candidato } from '../model/Candidato'
 import type { Empresa } from '../model/Empresa'
 
-export function calcularAfinidade(candidato: Candidato, empresa: Empresa): number {
-    const competenciasCandidato = normalizarCompetencias(candidato.competencias)
-    const competenciasEmpresa = normalizarCompetencias(empresa.competencias)
+export function calcularAfinidadePorCompetencias(competenciasBase: unknown, competenciasAlvo: unknown): number {
+    const competenciasBaseNormalizadas = normalizarCompetencias(competenciasBase)
+    const competenciasAlvoNormalizadas = normalizarCompetencias(competenciasAlvo)
 
-    if (competenciasCandidato.size === 0) {
+    if (competenciasBaseNormalizadas.size === 0) {
         return 0
     }
 
-    const competenciasEmComum = contarCompetenciasEmComum(competenciasCandidato, competenciasEmpresa)
+    const competenciasEmComum = contarCompetenciasEmComum(
+        competenciasBaseNormalizadas,
+        competenciasAlvoNormalizadas
+    )
 
-    return Math.round((competenciasEmComum / competenciasCandidato.size) * 100)
+    return Math.round((competenciasEmComum / competenciasBaseNormalizadas.size) * 100)
+}
+
+export function calcularAfinidade(candidato: Candidato, empresa: Empresa): number {
+    return calcularAfinidadePorCompetencias(candidato.competencias, empresa.competencias)
 }
 
 function normalizarCompetencias(competencias: unknown): Set<string> {

@@ -381,7 +381,7 @@ A solução foi arquitetada separando claramente as responsabilidades entre clie
 - **Spock Framework:** Utilizado estritamente para a camada de testes unitários e de integração no backend (Test-Driven Development).
 
 ---
-
+ 
 ##  Arquitetura da Solução
 
 O projeto segue a arquitetura REST. O Frontend age como um cliente consumindo a API disponibilizada pelo Tomcat/Servlet. O estado de navegação é protegido por validadores (checagem de sessão) e os dados trafegados seguem estruturas estritas de JSON, garantindo que máscaras de entrada (como CPF e CNPJ) sejam tratadas tanto no lado do cliente (Regex) quanto higienizadas no servidor.
