@@ -130,7 +130,6 @@ class GerenciadorDePerfisService {
     }
 
     boolean curtirVaga(String cpfCandidato, Integer idVaga) {
-        // Agora recebemos o idVaga direto e passamos para a busca
         Vaga vagaCompleta = gerenciadorDeVagas.buscarVagaPorId(idVaga)
 
         if (vagaCompleta == null) {
@@ -195,26 +194,38 @@ class GerenciadorDePerfisService {
     List listarStatusCurtidasEmpresa(String cnpj) {
         return curtidaDAO.listarStatusCurtidasEmpresa(cnpj)
     }
+
     Map listarMatchesCompletosCandidato(String cpf) {
         def matchesReais = matchDAO.listarMatchesDoCandidato(cpf)
         def pendentes = matchDAO.listarCurtidasPendentesDoCandidato(cpf)
-        return [
-                matches: matchesReais,
-                curtidasPendentes: pendentes.collect { [vaga: it.vaga] }
-        ]
-    }
 
-    Map listarMatchesCompletosEmpresa(String cnpj) {
-        def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
-        def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)
-        def pendentesFormatadas = pendentes.collect {
-            [candidato: [nome: it.nome_candidato, competencias: it.competencias_candidato]]
+        def pendentesFormatadas = pendentes.collect { item ->
+            [vaga: item['vaga']]
         }
+
         return [
                 matches: matchesReais,
                 curtidasPendentes: pendentesFormatadas
         ]
     }
+    Map listarMatchesCompletosEmpresa(String cnpj) {
+        def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
+        def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)
 
+        def pendentesFormatadas = pendentes.collect { item ->
+            Map candidato = item['candidato'] as Map
 
+            [
+                    candidato: [
+                            nome: candidato?.nome,
+                            competencias: candidato?.competencias ?: []
+                    ]
+            ]
+        }
+
+        return [
+                matches: matchesReais,
+                curtidasPendentes: pendentesFormatadas
+        ]
+    }
 }

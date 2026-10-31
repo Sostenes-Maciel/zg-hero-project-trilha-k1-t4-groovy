@@ -64,9 +64,6 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
             <p>
                 <strong>Candidato:</strong> ${curtida.candidato?.nome ?? 'Match necessário para visualização'}
             </p>
-            <p>
-                <strong>Competências:</strong> ${curtida.candidato?.competencias?.join(', ') ?? 'Não informadas'}
-            </p>
         </div>
     `).join('')
 

@@ -148,8 +148,9 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
 
         const cpfLimpo = candidato.cpf.replace(/\D/g, '')
-        const status = statusMatches.find(s => s.cpfCandidato === cpfLimpo)?.status
-
+        const status = statusMatches.find(s =>
+            s.cpfCandidato.replace(/\D/g, '') === cpfLimpo
+        )?.status
         const curtiu = status === 'curtido' || status === 'match'
         const temMatch = status === 'match'
         const iconeCurtida = temMatch ? '🤝' : curtiu ? '♥' : '♡'
