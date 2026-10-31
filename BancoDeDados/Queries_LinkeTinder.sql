@@ -34,4 +34,3 @@ JOIN candidato c ON m.cpf_candidato = c.cpf
 JOIN empresa e ON m.cnpj_empresa = e.cnpj
 JOIN vaga v ON m.id_vaga = v.id_vaga;
 
-

@@ -988,6 +988,18 @@ body:has(#app > h1) #rodape {
     white-space: nowrap;
     text-align: center;
 }
+
+.acoes-curtida-empresa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.acoes-curtida-empresa .select-vaga-curtir {
+    min-width: 150px;
+}
+
 .overlay-match {
     position: fixed;
     inset: 0;

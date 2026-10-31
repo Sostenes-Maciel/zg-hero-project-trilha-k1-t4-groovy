@@ -60,7 +60,8 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
 
     const cardsHtml = curtidas.map(curtida => `
         <div class="card-match">
-            <h3>♥ Match pendente</h3>
+            <h3>♥ Curtida pendente</h3>
+            ${curtida.vaga?.titulo ? `<p><strong>Vaga:</strong> ${curtida.vaga.titulo}</p>` : ''}
             <p>
                 <strong>Candidato:</strong> ${curtida.candidato?.nome ?? 'Match necessário para visualização'}
             </p>

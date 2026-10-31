@@ -68,14 +68,22 @@ CREATE TABLE curtida (
     cnpj_empresa VARCHAR(18),
     CONSTRAINT curtida_valida CHECK (
         (id_vaga IS NOT NULL AND cnpj_empresa IS NULL) OR 
-        (id_vaga IS NULL AND cnpj_empresa IS NOT NULL)
+        (id_vaga IS NULL AND cnpj_empresa IS NOT NULL) OR
+        (id_vaga IS NOT NULL AND cnpj_empresa IS NOT NULL)
     ),
     FOREIGN KEY (cpf_candidato) REFERENCES candidato(cpf) ON DELETE CASCADE,
     FOREIGN KEY (id_vaga) REFERENCES vaga(id_vaga) ON DELETE CASCADE,
-    FOREIGN KEY (cnpj_empresa) REFERENCES empresa(cnpj) ON DELETE CASCADE
+    FOREIGN KEY (cnpj_empresa) REFERENCES empresa(cnpj) ON DELETE CASCADE,
+    CONSTRAINT curtida_vaga_empresa_fk
+        FOREIGN KEY (id_vaga, cnpj_empresa)
+        REFERENCES vaga(id_vaga, cnpj_empresa) ON DELETE CASCADE
 );
 
-CREATE TABLE match (
+CREATE UNIQUE INDEX curtida_empresa_candidato_vaga_unica
+    ON curtida (cpf_candidato, cnpj_empresa, id_vaga)
+    WHERE cnpj_empresa IS NOT NULL AND id_vaga IS NOT NULL;
+
+CREATE TABLE match_vaga (
     id_match SERIAL PRIMARY KEY,
     cpf_candidato VARCHAR(14) NOT NULL,
     cnpj_empresa VARCHAR(18) NOT NULL,
@@ -154,21 +162,20 @@ VALUES ('123.456.789-00', 1, NULL);
 
 -- 2. A empresa dona da vaga (98.765.432/0001-11) vê o perfil do Sóstenes e curte
 INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
-VALUES ('123.456.789-00', NULL, '98.765.432/0001-11');
+VALUES ('123.456.789-00', 1, '98.765.432/0001-11');
 
 -- 3. MATCH! Como houve interesse mútuo, o match é consolidado
-INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga)
+INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga)
 VALUES ('123.456.789-00', '98.765.432/0001-11', 1);
 
 -- 4. A empresa BlueSky (45.678.901/0001-34) curtiu a candidata Ana ('333.444.789-00')
 INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
-VALUES ('333.444.789-00', NULL, '45.678.901/0001-34');
+VALUES ('333.444.789-00', 3, '45.678.901/0001-34');
 
--- 5. A candidata Ana abre o app e curte uma vaga (vamos supor a Vaga ID 2, que pertence à BlueSky)
+-- 5. A candidata Ana abre o app e curte a vaga da BlueSky (ID 3)
 INSERT INTO curtida (cpf_candidato, id_vaga, cnpj_empresa)
 VALUES ('333.444.789-00', 3, NULL);
 
 -- 6. MATCH! O sistema vê que a BlueSky já tinha curtido ela no Passo 4 e consolida o Match
-INSERT INTO match (cpf_candidato, cnpj_empresa, id_vaga)
+INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga)
 VALUES ('333.444.789-00', '45.678.901/0001-34', 3);
-
