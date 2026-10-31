@@ -29,7 +29,7 @@ abstract class AbstractDAO<T> {
             e.printStackTrace()
             throw new RuntimeException("Falha ao executar query", e)
         } finally {
-            if (stmt != null) stmt.close()
+            fecharRecursos(null, stmt, conexao)
         }
     }
 
@@ -53,8 +53,7 @@ abstract class AbstractDAO<T> {
         } catch (Exception e) {
             throw new RuntimeException("Falha ao executar insert com retorno", e)
         } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
+            fecharRecursos(rs, stmt, conexao)
         }
     }
 
@@ -80,8 +79,7 @@ abstract class AbstractDAO<T> {
             e.printStackTrace()
             throw new RuntimeException("Erro na Busca", e)
         } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
+            fecharRecursos(rs, stmt, conexao)
         }
         return resultados
     }
@@ -98,8 +96,26 @@ abstract class AbstractDAO<T> {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao verificar dados no banco", e)
         } finally {
+            fecharRecursos(rs, stmt, conexao)
+        }
+    }
+    private static void fecharRecursos(ResultSet rs, PreparedStatement stmt, Connection conexao) {
+        try {
             if (rs != null) rs.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+
+        try {
             if (stmt != null) stmt.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+
+        try {
+            if (conexao != null) conexao.close()
+        } catch (Exception e) {
+            e.printStackTrace()
         }
     }
 

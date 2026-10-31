@@ -151,7 +151,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
     """
         return executarQuery(sql, [cnpjEmpresa])
     }
-    private boolean possuiColuna(ResultSet rs, String nomeColuna) {
+    private static boolean possuiColuna(ResultSet rs, String nomeColuna) {
         def metadata = rs.getMetaData()
 
         for (int i = 1; i <= metadata.getColumnCount(); i++) {

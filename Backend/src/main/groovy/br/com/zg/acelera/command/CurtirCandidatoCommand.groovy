@@ -30,12 +30,20 @@ class CurtirCandidatoCommand implements ICommand {
 
         try {
             def respCandidatos = candidatoController.listar()
-            if (respCandidatos.status != 200 || !respCandidatos.dados) {
-                println "Nenhum candidato disponível no momento."
+
+            println "[DEBUG] Status: ${respCandidatos?.status}"
+
+            if (!respCandidatos || respCandidatos.status != 200) {
+                println "[ERRO] Falha ao buscar candidatos: ${respCandidatos?.mensagem}"
                 return
             }
 
             List<Candidato> candidatos = respCandidatos.dados as List<Candidato>
+
+            if (!candidatos) {
+                println "Nenhum candidato disponível no momento."
+                return
+            }
 
             candidatos.eachWithIndex { c, i ->
                 println "[Opção ${i + 1}] - Perfil Profissional"
