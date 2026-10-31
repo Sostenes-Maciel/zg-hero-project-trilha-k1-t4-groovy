@@ -358,6 +358,35 @@ A forma mais recomendada de rodar este projeto é utilizando a sua IDE (IntelliJ
   * Exemplo de requisição GET: `http://localhost:8080/api/matches?cpf=11122233394`
   * Exemplo de requisição POST (JSON) para a rota `http://localhost:8080/api/matches` para testar curtidas.
 
+# Atualização - Integrar Front/back
+
+##  Recursos e Tecnologias Utilizadas
+
+A solução foi arquitetada separando claramente as responsabilidades entre cliente e servidor, priorizando o uso de ferramentas nativas e padrões de projeto consolidados.
+
+### Frontend
+- **TypeScript & HTML5/CSS3:** Construção de uma Single Page Application (SPA) utilizando tipagem estrita para maior segurança, sem uso de frameworks de UI. A manipulação do DOM e o roteamento de componentes foram feitos "vanilla".
+- **Vite:** Ferramenta de build e empacotamento de módulos (bundler), otimizando o carregamento dos scripts TypeScript e a recarga rápida durante o desenvolvimento.
+- **Fetch API:** Utilizada para chamadas RESTful assíncronas ao backend, garantindo a persistência do estado (ex: corações de curtidas e apertos de mão para matches).
+- **Chart.js:** Biblioteca leve de visualização de dados utilizada para renderizar os gráficos de competências no painel da empresa.
+
+### Backend
+- **Groovy & Java:** Linguagens principais utilizadas na construção das regras de negócio, aproveitando a sintaxe limpa do Groovy e a robustez da JVM.
+- **Servlets (Jakarta/Javax):** O roteamento HTTP (GET, POST, DELETE, PUT) foi implementado puramente com Servlets, lidando com a extração e formatação de payloads JSON na mão, garantindo a restrição de "zero frameworks".
+- **Padrões de Projeto (MVC):**
+  - **Controllers:** Orquestram as requisições HTTP e as formatam.
+  - **Services:** Isolam a lógica de negócio (como o cálculo de matches).
+  - **DAOs (Data Access Objects):** Centralizam as operações de persistência abstratas.
+- **PostgreSQL:** Banco de dados relacional escolhido para garantir integridade referencial entre Candidatos, Empresas, Vagas e a tabela associativa de Matches. Comunicação via JDBC nativo.
+- **Spock Framework:** Utilizado estritamente para a camada de testes unitários e de integração no backend (Test-Driven Development).
+
+---
+
+##  Arquitetura da Solução
+
+O projeto segue a arquitetura REST. O Frontend age como um cliente consumindo a API disponibilizada pelo Tomcat/Servlet. O estado de navegação é protegido por validadores (checagem de sessão) e os dados trafegados seguem estruturas estritas de JSON, garantindo que máscaras de entrada (como CPF e CNPJ) sejam tratadas tanto no lado do cliente (Regex) quanto higienizadas no servidor.
+
+
 👤 Autor
 
 Sóstenes Marques Maciel
