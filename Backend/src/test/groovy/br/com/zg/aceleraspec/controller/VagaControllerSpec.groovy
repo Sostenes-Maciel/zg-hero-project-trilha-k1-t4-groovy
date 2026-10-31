@@ -52,6 +52,19 @@ class VagaControllerSpec extends Specification {
         resposta.dados.size() == 1
     }
 
+    def "deve retornar mensagem de erro como texto quando falhar ao listar vagas"() {
+        given:
+        serviceMock.listarVagas() >> { throw new RuntimeException("Erro na Busca") }
+
+        when:
+        def resposta = controller.listar()
+
+        then:
+        resposta.status == 500
+        resposta.mensagem == "Erro ao listar vagas: Erro na Busca"
+        resposta.mensagem instanceof String
+    }
+
     def "deve retornar status 200 e lista de vagas da empresa"() {
         given:
         serviceMock.listarVagasDaEmpresa("12345678901234") >> [new Vaga(titulo: "Desenvolvedor")]
@@ -62,6 +75,19 @@ class VagaControllerSpec extends Specification {
         then:
         resposta.status == 200
         resposta.dados.size() == 1
+    }
+
+    def "deve retornar vaga por id com suas competencias"() {
+        given:
+        Vaga vaga = new Vaga(id: 1, titulo: "Desenvolvedor", competencia: ["Groovy"])
+        serviceMock.buscarVaga(1) >> vaga
+
+        when:
+        def resposta = controller.buscarPorId(1)
+
+        then:
+        resposta.status == 200
+        resposta.dados.competencia == ["Groovy"]
     }
 
     def "deve retornar status 200 ao atualizar vaga"() {

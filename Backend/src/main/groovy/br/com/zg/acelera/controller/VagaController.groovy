@@ -16,7 +16,7 @@ class VagaController {
             Integer id = vagaService.cadastrarVaga(vaga)
             return [status: 201, mensagem: "Vaga cadastrada com sucesso!", id: id]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao cadastrar vaga: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao cadastrar vaga: ${e.message}".toString()]
         }
     }
 
@@ -25,7 +25,7 @@ class VagaController {
             List<Vaga> vagas = vagaService.listarVagas()
             return [status: 200, dados: vagas]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao listar vagas: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao listar vagas: ${e.message}".toString()]
         }
     }
 
@@ -34,7 +34,7 @@ class VagaController {
             List<Vaga> vagas = vagaService.listarVagasDaEmpresa(cnpj)
             return [status: 200, dados: vagas]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao listar vagas da empresa: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao listar vagas da empresa: ${e.message}".toString()]
         }
     }
 
@@ -43,7 +43,7 @@ class VagaController {
             vagaService.atualizarVaga(vaga)
             return [status: 200, mensagem: "Vaga atualizada com sucesso!"]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao atualizar vaga: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao atualizar vaga: ${e.message}".toString()]
         }
     }
 
@@ -52,13 +52,13 @@ class VagaController {
             vagaService.excluirVaga(id)
             return [status: 200, mensagem: "Vaga excluída com sucesso!"]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao excluir vaga: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao excluir vaga: ${e.message}".toString()]
         }
     }
 
     Map buscarPorId(Integer id) {
         try {
-            Vaga vaga = vagaService.buscarVagaPorId(id)
+            Vaga vaga = vagaService.buscarVaga(id)
 
             if (vaga != null) {
                 return [status: 200, dados: vaga]

@@ -1,37 +1,79 @@
-import { BancodeDados } from '../dao/BancodeDados'
-import { renderListaVagas } from './ListaVagas.ts'
-import type { Candidato } from "../model/Candidato.ts"
 import type { Vaga } from "../model/Vaga.ts"
 
-export function renderPerfilVaga(vagaId: number, onVoltar?: () => void, candidato?: Candidato): void {
+type VagaDaApi = Omit<Vaga, 'competencias'> & {
+    competencias?: string[]
+    competencia?: string[]
+}
+
+export async function renderPerfilVaga(vagaId: number, onVoltar?: () => void, temMatch: boolean = false): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
-    const vagaEncontrada = BancodeDados.vagas.find(v => v.id === vagaId)
-    console.log('Vaga encontrada:', vagaEncontrada)
+    app.innerHTML = '<section class="perfil-vaga"><p>Carregando vaga...</p></section>'
 
-    if (!vagaEncontrada) {
-        renderizarVagaNaoEncontrada(app)
-        return
+    try {
+        const resposta = await fetch(`http://localhost:8080/api/vagas?id=${encodeURIComponent(vagaId)}`)
+        if (resposta.status === 404) {
+            renderizarMensagem(app, 'Vaga não encontrada!', onVoltar)
+            return
+        }
+        if (!resposta.ok) {
+            throw new Error(`Falha ao buscar vaga (${resposta.status}).`)
+        }
+
+        const resultado: unknown = await resposta.json()
+        const vagaDaApi = extrairVagaDaApi(resultado)
+        if (!vagaDaApi) {
+            renderizarMensagem(app, 'Vaga não encontrada!', onVoltar)
+            return
+        }
+
+        const vaga: Vaga = {
+            ...vagaDaApi,
+            competencias: vagaDaApi.competencias ?? vagaDaApi.competencia ?? []
+        }
+
+        renderizarPerfilVagaHTML(app, vaga, temMatch)
+        configurarEventoVoltar(onVoltar)
+    } catch (erro) {
+        console.error('Erro ao buscar detalhes da vaga:', erro)
+        renderizarMensagem(app, 'Não foi possível carregar os detalhes da vaga.', onVoltar)
     }
-
-    const temMatch = candidato ? BancodeDados.candidatoTemMatchComVaga(candidato, vagaEncontrada) : false
-
-    renderizarPerfilVagaHTML(app, vagaEncontrada, temMatch)
-    configurarEventoVoltar(onVoltar)
 }
 
-function renderizarVagaNaoEncontrada(app: HTMLDivElement): void {
+function extrairVagaDaApi(resultado: unknown): VagaDaApi | undefined {
+    if (typeof resultado !== 'object' || resultado === null) return undefined
+
+    const dados = 'dados' in resultado ? resultado.dados : resultado
+    return validarVagaDaApi(dados) ? dados : undefined
+}
+
+function validarVagaDaApi(valor: unknown): valor is VagaDaApi {
+    return typeof valor === 'object'
+        && valor !== null
+        && 'id' in valor
+        && typeof valor.id === 'number'
+        && 'titulo' in valor
+        && typeof valor.titulo === 'string'
+        && 'pais' in valor
+        && typeof valor.pais === 'string'
+        && 'estado' in valor
+        && typeof valor.estado === 'string'
+        && 'descricao' in valor
+        && typeof valor.descricao === 'string'
+        && 'empresa' in valor
+        && typeof valor.empresa === 'object'
+        && valor.empresa !== null
+}
+
+function renderizarMensagem(app: HTMLDivElement, mensagem: string, onVoltar?: () => void): void {
     app.innerHTML = `
         <section class="perfil-vaga tela-com-transicao">
-            <h2>Vaga não encontrada!</h2>
-            <button id="btn-voltar">Voltar para vagas</button>
+            <h2>${mensagem}</h2>
+            <button id="btn-voltar-lista">Voltar para vagas</button>
         </section>
     `
-
-    document.querySelector('#btn-voltar')?.addEventListener('click', () => {
-        renderListaVagas()
-    })
+    configurarEventoVoltar(onVoltar)
 }
 
 function renderizarPerfilVagaHTML(app: HTMLDivElement, vaga: Vaga, temMatch: boolean): void {

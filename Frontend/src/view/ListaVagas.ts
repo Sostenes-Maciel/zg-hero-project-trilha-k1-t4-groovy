@@ -28,7 +28,7 @@ export async function renderListaVagas(onVoltar?: () => void, candidato?: Candid
     ])
 
     renderizarLinhasVagas(vagasDoBanco, statusMatches, candidato)
-    configurarEventos(onVoltar, vagasDoBanco, candidato)
+    configurarEventos(onVoltar, vagasDoBanco, statusMatches, candidato)
 }
 
 function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): void {
@@ -154,11 +154,11 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
     })
 }
 
-function configurarEventos(onVoltar?: () => void, vagas?: Vaga[], candidato?: Candidato): void {
+function configurarEventos(onVoltar?: () => void, vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
     configurarBotaoVoltar(onVoltar)
     configurarFiltroBusca()
     configurarBotoesCurtir(candidato)
-    configurarBotoesPerfil(onVoltar, vagas, candidato)
+    configurarBotoesPerfil(onVoltar, vagas, statusMatches, candidato)
 }
 
 function configurarBotaoVoltar(onVoltar?: () => void): void {
@@ -251,17 +251,19 @@ function configurarBotoesCurtir(candidato?: Candidato): void {
     })
 }
 
-function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], candidato?: Candidato): void {
+function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
     const botoesPerfil = document.querySelectorAll<HTMLButtonElement>('.btn-perfil-vaga')
 
     botoesPerfil.forEach(botao => {
         botao.addEventListener('click', () => {
             const vagaId = Number(botao.dataset.id)
             if (vagas) {
-                renderPerfilVaga(vagaId, () => {
-                    // Precisamos envolver a chamada async em uma função void
+                const temMatch = statusMatches.some(status =>
+                    status.idVaga === vagaId && status.status === 'match'
+                )
+                void renderPerfilVaga(vagaId, () => {
                     void renderListaVagas(onVoltar, candidato)
-                }, candidato)
+                }, temMatch)
             }
         })
     })

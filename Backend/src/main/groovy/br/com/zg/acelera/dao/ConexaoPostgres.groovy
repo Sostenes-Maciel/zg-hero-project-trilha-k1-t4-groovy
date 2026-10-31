@@ -14,7 +14,6 @@ class ConexaoPostgres implements IConexao {
     private static final String SENHA = "postgres"
 
     private static ConexaoPostgres instancia
-    private Connection conexaoAberta
 
     private ConexaoPostgres() {}
 
@@ -31,10 +30,7 @@ class ConexaoPostgres implements IConexao {
 
             Class.forName("org.postgresql.Driver")
 
-            if (conexaoAberta == null || conexaoAberta.isClosed()) {
-                conexaoAberta = DriverManager.getConnection(URL, USUARIO, SENHA)
-            }
-            return conexaoAberta
+            return DriverManager.getConnection(URL, USUARIO, SENHA)
         } catch (SQLException e) {
             throw new RuntimeException("Falha fatal ao conectar no banco de dados.", e)
         }
