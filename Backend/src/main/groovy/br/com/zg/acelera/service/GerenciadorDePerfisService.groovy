@@ -195,4 +195,26 @@ class GerenciadorDePerfisService {
     List listarStatusCurtidasEmpresa(String cnpj) {
         return curtidaDAO.listarStatusCurtidasEmpresa(cnpj)
     }
+    Map listarMatchesCompletosCandidato(String cpf) {
+        def matchesReais = matchDAO.listarMatchesDoCandidato(cpf)
+        def pendentes = matchDAO.listarCurtidasPendentesDoCandidato(cpf)
+        return [
+                matches: matchesReais,
+                curtidasPendentes: pendentes.collect { [vaga: it.vaga] }
+        ]
+    }
+
+    Map listarMatchesCompletosEmpresa(String cnpj) {
+        def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
+        def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)
+        def pendentesFormatadas = pendentes.collect {
+            [candidato: [nome: it.nome_candidato, competencias: it.competencias_candidato]]
+        }
+        return [
+                matches: matchesReais,
+                curtidasPendentes: pendentesFormatadas
+        ]
+    }
+
+
 }

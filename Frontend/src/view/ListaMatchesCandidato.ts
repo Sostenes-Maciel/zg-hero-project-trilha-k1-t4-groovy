@@ -1,34 +1,54 @@
 import type { Candidato } from '../model/Candidato'
 import type { Match } from '../model/Match'
 import type { Curtida } from '../model/Curtida'
-import { BancodeDados } from '../dao/BancodeDados'
 
-export function renderListaMatchesCandidato(candidato: Candidato, onVoltar?: () => void): void {
+export async function renderListaMatchesCandidato(candidato: Candidato, onVoltar?: () => void): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
-    const matches = BancodeDados.getMatchesDoCandidato(candidato)
-    const curtidasPendentes = BancodeDados.getCurtidasPendentesDoCandidato(candidato)
+    app.innerHTML = `<section class="lista-matches tela-com-transicao"><h2>Carregando matches...</h2></section>`
 
-    app.innerHTML = `
-        <section class="lista-matches tela-com-transicao">
-            <h1>Meus Matches</h1>
-            
-            <h2>Curtidas aguardando Match</h2>
-            ${gerarSecaoCurtidasPendentes(curtidasPendentes)}
-            
-            <h2>Meus Matches</h2>
-            ${gerarSecaoMatchesRealizados(matches)}
+    try {
+        const cpfLimpo = candidato.cpf.replace(/\D/g, '')
+        const resposta = await fetch(`http://localhost:8080/api/matches?cpf=${cpfLimpo}&completo=true`)
 
-            <button id="btn-voltar-matches">Voltar</button>
-        </section>
-    `
+        let matches: Match[] = []
+        let curtidasPendentes: Curtida[] = []
 
-    configurarEventoVoltar(onVoltar)
+        if (resposta.ok) {
+            const dados = await resposta.json()
+            matches = dados.matches || []
+            curtidasPendentes = dados.curtidasPendentes || []
+        }
+
+        app.innerHTML = `
+            <section class="lista-matches tela-com-transicao">
+                <h1>Meus Matches</h1>
+                
+                <h2>Curtidas aguardando Match</h2>
+                ${gerarSecaoCurtidasPendentes(curtidasPendentes)}
+                
+                <h2>Meus Matches</h2>
+                ${gerarSecaoMatchesRealizados(matches)}
+
+                <button id="btn-voltar-matches">Voltar</button>
+            </section>
+        `
+        configurarEventoVoltar(onVoltar)
+    } catch (erro) {
+        console.error("Erro ao buscar matches completos:", erro)
+        app.innerHTML = `
+            <section class="lista-matches">
+                <h2>Erro ao conectar com o servidor.</h2>
+                <button id="btn-voltar-matches">Voltar</button>
+            </section>
+        `
+        configurarEventoVoltar(onVoltar)
+    }
 }
 
 function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
-    if (curtidas.length === 0) {
+    if (!Array.isArray(curtidas) || curtidas.length === 0) {
         return `
             <div class="estado-vazio">
                 <span class="estado-vazio-icone">♥</span>
@@ -40,7 +60,7 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
 
     const cardsHtml = curtidas.map(curtida => `
         <div class="card-match">
-            <h3>♥ ${curtida.vaga!.titulo}</h3>
+            <h3>♥ ${curtida.vaga?.titulo ?? 'Vaga'}</h3>
             <p>
                 <strong>Empresa:</strong> Match necessário para visualização
             </p>
@@ -51,7 +71,7 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
 }
 
 function gerarSecaoMatchesRealizados(matches: Match[]): string {
-    if (matches.length === 0) {
+    if (!Array.isArray(matches) || matches.length === 0) {
         return `
             <div class="estado-vazio">
                 <span class="estado-vazio-icone">🤝</span>
@@ -63,12 +83,12 @@ function gerarSecaoMatchesRealizados(matches: Match[]): string {
 
     const cardsHtml = matches.map(match => `
         <div class="card-match">
-            <h3>🤝 ${match.empresa.nome}</h3>
+            <h3>🤝 ${match.empresa?.nome ?? 'Empresa'}</h3>
             <p>
-                <strong>Vaga:</strong> ${match.vaga.titulo}
+                <strong>Vaga:</strong> ${match.vaga?.titulo ?? 'Vaga'}
             </p>
             <p>
-                <strong>Local:</strong> ${match.vaga.pais} - ${match.vaga.estado}
+                <strong>Local:</strong> ${match.vaga?.pais ?? ''} - ${match.vaga?.estado ?? ''}
             </p>
         </div>
     `).join('')

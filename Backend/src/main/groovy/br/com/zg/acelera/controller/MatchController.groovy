@@ -85,4 +85,29 @@ class MatchController {
             return [status: 500, mensagem: "Erro ao remover curtida: ${e.message}"]
         }
     }
+    Map listarMatchesCompletosCandidato(String cpf) {
+        try {
+            def resultado = perfilService.listarMatchesCompletosCandidato(cpf)
+            return [
+                    status: 200,
+                    matches: resultado.matches,
+                    curtidasPendentes: resultado.curtidasPendentes
+            ]
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar matches completos: ${e.message}"]
+        }
+    }
+
+    Map listarMatchesCompletosEmpresa(String cnpj) {
+        try {
+            def resultado = perfilService.listarMatchesCompletosEmpresa(cnpj)
+            return [
+                    status: 200,
+                    matches: resultado.matches,
+                    curtidasPendentes: resultado.curtidasPendentes
+            ]
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar matches completos da empresa: ${e.message}"]
+        }
+    }
 }

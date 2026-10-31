@@ -77,6 +77,7 @@ abstract class AbstractDAO<T> {
                 resultados.add(mapearRegistro(rs))
             }
         } catch (Exception e) {
+            e.printStackTrace()
             throw new RuntimeException("Erro na Busca", e)
         } finally {
             if (rs != null) rs.close()

@@ -6,4 +6,6 @@ interface IMatchDAO {
     List<Map<String, Object>> listarMatches()
     List<Map<String, Object>> listarMatchesDoCandidato(String cpfCandidato)
     List<Map<String, Object>> listarMatchesDaEmpresa(String cnpjEmpresa)
+    List listarCurtidasPendentesDaEmpresa(String cnpjEmpresa)
+    List listarCurtidasPendentesDoCandidato(String cpCandidato)
 }

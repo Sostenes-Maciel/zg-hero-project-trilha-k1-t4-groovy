@@ -96,14 +96,23 @@ class MatchServlet extends HttpServlet {
         try {
             String cpfParam = req.getParameter("cpf")
             String cnpjParam = req.getParameter("cnpj")
+            String completoParam = req.getParameter("completo") // Lê o &completo=true da URL
             Map resultado
 
             if (cpfParam != null && !cpfParam.trim().isEmpty()) {
-                resultado = matchController.listarMatchesCandidato(cpfParam)
+                if ("true".equals(completoParam)) {
+                    resultado = matchController.listarMatchesCompletosCandidato(cpfParam)
+                } else {
+                    resultado = matchController.listarMatchesCandidato(cpfParam)
+                }
             } else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
-                resultado = matchController.listarMatchesEmpresa(cnpjParam)
+                if ("true".equals(completoParam)) {
+                    resultado = matchController.listarMatchesCompletosEmpresa(cnpjParam) // <-- Adicionado aqui!
+                } else {
+                    resultado = matchController.listarMatchesEmpresa(cnpjParam)
+                }
             } else {
-                resultado = [status: 400, mensagem: "Informe o ?cpf= ou ?cnpj= na URL para buscar os matches."]
+                resultado = [status: 400, mensagem: "Informe os parâmetros corretos."]
             }
 
             enviarResposta(resp, resultado)

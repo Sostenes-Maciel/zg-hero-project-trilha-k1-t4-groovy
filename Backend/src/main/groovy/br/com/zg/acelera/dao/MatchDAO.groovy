@@ -12,11 +12,37 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
 
     @Override
     protected Map<String, Object> mapearRegistro(ResultSet rs) {
+
+        List<String> competencias = []
+
+        if (possuiColuna(rs, "competencias_candidato")) {
+            def sqlArray = rs.getArray("competencias_candidato")
+
+            if (sqlArray != null) {
+                try {
+                    competencias = sqlArray.getArray().toList().collect {
+                        it.toString()
+                    }
+                } finally {
+                    sqlArray.free()
+                }
+            }
+        }
+
         return [
-                idMatch      : rs.getInt("id_match"),
-                nomeCandidato: rs.getString("nome_candidato"),
-                nomeEmpresa  : rs.getString("nome_empresa"),
-                tituloVaga   : rs.getString("titulo_vaga")
+                idMatch: rs.getInt("id_match"),
+                candidato: [
+                        nome: rs.getString("nome_candidato"),
+                        competencias: competencias
+                ],
+                empresa: [
+                        nome: rs.getString("nome_empresa")
+                ],
+                vaga: [
+                        titulo: rs.getString("titulo_vaga"),
+                        pais: rs.getString("pais_vaga"),
+                        estado: rs.getString("estado_vaga")
+                ]
         ] as Map<String, Object>
     }
 
@@ -53,9 +79,10 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
     }
 
     @Override
-    List<Map<String, Object>> listarMatchesDoCandidato(String cpfCandidato) {
+    List listarMatchesDoCandidato(String cpfCandidato) {
         String sql = """
-            SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
+            SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, 
+                   v.titulo AS titulo_vaga, v.pais AS pais_vaga, v.estado AS estado_vaga
             FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
@@ -66,10 +93,25 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
         return executarQuery(sql, [cpfCandidato])
     }
 
-    @Override
-    List<Map<String, Object>> listarMatchesDaEmpresa(String cnpjEmpresa) {
+    List listarCurtidasPendentesDoCandidato(String cpfCandidato) {
         String sql = """
-            SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, v.titulo AS titulo_vaga
+            SELECT 0 AS id_match, '' AS nome_candidato, '' AS nome_empresa, 
+                   v.titulo AS titulo_vaga, v.pais AS pais_vaga, v.estado AS estado_vaga
+            FROM curtida c
+            JOIN vaga v ON v.id_vaga = c.id_vaga
+            WHERE c.cpf_candidato = ? AND c.cnpj_empresa IS NULL
+              AND NOT EXISTS (
+                  SELECT 1 FROM match_vaga m WHERE m.id_vaga = c.id_vaga AND m.cpf_candidato = c.cpf_candidato
+              )
+        """
+        return executarQuery(sql, [cpfCandidato])
+    }
+
+    @Override
+    List listarMatchesDaEmpresa(String cnpjEmpresa) {
+        String sql = """
+            SELECT m.id_match, c.nome AS nome_candidato, e.nome AS nome_empresa, 
+                   v.titulo AS titulo_vaga, v.pais AS pais_vaga, v.estado AS estado_vaga
             FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
@@ -78,5 +120,46 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
             ORDER BY m.id_match
         """
         return executarQuery(sql, [cnpjEmpresa])
+    }
+
+    List listarCurtidasPendentesDaEmpresa(String cnpjEmpresa) {
+        String sql = """
+        SELECT
+            0 AS id_match,
+            NULL::text AS nome_candidato,
+            NULL::text AS nome_empresa,
+            NULL::text AS titulo_vaga,
+            NULL::text AS pais_vaga,
+            NULL::text AS estado_vaga,
+            (
+                SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
+                FROM candidato_competencia cc
+                JOIN competencia comp
+                    ON comp.id_competencia = cc.id_competencia
+                WHERE cc.cpf_candidato = cu.cpf_candidato
+            ) AS competencias_candidato
+        FROM curtida cu
+        WHERE cu.cnpj_empresa = ?
+          AND cu.id_vaga IS NULL
+          AND NOT EXISTS (
+              SELECT 1
+              FROM match_vaga m
+              WHERE m.cnpj_empresa = cu.cnpj_empresa
+                AND m.cpf_candidato = cu.cpf_candidato
+          )
+        ORDER BY cu.id_curtida
+    """
+        return executarQuery(sql, [cnpjEmpresa])
+    }
+    private boolean possuiColuna(ResultSet rs, String nomeColuna) {
+        def metadata = rs.getMetaData()
+
+        for (int i = 1; i <= metadata.getColumnCount(); i++) {
+            if (metadata.getColumnLabel(i).equalsIgnoreCase(nomeColuna)) {
+                return true
+            }
+        }
+
+        return false
     }
 }
