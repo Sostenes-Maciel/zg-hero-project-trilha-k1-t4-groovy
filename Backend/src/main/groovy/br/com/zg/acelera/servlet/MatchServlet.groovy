@@ -75,7 +75,9 @@ class MatchServlet extends HttpServlet {
             } else if (autor == "EMPRESA") {
                 String cnpj = payload.cnpjEmpresa
                 String cpf = payload.cpfCandidato
-                Integer idVaga = payload.idVaga ? payload.idVaga as Integer : null
+                Integer idVaga = payload.idVaga != null
+                        ? payload.idVaga.toString().toDouble().toInteger()
+                        : null
 
                 resultado = matchController.curtirCandidato(cnpj, cpf, idVaga)
             } else {
@@ -146,7 +148,10 @@ class MatchServlet extends HttpServlet {
             if (autor == "EMPRESA") {
                 String cnpj = payload.cnpjEmpresa
                 String cpf = payload.cpfCandidato
-                resultado = matchController.removerCurtidaEmpresa(cnpj, cpf)
+                Integer idVaga = payload.idVaga != null
+                        ? payload.idVaga.toString().toDouble().toInteger()
+                        : null
+                resultado = matchController.removerCurtidaEmpresa(cnpj, cpf, idVaga)
 
             } else if (autor == "CANDIDATO") {
                 String cpf = payload.cpfCandidato

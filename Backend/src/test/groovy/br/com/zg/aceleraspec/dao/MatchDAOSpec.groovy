@@ -70,9 +70,10 @@ class MatchDAOSpec extends Specification {
 
         then: "a lista deve conter exatamente o match registrado com os dados mapeados"
         !matches.isEmpty()
-        matches[0].nomeCandidato == "Cand Match"
-        matches[0].nomeEmpresa == "Empresa Match"
-        matches[0].tituloVaga == "Dev Match"
+        matches[0].candidato.nome == "Cand Match"
+        matches[0].empresa.nome == "Empresa Match"
+        matches[0].vaga.id == vaga.id
+        matches[0].vaga.titulo == "Dev Match"
 
         cleanup:
         vagaDAO.listarPorEmpresa(empresa.cnpj).each { vagaDAO.excluir(it.id) }

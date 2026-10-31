@@ -31,6 +31,8 @@ class MatchController {
             boolean deuMatch = perfilService.curtirCandidato(cnpjEmpresa, cpfCandidato, idVaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Candidato curtido com sucesso!"
             return [status: 201, mensagem: msg, match: deuMatch]
+        } catch (IllegalArgumentException e) {
+            return [status: 400, mensagem: e.message]
         } catch (IllegalStateException e) {
             return [status: 400, mensagem: e.message]
         } catch (Exception e) {
@@ -56,10 +58,10 @@ class MatchController {
             return [status: 500, mensagem: "Erro ao buscar matches da empresa: ${e.message}"]
         }
     }
-    Map removerCurtidaEmpresa(String cnpj, String cpf) {
+    Map removerCurtidaEmpresa(String cnpj, String cpf, Integer idVaga) {
         try {
             // Repassa para a regra de negócio no Service
-            boolean sucesso = perfilService.removerCurtidaEmpresa(cnpj, cpf)
+            boolean sucesso = perfilService.removerCurtidaEmpresa(cnpj, cpf, idVaga)
 
             if (sucesso) {
                 return [status: 200, mensagem: "Curtida removida com sucesso."]

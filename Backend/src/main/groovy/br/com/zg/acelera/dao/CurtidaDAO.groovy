@@ -24,9 +24,9 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
-    boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato) {
-        String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga IS NULL"
-        return executarQueryBooleana(sqlVerificar, [cpfCandidato, cnpjEmpresa])
+    boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
+        String sqlVerificar = "SELECT 1 FROM curtida WHERE cpf_candidato = ? AND cnpj_empresa = ? AND id_vaga = ?"
+        return executarQueryBooleana(sqlVerificar, [cpfCandidato, cnpjEmpresa, idVaga])
     }
 
     @Override
@@ -38,11 +38,15 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
-    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa) {
-        if (jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) return
+    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
+        if (jaCurtiuCandidato(cnpjEmpresa, cpfCandidato, idVaga)) return
 
-        String sqlInserir = "INSERT INTO curtida (cpf_candidato, cnpj_empresa) VALUES (?, ?)"
-        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa])
+        String sqlInserir = """
+            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga)
+            VALUES (?, ?, ?)
+            ON CONFLICT DO NOTHING
+        """
+        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga])
     }
 
     @Override
@@ -58,37 +62,58 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
                   FROM curtida c2
                   WHERE c2.cpf_candidato = ?
                     AND c2.cnpj_empresa = ?
-                    AND c2.id_vaga IS NULL
+                    AND c2.id_vaga = ?
               )
         """
-        return executarQueryBooleana(sql, [cpfCandidato, idVaga, cpfCandidato, cnpjEmpresa])
+        return executarQueryBooleana(sql, [cpfCandidato, idVaga, cpfCandidato, cnpjEmpresa, idVaga])
     }
 
     @Override
-    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato) {
-        if (!jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) {
-            return false
-        }
-
-        String sqlDeletar = "DELETE FROM curtida WHERE cnpj_empresa = ? AND cpf_candidato = ? AND id_vaga IS NULL"
-        executarUpdate(sqlDeletar, [cnpjEmpresa, cpfCandidato])
-        return true
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
+        String sqlDeletar = """
+            DELETE FROM curtida c
+            WHERE c.cnpj_empresa = ?
+              AND c.cpf_candidato = ?
+              AND c.id_vaga = ?
+              AND NOT EXISTS (
+                  SELECT 1 FROM match_vaga m
+                  WHERE m.cnpj_empresa = c.cnpj_empresa
+                    AND m.cpf_candidato = c.cpf_candidato
+                    AND m.id_vaga = c.id_vaga
+              )
+        """
+        return executarUpdate(sqlDeletar, [cnpjEmpresa, cpfCandidato, idVaga]) > 0
     }
 
     @Override
     boolean removerCurtidaCandidato(String cpfCandidato, Integer idVaga) {
-        if (!jaCurtiuVaga(cpfCandidato, idVaga)) {
-            return false
-        }
-
-        String sqlDeletar = "DELETE FROM curtida WHERE cpf_candidato = ? AND id_vaga = ? AND cnpj_empresa IS NULL"
-        executarUpdate(sqlDeletar, [cpfCandidato, idVaga])
-        return true
+        String sqlDeletar = """
+            DELETE FROM curtida c
+            WHERE c.cpf_candidato = ?
+              AND c.id_vaga = ?
+              AND c.cnpj_empresa IS NULL
+              AND NOT EXISTS (
+                  SELECT 1 FROM match_vaga m
+                  WHERE m.cpf_candidato = c.cpf_candidato
+                    AND m.id_vaga = c.id_vaga
+              )
+        """
+        return executarUpdate(sqlDeletar, [cpfCandidato, idVaga]) > 0
     }
 
     @Override
     List listarStatusCurtidas(String cpf) {
-        String sql = "SELECT id_vaga FROM curtida WHERE cpf_candidato = ? AND id_vaga IS NOT NULL AND cnpj_empresa IS NULL"
+        String sql = """
+            SELECT c.id_vaga,
+                   CASE WHEN m.id_match IS NULL THEN 'curtido' ELSE 'match' END AS status
+            FROM curtida c
+            LEFT JOIN match_vaga m
+              ON m.cpf_candidato = c.cpf_candidato
+             AND m.id_vaga = c.id_vaga
+            WHERE c.cpf_candidato = ?
+              AND c.id_vaga IS NOT NULL
+              AND c.cnpj_empresa IS NULL
+        """
         List resultados = []
         Connection conexao = null
         PreparedStatement stmt = null
@@ -101,20 +126,36 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
             rs = stmt.executeQuery()
 
             while (rs.next()) {
-                resultados.add([idVaga: rs.getInt("id_vaga"), status: "curtido"])
+                resultados.add([idVaga: rs.getInt("id_vaga"), status: rs.getString("status")])
             }
         } catch (Exception e) {
-            e.printStackTrace()
+            throw new RuntimeException("Falha ao listar curtidas do candidato", e)
         } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
+            fecharRecursosCurtida(rs, stmt, conexao)
         }
         return resultados
     }
     @Override
     List listarStatusCurtidasEmpresa(String cnpj) {
-        String sql = "SELECT cpf_candidato FROM curtida WHERE cnpj_empresa = ? AND id_vaga IS NULL"
+        String sql = """
+            SELECT cpf_candidato, id_vaga, status
+            FROM (
+                SELECT c.cpf_candidato, c.id_vaga,
+                       CASE WHEN m.id_match IS NULL THEN 'curtido' ELSE 'match' END AS status
+                FROM curtida c
+                LEFT JOIN match_vaga m
+                  ON m.cpf_candidato = c.cpf_candidato
+                 AND m.cnpj_empresa = c.cnpj_empresa
+                 AND m.id_vaga = c.id_vaga
+                WHERE c.cnpj_empresa = ?
+                  AND c.id_vaga IS NOT NULL
+                UNION
+                SELECT m.cpf_candidato, m.id_vaga, 'match' AS status
+                FROM match_vaga m
+                WHERE m.cnpj_empresa = ?
+            ) status_empresa
+            ORDER BY cpf_candidato, id_vaga
+        """
         List resultados = []
         Connection conexao = null
         PreparedStatement stmt = null
@@ -124,19 +165,39 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
             conexao = conexaoFactory.conectar()
             stmt = conexao.prepareStatement(sql)
             stmt.setString(1, cnpj)
+            stmt.setString(2, cnpj)
             rs = stmt.executeQuery()
 
             while (rs.next()) {
-                // Formato que o frontend da empresa vai ler: { cpfCandidato: "11122233394", status: "curtido" }
-                resultados.add([cpfCandidato: rs.getString("cpf_candidato"), status: "curtido"])
+                resultados.add([
+                        cpfCandidato: rs.getString("cpf_candidato"),
+                        idVaga: rs.getInt("id_vaga"),
+                        status: rs.getString("status")
+                ])
             }
         } catch (Exception e) {
-            e.printStackTrace()
+            throw new RuntimeException("Falha ao listar curtidas da empresa", e)
         } finally {
-            if (rs != null) rs.close()
-            if (stmt != null) stmt.close()
-            if (conexao != null) conexao.close()
+            fecharRecursosCurtida(rs, stmt, conexao)
         }
         return resultados
+    }
+
+    private static void fecharRecursosCurtida(ResultSet rs, PreparedStatement stmt, Connection conexao) {
+        try {
+            rs?.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        try {
+            stmt?.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        try {
+            conexao?.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
     }
 }

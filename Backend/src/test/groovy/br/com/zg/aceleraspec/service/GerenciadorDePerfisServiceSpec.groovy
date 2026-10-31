@@ -42,12 +42,13 @@ class GerenciadorDePerfisServiceSpec extends Specification {
 
     def "deve cadastrar candidato com sucesso"() {
         given:
-        Candidato candidato = new Candidato(nome: "Joao", email: "joao@email.com", cpf: "12345678901", idade: 25, estado: "SP", cep: "12345678", descricao: "Dev")
+        Candidato candidato = new Candidato(nome: "Joao", email: "joao@email.com", cpf: "123.456.789-01", idade: 25, estado: "SP", cep: "12345678", descricao: "Dev")
 
         when:
         service.cadastrarCandidato(candidato)
 
         then:
+        candidato.cpf == "12345678901"
         1 * candidatoDAOMock.cadastrar(candidato)
     }
 
@@ -112,7 +113,7 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         Vaga vaga = new Vaga(id: 1, empresa: empresa)
 
         when:
-        boolean deuMatch = service.curtirVaga(cpf, vaga)
+        boolean deuMatch = service.curtirVaga(cpf, vaga.id)
 
         then:
         1 * vagaServiceMock.buscarVagaPorId(vaga.id) >> vaga
@@ -125,5 +126,93 @@ class GerenciadorDePerfisServiceSpec extends Specification {
 
         and:
         !deuMatch
+    }
+
+    def "deve criar match quando empresa curte a mesma vaga que candidato curtiu antes"() {
+        given:
+        String cpf = "12345678901"
+        String cnpj = "12345678901234"
+        Integer idVaga = 1
+        Vaga vaga = new Vaga(id: idVaga, empresa: new Empresa(cnpj: cnpj))
+        vagaServiceMock.buscarVagaPorId(idVaga) >> vaga
+        curtidaDAOMock.jaCurtiuCandidato(cnpj, cpf, idVaga) >> false
+        curtidaDAOMock.verificarMatch(cpf, cnpj, idVaga) >> true
+        matchDAOMock.existeMatch(cpf, cnpj, idVaga) >> false
+
+        when:
+        boolean deuMatch = service.curtirCandidato(cnpj, cpf, idVaga)
+
+        then:
+        1 * curtidaDAOMock.registrarCurtidaEmpresa(cpf, cnpj, idVaga)
+        1 * matchDAOMock.registrarMatch(cpf, cnpj, idVaga)
+        deuMatch
+    }
+
+    def "deve normalizar CPF antes de registrar curtida da empresa"() {
+        given:
+        String cpfFormatado = "123.456.789-01"
+        String cpfNormalizado = "12345678901"
+        String cnpj = "12345678901234"
+        Integer idVaga = 1
+        Vaga vaga = new Vaga(id: idVaga, empresa: new Empresa(cnpj: cnpj))
+        vagaServiceMock.buscarVagaPorId(idVaga) >> vaga
+        curtidaDAOMock.jaCurtiuCandidato(cnpj, cpfNormalizado, idVaga) >> false
+        curtidaDAOMock.verificarMatch(cpfNormalizado, cnpj, idVaga) >> false
+
+        when:
+        boolean deuMatch = service.curtirCandidato(cnpj, cpfFormatado, idVaga)
+
+        then:
+        1 * curtidaDAOMock.registrarCurtidaEmpresa(cpfNormalizado, cnpj, idVaga)
+        !deuMatch
+    }
+
+    def "deve criar match quando empresa curtiu primeiro e candidato curte a mesma vaga"() {
+        given:
+        String cpf = "12345678901"
+        String cnpj = "12345678901234"
+        Integer idVaga = 1
+        Empresa empresa = new Empresa(cnpj: cnpj)
+        Vaga vaga = new Vaga(id: idVaga, empresa: empresa)
+        vagaServiceMock.buscarVagaPorId(idVaga) >> vaga
+        curtidaDAOMock.jaCurtiuVaga(cpf, idVaga) >> false
+        curtidaDAOMock.verificarMatch(cpf, cnpj, idVaga) >> true
+        matchDAOMock.existeMatch(cpf, cnpj, idVaga) >> false
+
+        when:
+        boolean deuMatch = service.curtirVaga(cpf, idVaga)
+
+        then:
+        1 * curtidaDAOMock.registrarCurtidaCandidato(cpf, idVaga)
+        1 * matchDAOMock.registrarMatch(cpf, cnpj, idVaga)
+        deuMatch
+    }
+
+    def "nao deve criar match se a vaga selecionada nao pertencer a empresa"() {
+        given:
+        String cpf = "12345678901"
+        String cnpj = "12345678901234"
+        Integer idVaga = 1
+        vagaServiceMock.buscarVagaPorId(idVaga) >> new Vaga(id: idVaga, empresa: new Empresa(cnpj: "99999999999999"))
+
+        when:
+        service.curtirCandidato(cnpj, cpf, idVaga)
+
+        then:
+        thrown(IllegalStateException)
+        0 * curtidaDAOMock.registrarCurtidaEmpresa(_, _, _)
+        0 * matchDAOMock.registrarMatch(_, _, _)
+    }
+
+    def "nao deve remover curtida da empresa se ja houver match"() {
+        given:
+        matchDAOMock.existeMatch("12345678901", "12345678901234", 1) >> true
+
+        when:
+        boolean removeu = service.removerCurtidaEmpresa("12345678901234", "12345678901", 1)
+
+        then:
+        !removeu
+        0 * curtidaDAOMock.removerCurtidaEmpresa(_, _, _)
     }
 }

@@ -27,7 +27,7 @@ class MatchServletSpec extends Specification {
 
     def "doPost - Deve processar apenas a curtida da CANDIDATO quando não houver Match (EMPRESA ainda não curtiu)"() {
         given: "Um JSON válido vindo do Postman"
-        String jsonPostman = '{"autor": "CANDIDATO", "cpfCandidato": "11122233394", "vaga": {"id": 1}}'
+        String jsonPostman = '{"autor": "CANDIDATO", "cpfCandidato": "11122233394", "idVaga": 1}'
 
         and: "Simulamos o leitor da requisição lendo esse JSON"
         req.getReader() >> new BufferedReader(new StringReader(jsonPostman))
@@ -101,7 +101,7 @@ class MatchServletSpec extends Specification {
 
     def "doPost - Deve retornar MATCH quando o CANDIDATO for o gatilho (Empresa já havia curtido antes)"() {
         given: "Um JSON do Candidato curtindo a Vaga"
-        String jsonPostman = '{"autor": "CANDIDATO", "cpfCandidato": "11122233394", "vaga": {"id": 1}}'
+        String jsonPostman = '{"autor": "CANDIDATO", "cpfCandidato": "11122233394", "idVaga": 1}'
         req.getReader() >> new BufferedReader(new StringReader(jsonPostman))
 
         and: "Simulamos o Controller avisando que essa curtida disparou o MATCH (match: true)"

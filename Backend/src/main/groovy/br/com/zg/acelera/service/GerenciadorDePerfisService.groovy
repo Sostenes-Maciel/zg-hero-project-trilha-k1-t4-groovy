@@ -8,6 +8,7 @@ import br.com.zg.acelera.interfaces.IMatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.utils.ValidacaoUtils
 
 class GerenciadorDePerfisService {
 
@@ -33,6 +34,7 @@ class GerenciadorDePerfisService {
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)
         ValidarCandidatoService.validarCpf(candidato.cpf)
+        candidato.cpf = ValidacaoUtils.limparFormatacao(candidato.cpf)
         ValidarCandidatoService.validarIdade(candidato.idade)
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
@@ -84,6 +86,8 @@ class GerenciadorDePerfisService {
     void atualizarCandidato(Candidato candidato) {
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)
+        ValidarCandidatoService.validarCpf(candidato.cpf)
+        candidato.cpf = ValidacaoUtils.limparFormatacao(candidato.cpf)
         ValidarCandidatoService.validarIdade(candidato.idade)
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
@@ -130,6 +134,7 @@ class GerenciadorDePerfisService {
     }
 
     boolean curtirVaga(String cpfCandidato, Integer idVaga) {
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
         Vaga vagaCompleta = gerenciadorDeVagas.buscarVagaPorId(idVaga)
 
         if (vagaCompleta == null) {
@@ -137,6 +142,12 @@ class GerenciadorDePerfisService {
         }
 
         if (curtidaDAO.jaCurtiuVaga(cpfCandidato, idVaga)) {
+            if (matchDAO.existeMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)) {
+                return true
+            }
+            if (processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)) {
+                return true
+            }
             throw new IllegalStateException("Você já curtiu esta vaga!")
         }
 
@@ -145,30 +156,51 @@ class GerenciadorDePerfisService {
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
-        if (curtidaDAO.jaCurtiuCandidato(cnpjEmpresa, cpfCandidato)) {
-            throw new IllegalStateException("Sua empresa já curtiu este candidato!")
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        if (idVaga == null) {
+            throw new IllegalArgumentException("Selecione uma vaga para curtir o candidato.")
         }
 
-        curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa)
+        Vaga vaga = gerenciadorDeVagas.buscarVagaPorId(idVaga)
+        if (vaga == null) {
+            throw new IllegalStateException("Vaga não encontrada com o ID informado.")
+        }
+        if (vaga.empresa?.cnpj?.replaceAll(/\D/, '') != cnpjEmpresa?.replaceAll(/\D/, '')) {
+            throw new IllegalStateException("A vaga selecionada não pertence a esta empresa.")
+        }
+
+        if (matchDAO.existeMatch(cpfCandidato, cnpjEmpresa, idVaga)) {
+            return true
+        }
+        if (curtidaDAO.jaCurtiuCandidato(cnpjEmpresa, cpfCandidato, idVaga)) {
+            return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
+        }
+
+        curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa, idVaga)
         return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
     }
 
-    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato) {
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
         // Verifica se os dados chegaram corretamente
-        if (!cnpjEmpresa || !cpfCandidato) {
+        if (!cnpjEmpresa || !cpfCandidato || !idVaga) {
             return false
         }
 
-        return curtidaDAO.removerCurtidaEmpresa(cnpjEmpresa, cpfCandidato)
+        if (matchDAO.existeMatch(cpfCandidato, cnpjEmpresa, idVaga)) {
+            return false
+        }
+
+        return curtidaDAO.removerCurtidaEmpresa(cnpjEmpresa, cpfCandidato, idVaga)
     }
 
     boolean removerCurtidaCandidato(String cpfCandidato, Integer idVaga) {
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
         // Verifica se os dados chegaram corretamente
         if (!cpfCandidato || !idVaga) {
             return false
         }
 
-        // Repassa o CPF e o Integer diretamente para o DAO
         return curtidaDAO.removerCurtidaCandidato(cpfCandidato, idVaga)
     }
 
@@ -214,11 +246,18 @@ class GerenciadorDePerfisService {
 
         def pendentesFormatadas = pendentes.collect { item ->
             Map candidato = item['candidato'] as Map
+            Map vaga = item['vaga'] as Map
 
             [
                     candidato: [
                             nome: candidato?.nome,
                             competencias: candidato?.competencias ?: []
+                    ],
+                    vaga: [
+                            id: vaga?.id,
+                            titulo: vaga?.titulo,
+                            pais: vaga?.pais,
+                            estado: vaga?.estado
                     ]
             ]
         }

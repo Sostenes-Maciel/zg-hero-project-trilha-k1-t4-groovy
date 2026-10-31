@@ -13,7 +13,7 @@ abstract class AbstractDAO<T> {
         this.conexaoFactory = conexaoFactory
     }
 
-    protected void executarUpdate(String sql, List parametros) {
+    protected int executarUpdate(String sql, List parametros) {
         Connection conexao = null
         PreparedStatement stmt = null
         try {
@@ -24,7 +24,7 @@ abstract class AbstractDAO<T> {
                 stmt.setObject(i + 1, param)
             }
 
-            stmt.executeUpdate()
+            return stmt.executeUpdate()
         } catch (Exception e) {
             e.printStackTrace()
             throw new RuntimeException("Falha ao executar query", e)

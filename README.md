@@ -183,7 +183,7 @@ Desenvolvimento da modelagem e criação do Banco de Dados Relacional (PostgreSQ
 
 Estrutura Principal: candidato (PK CPF), empresa (PK CNPJ), competencia, vaga.
 
-Tabelas Auxiliares: candidato_competencia, empresa_competencia, vaga_competencia, curtida e match para lidar com relações N:N.
+Tabelas Auxiliares: candidato_competencia, empresa_competencia, vaga_competencia, curtida e match_vaga para lidar com relações N:N.
 
 Lógica de Match no Banco de Dados (Desafio Bônus)
 
@@ -193,15 +193,17 @@ Para suportar o principal caso de uso do LinkeTinder (o "Match"), o banco de dad
 
 **Como funciona o fluxo de dados:**
 
-**Registro da Curtida da Empresa:** Quando a empresa, através do recrutador, curte o perfil de um candidato, um novo registro é inserido na tabela `curtida`, desta vez preenchendo as chaves `empresa_id` e `candidato_id`.
+**Registro da Curtida da Empresa:** A empresa seleciona uma de suas vagas ao curtir um candidato. O registro em `curtida` associa candidato, empresa e vaga; a curtida do candidato continua associada à vaga e não é alterada por esse fluxo.
 
-**Validação e Integridade:** A tabela `curtida` possui uma `CHECK CONSTRAINT` que garante que uma curtida seja *ou* de um candidato para uma vaga, *ou* de uma empresa para um candidato, nunca ambos na mesma tupla.
+**Validação e Integridade:** O match só é criado quando ambas as curtidas apontam para a mesma vaga. A chave estrangeira composta garante que a vaga selecionada pertença à empresa. Curtidas antigas da empresa sem vaga permanecem como legado e não criam novos matches.
 
 **O Evento de Match:** 
-A aplicação (backend) é responsável por consultar o banco e verificar a intersecção de interesses (Candidato curtiu a Vaga X `AND` Empresa dona da Vaga X curtiu o Candidato). Ao identificar essa condição verdadeira, um registro final é inserido na tabela `match`, consolidando a conexão e permitindo o contato entre as partes.
+A aplicação (backend) verifica a reciprocidade independentemente de quem curtiu primeiro e grava o resultado em `match_vaga`. Os nomes permanecem ocultos até o match; após a confirmação, nenhuma das curtidas que o formou pode ser removida.
 
 
 As queries de inserção e simulação desta lógica encontram-se no arquivo SQL principal do repositório.
+
+Para bancos já existentes, aplique `BancoDeDados/Migracao_CurtidaEmpresaPorVaga.sql` antes de iniciar o backend com este fluxo.
 ## Modelo DER:
 
 ![Diagrama DER](BancoDeDados/DER%20-%20LinkeTinder.png)

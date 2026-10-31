@@ -2,11 +2,11 @@ package br.com.zg.acelera.interfaces
 
 interface ICurtidaDAO {
     void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga)
-    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa)
+    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga)
     boolean verificarMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga)
     boolean jaCurtiuVaga(String cpfCandidato, Integer idVaga)
-    boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato)
-    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato)
+    boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga)
+    boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga)
     boolean removerCurtidaCandidato(String cpfCandidato, Integer idVaga)
     List listarStatusCurtidas(String cpf)
     List listarStatusCurtidasEmpresa(String cnpj)
