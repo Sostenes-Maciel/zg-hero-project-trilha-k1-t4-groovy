@@ -6,7 +6,7 @@ import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
 import { renderListaMatchesEmpresa } from "./ListaMatchesEmpresa.ts"
 
 interface StatusMatch {
-    cpf: string
+    cpfCandidato: string
     status: 'curtido' | 'match'
 }
 export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): Promise<void> {
@@ -144,8 +144,8 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
         const linha = document.createElement('tr')
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
 
-        // Verifica se a empresa curtiu ou deu match com este candidato
-        const status = statusMatches.find(s => s.cpf === candidato.cpf)?.status
+        const cpfLimpo = candidato.cpf.replace(/\D/g, '')
+        const status = statusMatches.find(s => s.cpfCandidato === cpfLimpo)?.status
 
         const curtiu = status === 'curtido' || status === 'match'
         const temMatch = status === 'match'

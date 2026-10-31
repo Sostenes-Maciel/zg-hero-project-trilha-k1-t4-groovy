@@ -14,9 +14,9 @@ class MatchController {
         this.perfilService = perfilService
     }
 
-    Map curtirVaga(String cpfCandidato, Vaga vaga) {
+    Map curtirVaga(String cpfCandidato, Integer idVaga) {
         try {
-            boolean deuMatch = perfilService.curtirVaga(cpfCandidato, vaga)
+            boolean deuMatch = perfilService.curtirVaga(cpfCandidato, idVaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Vaga curtida com sucesso!"
             return [status: 201, mensagem: msg, match: deuMatch]
         } catch (IllegalStateException e) {
@@ -40,8 +40,9 @@ class MatchController {
 
     Map listarMatchesCandidato(String cpf) {
         try {
-            def matches = matchService.listarMatchesDoCandidato(cpf)
-            return [status: 200, dados: matches]
+            // Agora pegamos a lista perfeitamente formatada
+            def statusCurtidas = perfilService.listarStatusCurtidasCandidato(cpf)
+            return [status: 200, dados: statusCurtidas]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao buscar matches: ${e.message}"]
         }
@@ -49,10 +50,10 @@ class MatchController {
 
     Map listarMatchesEmpresa(String cnpj) {
         try {
-            def matches = matchService.listarMatchesDaEmpresa(cnpj)
-            return [status: 200, dados: matches]
+            def statusCurtidas = perfilService.listarStatusCurtidasEmpresa(cnpj)
+            return [status: 200, dados: statusCurtidas]
         } catch (Exception e) {
-            return [status: 500, mensagem: "Erro ao buscar matches: ${e.message}"]
+            return [status: 500, mensagem: "Erro ao buscar matches da empresa: ${e.message}"]
         }
     }
     Map removerCurtidaEmpresa(String cnpj, String cpf) {
@@ -64,6 +65,20 @@ class MatchController {
                 return [status: 200, mensagem: "Curtida removida com sucesso."]
             } else {
                 return [status: 400, mensagem: "Não foi possível remover a curtida (talvez ela não exista ou já seja um Match)."]
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            return [status: 500, mensagem: "Erro ao remover curtida: ${e.message}"]
+        }
+    }
+    Map removerCurtidaCandidato(String cpf, Integer idVaga) {
+        try {
+            boolean sucesso = perfilService.removerCurtidaCandidato(cpf, idVaga)
+
+            if (sucesso) {
+                return [status: 200, mensagem: "Curtida na vaga removida com sucesso."]
+            } else {
+                return [status: 400, mensagem: "Não foi possível remover a curtida (talvez já seja um Match)."]
             }
         } catch (Exception e) {
             e.printStackTrace()

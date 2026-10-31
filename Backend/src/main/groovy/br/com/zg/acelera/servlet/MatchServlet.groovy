@@ -9,7 +9,6 @@ import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
-import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDeMatchesService
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import br.com.zg.acelera.service.GerenciadorDeVagasService
@@ -65,9 +64,13 @@ class MatchServlet extends HttpServlet {
 
             if (autor == "CANDIDATO") {
                 String cpf = payload.cpfCandidato
-                Vaga vaga = gson.fromJson(gson.toJson(payload.vaga), Vaga.class)
+                Integer idVaga = null
 
-                resultado = matchController.curtirVaga(cpf, vaga)
+                if (payload.get("idVaga") != null) {
+                    idVaga = Integer.valueOf(payload.get("idVaga").toString().replace(".0", ""))
+                }
+
+                resultado = matchController.curtirVaga(cpf, idVaga)
 
             } else if (autor == "EMPRESA") {
                 String cnpj = payload.cnpjEmpresa
@@ -134,10 +137,20 @@ class MatchServlet extends HttpServlet {
             if (autor == "EMPRESA") {
                 String cnpj = payload.cnpjEmpresa
                 String cpf = payload.cpfCandidato
-
                 resultado = matchController.removerCurtidaEmpresa(cnpj, cpf)
+
+            } else if (autor == "CANDIDATO") {
+                String cpf = payload.cpfCandidato
+
+                // Blindagem: Garante que o ID será um número inteiro perfeito, independente de como o Gson leu
+                Integer idVaga = null
+                if (payload.idVaga != null) {
+                    idVaga = payload.idVaga.toString().toDouble().toInteger()
+                }
+
+                resultado = matchController.removerCurtidaCandidato(cpf, idVaga)
             } else {
-                resultado = [status: 400, mensagem: "Autor inválido. Só Empresa pode descurtir por aqui."]
+                resultado = [status: 400, mensagem: "Autor inválido."]
             }
 
             enviarResposta(resp, resultado)

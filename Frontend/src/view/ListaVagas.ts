@@ -1,16 +1,29 @@
-import { BancodeDados } from '../dao/BancodeDados'
 import { renderPerfilVaga } from './PerfilVaga.ts'
 import type { Candidato } from "../model/Candidato.ts"
+import type { Vaga } from '../model/Vaga.ts'
 import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
 import { mostrarAnimacaoMatch } from "./AnimacaoMatch.ts"
 
-export function renderListaVagas(onVoltar?: () => void, candidato?: Candidato, animarTransicao: boolean = true): void {
+// Tipagem para a resposta de status das curtidas do candidato
+interface StatusMatchVaga {
+    idVaga: number
+    status: 'curtido' | 'match'
+}
+
+export async function renderListaVagas(onVoltar?: () => void, candidato?: Candidato, animarTransicao: boolean = true): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
     renderizarTemplateBase(app, animarTransicao)
-    renderizarLinhasVagas(candidato)
-    configurarEventos(onVoltar, candidato)
+
+    // Busca vagas e os status de curtida/match em paralelo
+    const [vagasDoBanco, statusMatches] = await Promise.all([
+        buscarVagasDoBanco(),
+        candidato ? buscarStatusMatchesCandidato(candidato.cpf.replace(/\D/g, '')) : Promise.resolve([])
+    ])
+
+    renderizarLinhasVagas(vagasDoBanco, statusMatches, candidato)
+    configurarEventos(onVoltar, vagasDoBanco, candidato)
 }
 
 function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): void {
@@ -36,7 +49,9 @@ function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): 
                         <th>Ação</th>
                     </tr>
                 </thead>
-                <tbody id="lista-vagas-corpo"></tbody>
+                <tbody id="lista-vagas-corpo">
+                    <tr><td colspan="4">Carregando vagas...</td></tr>
+                </tbody>
             </table>
 
             <button id="btn-voltar-candidato">Voltar</button>
@@ -44,11 +59,38 @@ function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): 
     `
 }
 
-function renderizarLinhasVagas(candidato?: Candidato): void {
+async function buscarVagasDoBanco(): Promise<Vaga[]> {
+    try {
+        const resposta = await fetch('http://localhost:8080/api/vagas')
+        if (resposta.ok) {
+            const dadosDoServidor = await resposta.json()
+            return dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+        }
+        return []
+    } catch (erro) {
+        console.error("Erro ao buscar vagas:", erro)
+        return []
+    }
+}
+
+async function buscarStatusMatchesCandidato(cpf: string): Promise<StatusMatchVaga[]> {
+    try {
+        // Assume que sua API suporta passar o CPF do candidato para retornar o status
+        const resposta = await fetch(`http://localhost:8080/api/matches?cpf=${cpf}`)
+        if (resposta.ok) {
+            const dados = await resposta.json()
+            return dados.dados ? dados.dados : dados
+        }
+        return []
+    } catch (erro) {
+        console.error("Erro ao buscar matches do candidato:", erro)
+        return []
+    }
+}
+
+function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], candidato?: Candidato): void {
     const lista = document.querySelector<HTMLTableSectionElement>('#lista-vagas-corpo')
     if (!lista) return
-
-    const vagas = BancodeDados.vagas
 
     if (vagas.length === 0) {
         lista.innerHTML = `
@@ -59,14 +101,19 @@ function renderizarLinhasVagas(candidato?: Candidato): void {
         return
     }
 
+    lista.innerHTML = ''
+
     vagas.forEach(vaga => {
         const linha = document.createElement('tr')
         linha.dataset.titulo = vaga.titulo.toLowerCase()
 
         const afinidade = candidato ? calcularAfinidade(candidato, vaga.empresa) : null
-        const curtiu = candidato ? BancodeDados.candidatoCurtiuVaga(candidato, vaga) : false
-        const temMatch = candidato ? BancodeDados.candidatoTemMatchComVaga(candidato, vaga) : false
 
+        // Verifica o status no array retornado pelo backend
+        const status = statusMatches.find(s => s.idVaga === vaga.id)?.status
+
+        const curtiu = status === 'curtido' || status === 'match'
+        const temMatch = status === 'match'
         const iconeCurtida = temMatch ? '🤝' : curtiu ? '♥' : '♡'
 
         linha.innerHTML = `
@@ -77,7 +124,8 @@ function renderizarLinhasVagas(candidato?: Candidato): void {
                 <button
                     class="btn-curtir-vaga"
                     data-id="${vaga.id}"
-                    title="${temMatch ? 'Match confirmado!' : curtiu ? 'Vaga curtida' : 'Curtir vaga'}"
+                    data-curtido="${curtiu}"
+                    title="${temMatch ? 'Match confirmado!' : curtiu ? 'Descurtir' : 'Curtir vaga'}"
                     ${temMatch ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
@@ -92,11 +140,11 @@ function renderizarLinhasVagas(candidato?: Candidato): void {
     })
 }
 
-function configurarEventos(onVoltar?: () => void, candidato?: Candidato): void {
+function configurarEventos(onVoltar?: () => void, vagas?: Vaga[], candidato?: Candidato): void {
     configurarBotaoVoltar(onVoltar)
     configurarFiltroBusca()
-    configurarBotoesCurtir(onVoltar, candidato)
-    configurarBotoesPerfil(onVoltar, candidato)
+    configurarBotoesCurtir(candidato)
+    configurarBotoesPerfil(onVoltar, vagas, candidato)
 }
 
 function configurarBotaoVoltar(onVoltar?: () => void): void {
@@ -119,51 +167,88 @@ function configurarFiltroBusca(): void {
     })
 }
 
-function configurarBotoesCurtir(onVoltar?: () => void, candidato?: Candidato): void {
+function configurarBotoesCurtir(candidato?: Candidato): void {
     const botoesCurtir = document.querySelectorAll<HTMLButtonElement>('.btn-curtir-vaga')
 
     botoesCurtir.forEach(botao => {
-        botao.addEventListener('click', () => {
+        botao.addEventListener('click', async (e) => {
+            e.preventDefault()
             if (!candidato) return
 
             const vagaId = Number(botao.dataset.id)
-            const vaga = BancodeDados.vagas.find(v => v.id === vagaId)
-            if (!vaga) return
+            const jaCurtido = botao.dataset.curtido === 'true'
 
-            BancodeDados.curtirVaga(candidato, vaga)
+            botao.disabled = true
+            const iconeOriginal = botao.innerHTML
+            botao.innerHTML = '...'
 
-            const criouMatch = BancodeDados.candidatoTemMatchComVaga(candidato, vaga)
-            const app = document.querySelector<HTMLDivElement>('#app')
+            try {
+                const cpfLimpo = candidato.cpf.replace(/\D/g, '')
+                const metodoHTTP = jaCurtido ? 'DELETE' : 'POST'
 
-            app?.classList.add('sem-transicao')
-            renderListaVagas(onVoltar, candidato, false)
+                const payload = {
+                    autor: "CANDIDATO", // Importante! Informa ao backend quem está curtindo
+                    cpfCandidato: cpfLimpo,
+                    idVaga: vagaId
+                }
 
-            requestAnimationFrame(() => {
-                app?.classList.remove('sem-transicao')
-            })
-
-            if (!criouMatch) {
-                requestAnimationFrame(() => {
-                    const botaoAtual = document.querySelector<HTMLButtonElement>(`.btn-curtir-vaga[data-id="${vaga.id}"]`)
-                    botaoAtual?.classList.add('curtida-animada')
+                const resposta = await fetch('http://localhost:8080/api/matches', {
+                    method: metodoHTTP,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 })
-            } else {
-                mostrarAnimacaoMatch()
+
+                if (resposta.ok) {
+                    if (jaCurtido) {
+                        // Removeu a curtida
+                        botao.innerHTML = '♡'
+                        botao.title = 'Curtir vaga'
+                        botao.dataset.curtido = 'false'
+                    } else {
+                        // Curtiu a vaga
+                        const resultado = await resposta.json()
+                        if (resultado.mensagem && resultado.mensagem.toLowerCase().includes('match')) {
+                            botao.innerHTML = '🤝'
+                            botao.title = 'Match confirmado!'
+                            botao.disabled = true
+                            mostrarAnimacaoMatch()
+                        } else {
+                            botao.innerHTML = '♥'
+                            botao.title = 'Descurtir'
+                        }
+                        botao.dataset.curtido = 'true'
+                        botao.classList.add('curtida-animada')
+                    }
+                } else {
+                    const resultado = await resposta.json()
+                    alert(`Erro: ${resultado.mensagem}`)
+                    botao.innerHTML = iconeOriginal
+                }
+            } catch (erro) {
+                console.error("Erro ao processar ação:", erro)
+                alert("Falha na comunicação com o servidor.")
+                botao.innerHTML = iconeOriginal
+            } finally {
+                if (botao.title !== 'Match confirmado!') {
+                    botao.disabled = false
+                }
             }
         })
     })
 }
 
-function configurarBotoesPerfil(onVoltar?: () => void, candidato?: Candidato): void {
+function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], candidato?: Candidato): void {
     const botoesPerfil = document.querySelectorAll<HTMLButtonElement>('.btn-perfil-vaga')
 
     botoesPerfil.forEach(botao => {
         botao.addEventListener('click', () => {
             const vagaId = Number(botao.dataset.id)
-
-            renderPerfilVaga(vagaId, () => {
-                renderListaVagas(onVoltar, candidato)
-            }, candidato)
+            if (vagas) {
+                renderPerfilVaga(vagaId, () => {
+                    // Precisamos envolver a chamada async em uma função void
+                    void renderListaVagas(onVoltar, candidato)
+                }, candidato)
+            }
         })
     })
 }

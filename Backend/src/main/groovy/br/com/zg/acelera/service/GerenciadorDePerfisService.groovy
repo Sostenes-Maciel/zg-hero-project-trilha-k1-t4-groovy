@@ -129,19 +129,20 @@ class GerenciadorDePerfisService {
         competenciaDAO.removerDaEmpresa(empresa.cnpj, competencia)
     }
 
-    boolean curtirVaga(String cpfCandidato, Vaga vaga) {
-        Vaga vagaCompleta = gerenciadorDeVagas.buscarVagaPorId(vaga.id)
+    boolean curtirVaga(String cpfCandidato, Integer idVaga) {
+        // Agora recebemos o idVaga direto e passamos para a busca
+        Vaga vagaCompleta = gerenciadorDeVagas.buscarVagaPorId(idVaga)
 
         if (vagaCompleta == null) {
             throw new IllegalStateException("Vaga não encontrada com o ID informado.")
         }
 
-        if (curtidaDAO.jaCurtiuVaga(cpfCandidato, vagaCompleta.id)) {
+        if (curtidaDAO.jaCurtiuVaga(cpfCandidato, idVaga)) {
             throw new IllegalStateException("Você já curtiu esta vaga!")
         }
 
-        curtidaDAO.registrarCurtidaCandidato(cpfCandidato, vagaCompleta.id)
-        return processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, vagaCompleta.id)
+        curtidaDAO.registrarCurtidaCandidato(cpfCandidato, idVaga)
+        return processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
@@ -162,6 +163,16 @@ class GerenciadorDePerfisService {
         return curtidaDAO.removerCurtidaEmpresa(cnpjEmpresa, cpfCandidato)
     }
 
+    boolean removerCurtidaCandidato(String cpfCandidato, Integer idVaga) {
+        // Verifica se os dados chegaram corretamente
+        if (!cpfCandidato || !idVaga) {
+            return false
+        }
+
+        // Repassa o CPF e o Integer diretamente para o DAO
+        return curtidaDAO.removerCurtidaCandidato(cpfCandidato, idVaga)
+    }
+
     boolean processarPossivelMatch(String cpf, String cnpj, Integer vagaId) {
         if (curtidaDAO.verificarMatch(cpf, cnpj, vagaId)) {
             if (matchDAO.existeMatch(cpf, cnpj, vagaId)) {
@@ -177,5 +188,11 @@ class GerenciadorDePerfisService {
     }
     Empresa validarLoginEmpresa(String email, String cnpj) {
         return empresaDAO.validarLogin(email, cnpj)
+    }
+    List listarStatusCurtidasCandidato(String cpf) {
+        return curtidaDAO.listarStatusCurtidas(cpf)
+    }
+    List listarStatusCurtidasEmpresa(String cnpj) {
+        return curtidaDAO.listarStatusCurtidasEmpresa(cnpj)
     }
 }

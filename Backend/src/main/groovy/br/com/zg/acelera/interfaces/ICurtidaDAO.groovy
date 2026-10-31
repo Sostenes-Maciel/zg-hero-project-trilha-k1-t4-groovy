@@ -7,4 +7,7 @@ interface ICurtidaDAO {
     boolean jaCurtiuVaga(String cpfCandidato, Integer idVaga)
     boolean jaCurtiuCandidato(String cnpjEmpresa, String cpfCandidato)
     boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato)
+    boolean removerCurtidaCandidato(String cpfCandidato, Integer idVaga)
+    List listarStatusCurtidas(String cpf)
+    List listarStatusCurtidasEmpresa(String cnpj)
 }

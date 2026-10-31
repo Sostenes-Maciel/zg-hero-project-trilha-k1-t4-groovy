@@ -97,4 +97,5 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
         String sql = "DELETE FROM vaga WHERE id_vaga = ?"
         executarUpdate(sql, [id])
     }
+
 }
