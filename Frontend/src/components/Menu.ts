@@ -3,12 +3,33 @@ import { renderListaCandidatos } from '../view/ListaCandidatos.ts'
 import { renderCadastroEmpresa } from '../service/CadastroEmpresa.ts'
 import { renderListaEmpresas } from '../view/ListaEmpresas.ts'
 import { renderLogin } from "../view/RenderLogin.ts"
+import { renderPerfilCandidato } from '../view/PerfilCandidato.ts'
+import { renderPerfilEmpresa } from '../view/PerfilEmpresa.ts'
+import type { Candidato } from '../model/Candidato.ts'
+import type { Empresa } from '../model/Empresa.ts'
 
-function usuarioEstaLogado(): boolean {
-    return !!(
-        localStorage.getItem('usuarioLogado') &&
-        localStorage.getItem('tipoUsuario')
-    )
+function obterSessaoAtiva(): { tipo: 'candidato'; usuario: Candidato } | { tipo: 'empresa'; usuario: Empresa } | null {
+    const usuarioSalvo = localStorage.getItem('usuarioLogado')
+    const tipoUsuario = localStorage.getItem('tipoUsuario')
+
+    if (!usuarioSalvo || (tipoUsuario !== 'candidato' && tipoUsuario !== 'empresa')) {
+        return null
+    }
+
+    try {
+        const usuario: unknown = JSON.parse(usuarioSalvo)
+        if (typeof usuario !== 'object' || usuario === null) return null
+
+        if (tipoUsuario === 'candidato' && 'cpf' in usuario) {
+            return { tipo: 'candidato', usuario: usuario as Candidato }
+        }
+        if (tipoUsuario === 'empresa' && 'cnpj' in usuario) {
+            return { tipo: 'empresa', usuario: usuario as Empresa }
+        }
+        return null
+    } catch {
+        return null
+    }
 }
 
 function atualizarBotaoLogin(): void {
@@ -55,16 +76,12 @@ export function configurarMenu(): void {
 
     document.querySelector<HTMLButtonElement>(
         '#menu-login'
-    )?.addEventListener('click', () => {
-
-        if (usuarioEstaLogado()) {
-            localStorage.removeItem('usuarioLogado')
-            localStorage.removeItem('tipoUsuario')
-
-            atualizarBotaoLogin()
-
-            renderLogin()
-
+    )?.addEventListener('click', async () => {
+        const sessao = obterSessaoAtiva()
+        if (sessao?.tipo === 'candidato') {
+            renderPerfilCandidato(sessao.usuario)
+        } else if (sessao?.tipo === 'empresa') {
+            await renderPerfilEmpresa(sessao.usuario)
         } else {
             renderLogin()
         }

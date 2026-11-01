@@ -78,8 +78,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                         <th class="coluna-candidato">Candidato</th>
                         <th class="coluna-competencias">Competências</th>
                         <th class="coluna-afinidade">Afinidade</th>
-                        <th class="coluna-acao">Ação</th>
-                        <th class="coluna-vaga">Vaga</th>
+                        <th class="coluna-acao" colspan="2">Ação</th>
                     </tr>
                 </thead>
                 <tbody id="lista-candidatos-empresa">
