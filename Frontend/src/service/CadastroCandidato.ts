@@ -41,23 +41,23 @@ function renderizarFormulario(app: HTMLDivElement): void {
                 </div>
 
                 <div>
+                    <label for="codigoPostal">Código Postal</label>
+                    <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
+                    <p id="mensagem-cep" aria-live="polite"></p>
+                </div>
+
+                <div>
                     <label for="pais">País</label>
                     <select id="pais" name="pais" required>
                         <option value="">Selecione um país</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label for="estado">Estado</label>
                     <select id="estado" name="estado" required disabled>
                         <option value="">Selecione um país primeiro</option>
                     </select>
-                </div>
-
-                <div>
-                    <label for="codigoPostal">Código Postal</label>
-                    <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
-                    <p id="mensagem-cep" aria-live="polite"></p>
                 </div>
 
                 <div>
@@ -156,7 +156,11 @@ function configurarBuscaCep(): () => Promise<void> {
         campoEstado,
         campoLogradouro,
         campoBairro,
-        campoCidade
+        campoCidade,
+        async () => {
+            campoPais.value = 'BR'
+            await atualizarEstadosPorPais('BR', campoEstado)
+        }
     )
 }
 

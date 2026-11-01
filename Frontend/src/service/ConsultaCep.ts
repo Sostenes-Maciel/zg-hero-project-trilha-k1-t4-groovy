@@ -60,7 +60,8 @@ export function configurarConsultaCep(
     campoPais: HTMLSelectElement,
     mensagem: HTMLElement,
     preencherEndereco: (endereco: EnderecoCep) => void,
-    limparEndereco: () => void
+    limparEndereco: () => void,
+    selecionarBrasil?: () => Promise<void>
 ): () => Promise<void> {
     let consultaEmCache: { cep: string; endereco: EnderecoCep } | null = null
     let consultaEmAndamento: { cep: string; promise: Promise<void> } | null = null
@@ -74,9 +75,16 @@ export function configurarConsultaCep(
     }
 
     const consultarCepAtual = async (): Promise<void> => {
-        if (campoPais.value !== 'BR' || !campoCep.value.trim()) return
-
         const cepInformado = campoCep.value.trim()
+        if (!cepInformado) return
+
+        if (!campoPais.value && FORMATO_CEP_BR.test(cepInformado)) {
+            campoPais.value = 'BR'
+            await selecionarBrasil?.()
+        }
+
+        if (campoPais.value !== 'BR') return
+
         const cepNumerico = cepInformado.replace('-', '')
 
         if (consultaEmCache?.cep === cepNumerico) {
@@ -137,7 +145,8 @@ export function configurarAutocompletarCep(
     campoEstado: HTMLSelectElement,
     campoLogradouro: HTMLInputElement,
     campoBairro: HTMLInputElement,
-    campoCidade: HTMLInputElement
+    campoCidade: HTMLInputElement,
+    selecionarBrasil?: () => Promise<void>
 ): () => Promise<void> {
     return configurarConsultaCep(
         campoCep,
@@ -160,7 +169,8 @@ export function configurarAutocompletarCep(
             campoLogradouro.value = ''
             campoBairro.value = ''
             campoCidade.value = ''
-        }
+        },
+        selecionarBrasil
     )
 }
 
