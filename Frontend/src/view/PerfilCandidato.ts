@@ -1,6 +1,7 @@
 import type { Candidato } from '../model/Candidato'
 import { renderListaVagas } from "./ListaVagas.ts"
 import { renderListaMatchesCandidato } from "./ListaMatchesCandidato.ts"
+import { consultarEnderecoPorCep, formatarEndereco } from '../service/ConsultaCep.ts'
 
 export function renderPerfilCandidato(candidato: Candidato): void {
     console.log("Dados do candidato:", candidato)
@@ -9,6 +10,7 @@ export function renderPerfilCandidato(candidato: Candidato): void {
     if (!app) return
 
     renderizarTemplatePerfil(app, candidato)
+    void preencherEnderecoPerfil(candidato.cep)
     configurarEventosNavegacao(candidato)
 }
 
@@ -26,6 +28,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): vo
                 <p><strong>Pais:</strong> ${candidato.pais}</p>
                 <p><strong>Estado:</strong> ${candidato.estado}</p>
                 <p><strong>CEP:</strong> ${candidato.cep}</p>
+                <p><strong>Endereço:</strong> <span id="endereco-perfil-candidato">Consultando CEP...</span></p>
                 <p><strong>Descrição:</strong> ${candidato.descricao}</p>
                 <p>
                     <strong>Competências:</strong>
@@ -40,6 +43,19 @@ function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): vo
             </div>
         </section>
     `
+}
+
+async function preencherEnderecoPerfil(cep: string): Promise<void> {
+    const enderecoPerfil = document.querySelector<HTMLSpanElement>('#endereco-perfil-candidato')
+    if (!enderecoPerfil) return
+
+    try {
+        const endereco = await consultarEnderecoPorCep(cep)
+        enderecoPerfil.textContent = formatarEndereco(endereco)
+    } catch (erro) {
+        console.error('Não foi possível carregar o endereço do candidato:', erro)
+        enderecoPerfil.textContent = 'Endereço indisponível para este CEP.'
+    }
 }
 
 function configurarEventosNavegacao(candidato: Candidato): void {

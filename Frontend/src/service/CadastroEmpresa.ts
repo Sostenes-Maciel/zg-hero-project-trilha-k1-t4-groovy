@@ -1,5 +1,6 @@
 import type { Empresa } from '../model/Empresa.ts'
 import { ValidarEmpresa } from './ValidarEmpresa.ts'
+import { configurarAutocompletarCep } from './ConsultaCep.ts'
 import {
     getCountries,
     getStatesOfCountry
@@ -11,7 +12,7 @@ export async function renderCadastroEmpresa(): Promise<void> {
 
     renderizarFormulario(app)
     await configurarSelectsLocalizacao()
-    configurarEventosFormulario()
+    configurarEventosFormulario(configurarBuscaCep())
 }
 
 function renderizarFormulario(app: HTMLDivElement): void {
@@ -48,8 +49,26 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     </select>
                 </div>
 
-                <label for="codigoPostal">Código Postal</label>
-                <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
+                <div>
+                    <label for="codigoPostal">Código Postal</label>
+                    <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
+                    <p id="mensagem-cep" aria-live="polite"></p>
+                </div>
+
+                <div>
+                    <label for="logradouro">Endereço</label>
+                    <input type="text" id="logradouro" readonly>
+                </div>
+
+                <div>
+                    <label for="bairro">Bairro</label>
+                    <input type="text" id="bairro" readonly>
+                </div>
+
+                <div>
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" readonly>
+                </div>
 
                 <div>
                     <label for="descricao">Descrição</label>
@@ -103,6 +122,7 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
             const option = document.createElement('option')
             option.value = estado.name
             option.textContent = estado.name
+            option.dataset.uf = estado.iso2
             selectEstado.appendChild(option)
         })
         selectEstado.disabled = false
@@ -111,15 +131,39 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
     }
 }
 
-function configurarEventosFormulario(): void {
+function configurarBuscaCep(): () => Promise<void> {
+    const campoCep = document.querySelector<HTMLInputElement>('#codigoPostal')
+    const campoPais = document.querySelector<HTMLSelectElement>('#pais')
+    const campoEstado = document.querySelector<HTMLSelectElement>('#estado')
+    const campoLogradouro = document.querySelector<HTMLInputElement>('#logradouro')
+    const campoBairro = document.querySelector<HTMLInputElement>('#bairro')
+    const campoCidade = document.querySelector<HTMLInputElement>('#cidade')
+    const mensagemCep = document.querySelector<HTMLParagraphElement>('#mensagem-cep')
+
+    if (!campoCep || !campoPais || !campoEstado || !campoLogradouro || !campoBairro || !campoCidade || !mensagemCep) {
+        return async () => undefined
+    }
+
+    return configurarAutocompletarCep(
+        campoCep,
+        campoPais,
+        mensagemCep,
+        campoEstado,
+        campoLogradouro,
+        campoBairro,
+        campoCidade
+    )
+}
+
+function configurarEventosFormulario(validarCep: () => Promise<void>): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-empresa')
     formulario?.addEventListener('submit', async (evento) => {
         evento.preventDefault()
-        await processarSubmissao(formulario)
+        await processarSubmissao(formulario, validarCep)
     })
 }
 
-async function processarSubmissao(formulario: HTMLFormElement): Promise<void> {
+async function processarSubmissao(formulario: HTMLFormElement, validarCep: () => Promise<void>): Promise<void> {
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
 
@@ -129,6 +173,7 @@ async function processarSubmissao(formulario: HTMLFormElement): Promise<void> {
     }
 
     try {
+        await validarCep()
         const empresa = extrairEValidarDados(formulario, selectPais)
 
         const resposta = await fetch('http://localhost:8080/api/empresas', {

@@ -4,6 +4,7 @@ import type { Vaga } from '../model/Vaga'
 import { Chart } from "chart.js/auto"
 import { renderViewCadastroVaga } from '../service/CadastroVaga.ts'
 import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
+import { consultarEnderecoPorCep, formatarEndereco } from '../service/ConsultaCep.ts'
 import { mostrarAnimacaoMatch } from "./AnimacaoMatch.ts"
 import { renderListaMatchesEmpresa } from "./ListaMatchesEmpresa.ts"
 
@@ -23,6 +24,7 @@ export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: st
     if (!app) return
 
     renderizarTemplatePerfil(app, empresa, mensagemSucesso, animarTransicao)
+    void preencherEnderecoPerfil(empresa.cep)
 
     // Busca candidatos e os status de curtida/match em paralelo
     const [candidatosDoBanco, statusMatches, vagasDaEmpresa] = await Promise.all([
@@ -47,6 +49,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                 <p><strong>E-mail:</strong> ${empresa.email}</p>
                 <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
                 <p><strong>Estado:</strong> ${empresa.estado}</p>
+                <p><strong>Endereço:</strong> <span id="endereco-perfil-empresa">Consultando CEP...</span></p>
                 <p><strong>Descrição:</strong> ${empresa.descricao}</p>
                 <p>
                     <strong>Competências Desejadas:</strong>
@@ -90,6 +93,19 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
             </div>
         </section>
     `
+}
+
+async function preencherEnderecoPerfil(cep: string): Promise<void> {
+    const enderecoPerfil = document.querySelector<HTMLSpanElement>('#endereco-perfil-empresa')
+    if (!enderecoPerfil) return
+
+    try {
+        const endereco = await consultarEnderecoPorCep(cep)
+        enderecoPerfil.textContent = formatarEndereco(endereco)
+    } catch (erro) {
+        console.error('Não foi possível carregar o endereço da empresa:', erro)
+        enderecoPerfil.textContent = 'Endereço indisponível para este CEP.'
+    }
 }
 
 async function buscarCandidatosDoBanco(): Promise<Candidato[]> {
