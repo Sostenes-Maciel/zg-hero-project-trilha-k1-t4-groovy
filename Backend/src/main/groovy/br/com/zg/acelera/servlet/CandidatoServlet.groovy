@@ -71,7 +71,6 @@ class CandidatoServlet extends HttpServlet {
 
     private void processarCadastro(HttpServletRequest request, HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader()
-        request.setCharacterEncoding("UTF-8")
         Candidato novoCandidato = gson.fromJson(reader, Candidato.class)
         Map resultado = candidatoController.cadastrar(novoCandidato)
         enviarResposta(response, resultado)
@@ -79,7 +78,6 @@ class CandidatoServlet extends HttpServlet {
 
     private void processarLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader()
-        request.setCharacterEncoding("UTF-8")
         Map<String, String> credenciais = gson.fromJson(reader, Map.class)
 
         String email = credenciais.get("email")

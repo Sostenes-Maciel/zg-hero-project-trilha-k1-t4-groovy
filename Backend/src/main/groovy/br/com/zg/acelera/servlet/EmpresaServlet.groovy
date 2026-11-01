@@ -69,7 +69,6 @@ import jakarta.servlet.http.HttpServletResponse
 
     private void processarCadastro(HttpServletRequest request, HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader()
-        request.setCharacterEncoding("UTF-8")
         Empresa novaEmpresa = gson.fromJson(reader, Empresa.class)
         Map resultado = empresaController.cadastrar(novaEmpresa)
         enviarResposta(response, resultado)
@@ -77,7 +76,6 @@ import jakarta.servlet.http.HttpServletResponse
 
     private void processarLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader()
-        request.setCharacterEncoding("UTF-8")
         Map<String, String> credenciais = gson.fromJson(reader, Map.class)
 
         String email = credenciais.get("email")

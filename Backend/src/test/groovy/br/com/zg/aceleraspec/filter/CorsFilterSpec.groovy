@@ -38,6 +38,9 @@ class CorsSpec extends Specification {
         and: "Deve retornar status 200 OK"
         1 * responseMock.setStatus(HttpServletResponse.SC_OK)
 
+        and: "Deve configurar UTF-8 antes do processamento da requisição"
+        1 * requestMock.setCharacterEncoding("UTF-8")
+
         and: "NÃO deve repassar a requisição para o Servlet (interrompe o fluxo)"
         0 * chainMock.doFilter(_, _)
     }
@@ -53,6 +56,9 @@ class CorsSpec extends Specification {
         1 * responseMock.setHeader("Access-Control-Allow-Origin", "*")
         1 * responseMock.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         1 * responseMock.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+        and: "Deve configurar UTF-8 antes de repassar a requisição"
+        1 * requestMock.setCharacterEncoding("UTF-8")
 
         and: "DEVE repassar a requisição para frente (para os Servlets tratarem)"
         1 * chainMock.doFilter(requestMock, responseMock)
