@@ -86,14 +86,14 @@ export class CadastroVagasService {
 
 export async function renderViewCadastroVaga(
     empresa: Empresa,
-    onVoltar?: (mensagem?: string) => void
+    onCadastroConcluido?: (mensagem?: string) => void
 ): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
     renderizarFormulario(app)
     await configurarSelectsLocalizacao()
-    configurarEventosFormulario(empresa, onVoltar)
+    configurarEventosFormulario(empresa, onCadastroConcluido)
 }
 
 function renderizarFormulario(app: HTMLDivElement): void {
@@ -133,7 +133,6 @@ function renderizarFormulario(app: HTMLDivElement): void {
 
                 <div class="acoes-form-vaga">
                     <button type="submit">Cadastrar vaga</button>
-                    <button type="button" id="btn-voltar-vaga">Voltar</button>
                 </div>
 
                 <p id="mensagem"></p>
@@ -185,21 +184,16 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
     }
 }
 
-function configurarEventosFormulario(empresa: Empresa, onVoltar?: (mensagem?: string) => void): void {
+function configurarEventosFormulario(empresa: Empresa, onCadastroConcluido?: (mensagem?: string) => void): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-vaga')
-    const botaoVoltar = document.querySelector<HTMLButtonElement>('#btn-voltar-vaga')
-
-    botaoVoltar?.addEventListener('click', () => {
-        onVoltar?.()
-    })
 
     formulario?.addEventListener('submit', (evento) => {
         evento.preventDefault()
-        void processarSubmissao(formulario, empresa, onVoltar)
+        void processarSubmissao(formulario, empresa, onCadastroConcluido)
     })
 }
 
-async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa, onVoltar?: (mensagem?: string) => void): Promise<void> {
+async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa, onCadastroConcluido?: (mensagem?: string) => void): Promise<void> {
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
 
@@ -231,7 +225,7 @@ async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa,
 
         console.log('Vaga cadastrada:', vaga)
 
-        onVoltar?.('Vaga cadastrada com sucesso!')
+        onCadastroConcluido?.('Vaga cadastrada com sucesso!')
 
     } catch (erro) {
         console.error('Erro ao cadastrar vaga:', erro)

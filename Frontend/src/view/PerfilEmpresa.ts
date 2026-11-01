@@ -2,11 +2,9 @@ import type { Empresa } from '../model/Empresa'
 import type { Candidato } from '../model/Candidato'
 import type { Vaga } from '../model/Vaga'
 import { Chart } from "chart.js/auto"
-import { renderViewCadastroVaga } from '../service/CadastroVaga.ts'
 import { calcularAfinidade } from "../service/CalcularAfinidade.ts"
 import { consultarEnderecoPorCep, formatarEndereco } from '../service/ConsultaCep.ts'
 import { mostrarAnimacaoMatch } from "./AnimacaoMatch.ts"
-import { renderListaMatchesEmpresa } from "./ListaMatchesEmpresa.ts"
 
 interface StatusMatch {
     cpfCandidato: string
@@ -86,11 +84,6 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                 </tbody>
             </table>
 
-            <div class="acoes-perfil">
-                <button type="button" id="btn-cadastrar-vaga">Cadastrar vaga</button>
-                <button type="button" id="btn-meus-matches">Meus Matches</button>
-                <button type="button" id="btn-sair-perfil">Sair</button>
-            </div>
         </section>
     `
 }
@@ -278,21 +271,8 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
 }
 
 function configurarEventos(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
-    configurarBotaoCadastrarVaga(empresa)
     configurarBotoesCurtirCandidato(empresa, statusMatches, candidatos)
     configurarFiltroCompetencia()
-    configurarNavegacaoMatches(empresa)
-    configurarBotaoSair()
-}
-
-function configurarBotaoCadastrarVaga(empresa: Empresa): void {
-    const botaoCadastrarVaga = document.querySelector<HTMLButtonElement>('#btn-cadastrar-vaga')
-    botaoCadastrarVaga?.addEventListener('click', (e) => {
-        e.preventDefault()
-        void renderViewCadastroVaga(empresa, (mensagem) => {
-            void renderPerfilEmpresa(empresa, mensagem)
-        })
-    })
 }
 
 function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
@@ -438,32 +418,6 @@ function configurarFiltroCompetencia(): void {
     })
 }
 
-function configurarNavegacaoMatches(empresa: Empresa): void {
-    const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
-    botaoMatches?.addEventListener('click', (e) => {
-        e.preventDefault()
-        void renderListaMatchesEmpresa(empresa, () => {
-            void renderPerfilEmpresa(empresa)
-        })
-    })
-}
-
-function configurarBotaoSair(): void {
-    const botaoSair = document.querySelector<HTMLButtonElement>('#btn-sair-perfil')
-
-    botaoSair?.addEventListener('click', (evento) => {
-        evento.preventDefault()
-
-        localStorage.removeItem('usuarioLogado')
-        localStorage.removeItem('tipoUsuario')
-
-        // Atualiza o botão Login do menu
-        window.dispatchEvent(new Event('auth-change'))
-
-        // Avisa ao menu para abrir a tela de login
-        window.dispatchEvent(new Event('app:logout'))
-    })
-}
 async function buscarStatusMatches(cnpj: string): Promise<StatusMatch[]> {
     try {
         const resposta = await fetch(`http://localhost:8080/api/matches?cnpj=${cnpj}`)

@@ -1,6 +1,4 @@
 import type { Candidato } from '../model/Candidato'
-import { renderListaVagas } from "./ListaVagas.ts"
-import { renderListaMatchesCandidato } from "./ListaMatchesCandidato.ts"
 import { consultarEnderecoPorCep, formatarEndereco } from '../service/ConsultaCep.ts'
 
 export function renderPerfilCandidato(candidato: Candidato): void {
@@ -11,7 +9,6 @@ export function renderPerfilCandidato(candidato: Candidato): void {
 
     renderizarTemplatePerfil(app, candidato)
     void preencherEnderecoPerfil(candidato.cep)
-    configurarEventosNavegacao(candidato)
 }
 
 function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): void {
@@ -36,11 +33,6 @@ function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): vo
                 </p>
             </div>
 
-            <div class="acoes-perfil">
-                <button id="btn-vagas-disponiveis">Vagas disponíveis</button>
-                <button id="btn-meus-matches">Meus Matches</button>
-                <button type="button" id="btn-sair-perfil">Sair</button>
-            </div>
         </section>
     `
 }
@@ -57,34 +49,3 @@ async function preencherEnderecoPerfil(cep: string): Promise<void> {
         enderecoPerfil.textContent = 'Endereço indisponível para este CEP.'
     }
 }
-
-function configurarEventosNavegacao(candidato: Candidato): void {
-    const botaoVagas = document.querySelector<HTMLButtonElement>('#btn-vagas-disponiveis')
-    const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
-    const botaoSair = document.querySelector<HTMLButtonElement>('#btn-sair-perfil')
-
-    botaoVagas?.addEventListener('click', () => {
-        renderListaVagas(() => {
-            renderPerfilCandidato(candidato)
-        }, candidato)
-    })
-
-    botaoMatches?.addEventListener('click', () => {
-        renderListaMatchesCandidato(candidato, () => {
-            renderPerfilCandidato(candidato)
-        })
-    })
-
-    botaoSair?.addEventListener('click', (evento) => {
-            evento.preventDefault()
-
-            localStorage.removeItem('usuarioLogado')
-            localStorage.removeItem('tipoUsuario')
-
-            // Atualiza o botão Login do menu
-            window.dispatchEvent(new Event('auth-change'))
-
-            // Avisa ao menu para abrir a tela de login
-            window.dispatchEvent(new Event('app:logout'))
-        })
-    }

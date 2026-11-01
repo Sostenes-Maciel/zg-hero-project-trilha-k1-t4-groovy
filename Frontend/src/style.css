@@ -54,17 +54,21 @@ body {
 
 #menu-principal {
     width: 100%;
-    padding: 18px 24px;
+    padding: 16px 7%;
 
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 24px;
     flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 20;
 
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
 }
 
 #menu-principal button {
@@ -1257,6 +1261,126 @@ textarea:focus {
     gap: 10px;
 }
 
+.conta-menu {
+    position: relative;
+}
+
+.conta-menu[hidden],
+#menu-login[hidden] {
+    display: none;
+}
+
+#menu-principal .menu-links .menu-conta-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: min(280px, 42vw);
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-weight: 700;
+}
+
+#menu-principal .menu-links .menu-conta-trigger:hover,
+.conta-menu.aberto .menu-conta-trigger,
+.conta-menu:focus-within .menu-conta-trigger {
+    border-color: var(--primary);
+    background: #ffffff;
+    color: var(--primary);
+}
+
+#menu-nome-usuario {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.indicador-menu-conta {
+    display: inline-block;
+    font-size: 19px;
+    line-height: 1;
+    animation: indicar-menu-baixo 1.2s ease-in-out infinite;
+}
+
+.conta-menu.aberto .indicador-menu-conta,
+.conta-menu:hover .indicador-menu-conta,
+.conta-menu:focus-within .indicador-menu-conta {
+    animation: none;
+    transform: rotate(180deg);
+}
+
+.menu-conta-opcoes {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: grid;
+    width: max-content;
+    min-width: 220px;
+    max-width: min(300px, calc(100vw - 32px));
+    gap: 4px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: var(--shadow-raised);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.conta-menu:hover .menu-conta-opcoes,
+.conta-menu.aberto .menu-conta-opcoes {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.conta-menu.recolhido .menu-conta-opcoes {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+}
+
+#menu-principal .menu-links .menu-conta-opcoes button {
+    width: 100%;
+    max-width: none;
+    min-height: 42px;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    border-radius: 9px;
+    text-align: left;
+    color: var(--text);
+    white-space: normal;
+}
+
+#menu-principal .menu-links .menu-conta-opcoes button:hover {
+    background: var(--accent-soft);
+    color: var(--primary);
+}
+
+#menu-principal .menu-links .menu-conta-opcoes button[data-acao="excluir"] {
+    color: var(--danger);
+}
+
+#menu-principal .menu-links .menu-conta-opcoes button[data-acao="sair"] {
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 9px 9px;
+}
+
+@keyframes indicar-menu-baixo {
+    0%, 100% {
+        transform: translateY(-2px);
+    }
+
+    50% {
+        transform: translateY(3px);
+    }
+}
+
 #menu-principal .menu-links button {
     width: auto;
     min-width: 0;
@@ -1602,7 +1726,11 @@ textarea:focus {
 
     .menu-links {
         width: 100%;
-        justify-content: center;
+        justify-content: flex-end;
+    }
+
+    .menu-conta-opcoes {
+        right: 0;
     }
 
     .hero-conteudo h1 {
@@ -2477,5 +2605,59 @@ textarea:focus {
     #app .perfil-empresa .acoes-curtida-empresa.vaga-selecionada,
     #app .perfil-empresa .acoes-curtida-empresa .select-vaga-curtir.vaga-escolhida {
         animation: none;
+    }
+
+    .notificacao-sucesso,
+    .notificacao-sucesso.notificacao-saindo {
+        animation: none;
+    }
+}
+
+.notificacao-sucesso {
+    position: fixed;
+    z-index: 1000;
+    top: 32px;
+    right: clamp(20px, 4vw, 48px);
+    max-width: min(420px, calc(100vw - 40px));
+    padding: 14px 20px;
+    border: 1px solid rgba(32, 180, 134, 0.35);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #176b50;
+    box-shadow: var(--shadow-raised);
+    font-weight: 700;
+    animation: entrar-notificacao 0.28s ease-out both;
+}
+
+@media (max-width: 500px) {
+    .notificacao-sucesso {
+        top: 20px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        text-align: center;
+    }
+}
+
+.notificacao-sucesso.notificacao-saindo {
+    animation: sair-notificacao 0.24s ease-in both;
+}
+
+@keyframes entrar-notificacao {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes sair-notificacao {
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
     }
 }

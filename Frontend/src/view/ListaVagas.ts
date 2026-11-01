@@ -15,7 +15,7 @@ type VagaDaApi = Omit<Vaga, 'competencias'> & {
     competencia?: string[]
 }
 
-export async function renderListaVagas(onVoltar?: () => void, candidato?: Candidato, animarTransicao: boolean = true): Promise<void> {
+export async function renderListaVagas(candidato?: Candidato, animarTransicao: boolean = true): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
@@ -28,7 +28,7 @@ export async function renderListaVagas(onVoltar?: () => void, candidato?: Candid
     ])
 
     renderizarLinhasVagas(vagasDoBanco, statusMatches, candidato)
-    configurarEventos(onVoltar, vagasDoBanco, statusMatches, candidato)
+    configurarEventos(vagasDoBanco, statusMatches, candidato)
 }
 
 function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): void {
@@ -59,7 +59,6 @@ function renderizarTemplateBase(app: HTMLDivElement, animarTransicao: boolean): 
                 </tbody>
             </table>
 
-            <button id="btn-voltar-candidato">Voltar</button>
         </section>
     `
 }
@@ -159,16 +158,10 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
     })
 }
 
-function configurarEventos(onVoltar?: () => void, vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
-    configurarBotaoVoltar(onVoltar)
+function configurarEventos(vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
     configurarFiltroBusca()
     configurarBotoesCurtir(candidato)
-    configurarBotoesPerfil(onVoltar, vagas, statusMatches, candidato)
-}
-
-function configurarBotaoVoltar(onVoltar?: () => void): void {
-    const botaoVoltar = document.querySelector<HTMLButtonElement>('#btn-voltar-candidato')
-    botaoVoltar?.addEventListener('click', () => onVoltar?.())
+    configurarBotoesPerfil(vagas, statusMatches, candidato)
 }
 
 function configurarFiltroBusca(): void {
@@ -268,7 +261,7 @@ function animarCurtida(botao: HTMLButtonElement): void {
     botao.classList.add('curtida-animada')
 }
 
-function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
+function configurarBotoesPerfil(vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {
     const botoesPerfil = document.querySelectorAll<HTMLButtonElement>('.btn-perfil-vaga')
 
     botoesPerfil.forEach(botao => {
@@ -279,7 +272,7 @@ function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], statusMat
                     status.idVaga === vagaId && status.status === 'match'
                 )
                 void renderPerfilVaga(vagaId, () => {
-                    void renderListaVagas(onVoltar, candidato)
+                    void renderListaVagas(candidato)
                 }, temMatch)
             }
         })

@@ -2,7 +2,7 @@ import type { Candidato } from '../model/Candidato'
 import type { Match } from '../model/Match'
 import type { Curtida } from '../model/Curtida'
 
-export async function renderListaMatchesCandidato(candidato: Candidato, onVoltar?: () => void): Promise<void> {
+export async function renderListaMatchesCandidato(candidato: Candidato): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
@@ -30,20 +30,15 @@ export async function renderListaMatchesCandidato(candidato: Candidato, onVoltar
                 
                 <h2>Meus Matches</h2>
                 ${gerarSecaoMatchesRealizados(matches)}
-
-                <button id="btn-voltar-matches">Voltar</button>
             </section>
         `
-        configurarEventoVoltar(onVoltar)
     } catch (erro) {
         console.error("Erro ao buscar matches completos:", erro)
         app.innerHTML = `
             <section class="lista-matches">
                 <h2>Erro ao conectar com o servidor.</h2>
-                <button id="btn-voltar-matches">Voltar</button>
             </section>
         `
-        configurarEventoVoltar(onVoltar)
     }
 }
 
@@ -94,12 +89,4 @@ function gerarSecaoMatchesRealizados(matches: Match[]): string {
     `).join('')
 
     return `<div class="cards-matches">${cardsHtml}</div>`
-}
-
-function configurarEventoVoltar(onVoltar?: () => void): void {
-    const btnVoltar = document.querySelector<HTMLButtonElement>('#btn-voltar-matches')
-
-    btnVoltar?.addEventListener('click', () => {
-        onVoltar?.()
-    })
 }

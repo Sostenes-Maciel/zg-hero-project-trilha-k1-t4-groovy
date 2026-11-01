@@ -63,6 +63,56 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         1 * empresaDAOMock.cadastrar(empresa)
     }
 
+    def "deve atualizar candidato e sincronizar competencias no banco"() {
+        given:
+        Candidato candidato = new Candidato(
+                nome: "Joao",
+                email: "joao@email.com",
+                cpf: "123.456.789-01",
+                idade: 25,
+                estado: "SP",
+                cep: "12345678",
+                descricao: "Dev",
+                competencias: ["Java", "Groovy"]
+        )
+        candidatoDAOMock.buscarPorId(candidato.cpf) >> new Candidato(cpf: candidato.cpf)
+        competenciaDAOMock.listarDoCandidato(candidato.cpf) >> ["Java", "SQL"]
+
+        when:
+        service.atualizarCandidato(candidato)
+
+        then:
+        1 * candidatoDAOMock.atualizar(candidato)
+        1 * competenciaDAOMock.removerDoCandidato(candidato.cpf, "SQL")
+        1 * competenciaDAOMock.garantirCompetencia("Groovy")
+        1 * competenciaDAOMock.adicionarAoCandidato(candidato.cpf, "Groovy")
+    }
+
+    def "deve atualizar empresa e sincronizar competencias no banco"() {
+        given:
+        Empresa empresa = new Empresa(
+                nome: "Acme",
+                email: "contato@acme.com",
+                cnpj: "12345678901234",
+                pais: "Brasil",
+                estado: "SP",
+                cep: "12345678",
+                descricao: "Tecnologia",
+                competencias: ["Java", "Groovy"]
+        )
+        empresaDAOMock.buscarPorId(empresa.cnpj) >> new Empresa(cnpj: empresa.cnpj)
+        competenciaDAOMock.listarDaEmpresa(empresa.cnpj) >> ["Java", "SQL"]
+
+        when:
+        service.atualizarEmpresa(empresa)
+
+        then:
+        1 * empresaDAOMock.atualizar(empresa)
+        1 * competenciaDAOMock.removerDaEmpresa(empresa.cnpj, "SQL")
+        1 * competenciaDAOMock.garantirCompetencia("Groovy")
+        1 * competenciaDAOMock.adicionarAoEmpresa(empresa.cnpj, "Groovy")
+    }
+
     def "deve listar todos os candidatos e empresas"() {
         when:
         service.listarCandidatos()
@@ -85,7 +135,7 @@ class GerenciadorDePerfisServiceSpec extends Specification {
         boolean deuMatch = service.processarPossivelMatch(cpf, cnpj, vagaId)
 
         then:
-        deuMatch == true
+        deuMatch
         1 * matchDAOMock.registrarMatch(cpf, cnpj, vagaId)
     }
 

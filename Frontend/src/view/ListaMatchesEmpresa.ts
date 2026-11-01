@@ -2,7 +2,7 @@ import type { Empresa } from '../model/Empresa'
 import type { Match } from '../model/Match'
 import type { Curtida } from '../model/Curtida'
 
-export async function renderListaMatchesEmpresa(empresa: Empresa, onVoltar?: () => void): Promise<void> {
+export async function renderListaMatchesEmpresa(empresa: Empresa): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
@@ -30,20 +30,15 @@ export async function renderListaMatchesEmpresa(empresa: Empresa, onVoltar?: () 
 
                 <h2>Meus Matches</h2>
                 ${gerarSecaoMatchesRealizados(matches)}
-
-                <button id="btn-voltar-matches">Voltar</button>
             </section>
         `
-        configurarEventoVoltar(empresa, onVoltar)
     } catch (erro) {
         console.error("Erro ao buscar matches completos da empresa:", erro)
         app.innerHTML = `
             <section class="lista-matches">
                 <h2>Erro ao conectar com o servidor.</h2>
-                <button id="btn-voltar-matches">Voltar</button>
             </section>
         `
-        configurarEventoVoltar(empresa, onVoltar)
     }
 }
 
@@ -95,19 +90,4 @@ function gerarSecaoMatchesRealizados(matches: Match[]): string {
     `).join('')
 
     return `<div class="cards-matches">${cardsHtml}</div>`
-}
-
-function configurarEventoVoltar(empresa: Empresa, onVoltar?: () => void): void {
-    const btnVoltar = document.querySelector<HTMLButtonElement>('#btn-voltar-matches')
-
-    btnVoltar?.addEventListener('click', (e) => {
-        e.preventDefault()
-        if (onVoltar) {
-            onVoltar()
-        } else {
-            import('./PerfilEmpresa.ts').then(({ renderPerfilEmpresa }) => {
-                renderPerfilEmpresa(empresa)
-            })
-        }
-    })
 }

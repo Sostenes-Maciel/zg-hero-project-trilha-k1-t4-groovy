@@ -87,12 +87,17 @@ class GerenciadorDePerfisService {
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)
         ValidarCandidatoService.validarCpf(candidato.cpf)
-        candidato.cpf = ValidacaoUtils.limparFormatacao(candidato.cpf)
         ValidarCandidatoService.validarIdade(candidato.idade)
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
         ValidarCandidatoService.validarDescricao(candidato.descricao)
+        Candidato candidatoExistente = candidatoDAO.buscarPorId(candidato.cpf)
+        if (candidatoExistente == null) {
+            throw new IllegalArgumentException("Candidato não encontrado.")
+        }
+
         candidatoDAO.atualizar(candidato)
+        sincronizarCompetenciasCandidato(candidato)
     }
 
     void excluirCandidato(String cpf) {
@@ -102,11 +107,18 @@ class GerenciadorDePerfisService {
     void atualizarEmpresa(Empresa empresa) {
         ValidarEmpresaService.validarNome(empresa.nome)
         ValidarEmpresaService.validarEmail(empresa.email)
+        ValidarEmpresaService.validarCnpj(empresa.cnpj)
         ValidarEmpresaService.validarPais(empresa.pais)
         ValidarEmpresaService.validarEstado(empresa.estado)
         ValidarEmpresaService.validarCep(empresa.cep)
         ValidarEmpresaService.validarDescricao(empresa.descricao)
+        Empresa empresaExistente = empresaDAO.buscarPorId(empresa.cnpj)
+        if (empresaExistente == null) {
+            throw new IllegalArgumentException("Empresa não encontrada.")
+        }
+
         empresaDAO.atualizar(empresa)
+        sincronizarCompetenciasEmpresa(empresa)
     }
 
     void excluirEmpresa(String cnpj) {
@@ -131,6 +143,36 @@ class GerenciadorDePerfisService {
 
     void removerCompetenciaDaEmpresa(Empresa empresa, String competencia) {
         competenciaDAO.removerDaEmpresa(empresa.cnpj, competencia)
+    }
+
+    private void sincronizarCompetenciasCandidato(Candidato candidato) {
+        List<String> atuais = competenciaDAO.listarDoCandidato(candidato.cpf)
+        List<String> desejadas = (candidato.competencias ?: [])
+                .collect { String competencia -> competencia?.trim() }
+                .findAll { String competencia -> competencia }
+                .unique()
+
+        (atuais - desejadas).each { String competencia ->
+            competenciaDAO.removerDoCandidato(candidato.cpf, competencia)
+        }
+        (desejadas - atuais).each { String competencia ->
+            adicionarCompetenciaAoCandidato(candidato, competencia)
+        }
+    }
+
+    private void sincronizarCompetenciasEmpresa(Empresa empresa) {
+        List<String> atuais = competenciaDAO.listarDaEmpresa(empresa.cnpj)
+        List<String> desejadas = (empresa.competencias ?: [])
+                .collect { String competencia -> competencia?.trim() }
+                .findAll { String competencia -> competencia }
+                .unique()
+
+        (atuais - desejadas).each { String competencia ->
+            competenciaDAO.removerDaEmpresa(empresa.cnpj, competencia)
+        }
+        (desejadas - atuais).each { String competencia ->
+            adicionarCompetenciaAEmpresa(empresa, competencia)
+        }
     }
 
     boolean curtirVaga(String cpfCandidato, Integer idVaga) {

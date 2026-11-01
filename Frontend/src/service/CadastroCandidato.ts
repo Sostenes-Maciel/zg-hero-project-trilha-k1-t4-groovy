@@ -1,26 +1,30 @@
 import type { Candidato } from '../model/Candidato.ts'
 import { ValidarCandidato } from './ValidarCandidato.ts'
 import { configurarAutocompletarCep } from './ConsultaCep.ts'
+import { mostrarNotificacaoSucesso } from '../components/Notificacao.ts'
 import {
     getCountries,
     getStatesOfCountry
 } from '@countrystatecity/countries-browser'
 
-export async function renderCadastroCandidato(): Promise<void> {
+export async function renderCadastroCandidato(candidatoEmEdicao?: Candidato): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
-    renderizarFormulario(app)
+    renderizarFormulario(app, candidatoEmEdicao !== undefined)
     await configurarSelectsLocalizacao()
-    configurarEventosFormulario(configurarBuscaCep())
+    if (candidatoEmEdicao) {
+        await preencherFormularioEdicao(candidatoEmEdicao)
+    }
+    configurarEventosFormulario(configurarBuscaCep(), candidatoEmEdicao)
 }
 
-function renderizarFormulario(app: HTMLDivElement): void {
+function renderizarFormulario(app: HTMLDivElement, modoEdicao: boolean): void {
     app.innerHTML = `
         <section class="cadastro-container tela-com-transicao">
-            <h1>Cadastro de Candidato</h1>
-            <p class="form-descricao">Crie seu perfil e encontre oportunidades alinhadas às suas competências.</p>
-            <form id="form-candidato">
+            <h1>${modoEdicao ? 'Editar perfil de candidato' : 'Cadastro de Candidato'}</h1>
+            <p class="form-descricao">${modoEdicao ? 'Atualize seus dados de perfil.' : 'Crie seu perfil e encontre oportunidades alinhadas às suas competências.'}</p>
+            <form id="form-candidato" data-modo-edicao="${modoEdicao}">
                 <div>
                     <label for="nome">Nome</label>
                     <input type="text" id="nome" name="nome" required>
@@ -86,11 +90,36 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Python, Groovy" required>
                 </div>
 
-                <button type="submit">Cadastrar</button>
+                <button type="submit">${modoEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>
                 <p id="mensagem"></p>
             </form>
         </section>
     `
+}
+
+async function preencherFormularioEdicao(candidato: Candidato): Promise<void> {
+    const pais = document.querySelector<HTMLSelectElement>('#pais')
+    const estado = document.querySelector<HTMLSelectElement>('#estado')
+    const codigoPostal = document.querySelector<HTMLInputElement>('#codigoPostal')
+    const formulario = document.querySelector<HTMLFormElement>('#form-candidato')
+    if (!pais || !estado || !codigoPostal || !formulario) return
+
+    formulario.querySelector<HTMLInputElement>('#nome')!.value = candidato.nome
+    formulario.querySelector<HTMLInputElement>('#email')!.value = candidato.email
+    formulario.querySelector<HTMLInputElement>('#idade')!.value = String(candidato.idade)
+    const campoCpf = formulario.querySelector<HTMLInputElement>('#cpf')!
+    campoCpf.value = candidato.cpf
+    campoCpf.readOnly = true
+    codigoPostal.value = candidato.cep
+    formulario.querySelector<HTMLTextAreaElement>('#descricao')!.value = candidato.descricao
+    formulario.querySelector<HTMLInputElement>('#competencias')!.value = candidato.competencias.join(', ')
+
+    const opcaoPais = Array.from(pais.options).find(opcao => opcao.textContent?.trim() === candidato.pais)
+    if (opcaoPais) {
+        pais.value = opcaoPais.value
+        await atualizarEstadosPorPais(pais.value, estado)
+    }
+    estado.value = candidato.estado
 }
 
 async function configurarSelectsLocalizacao(): Promise<void> {
@@ -165,15 +194,15 @@ function configurarBuscaCep(): () => Promise<void> {
     )
 }
 
-function configurarEventosFormulario(validarCep: () => Promise<void>): void {
+function configurarEventosFormulario(validarCep: () => Promise<void>, candidatoEmEdicao?: Candidato): void {
     const formulario = document.querySelector<HTMLFormElement>('#form-candidato')
     formulario?.addEventListener('submit', async (evento) => {
         evento.preventDefault()
-        await processarSubmissao(formulario, validarCep)
+        await processarSubmissao(formulario, validarCep, candidatoEmEdicao)
     })
 }
 
-async function processarSubmissao(formulario: HTMLFormElement, validarCep: () => Promise<void>): Promise<void> {
+async function processarSubmissao(formulario: HTMLFormElement, validarCep: () => Promise<void>, candidatoEmEdicao?: Candidato): Promise<void> {
     const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
 
@@ -187,17 +216,24 @@ async function processarSubmissao(formulario: HTMLFormElement, validarCep: () =>
         const candidato = extrairEValidarDados(formulario, selectPais)
 
         const resposta = await fetch('http://localhost:8080/api/candidatos', {
-            method: 'POST',
+            method: candidatoEmEdicao ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(candidato)
         });
 
-        if (resposta.status === 201) {
-            console.log('Candidato cadastrado no banco real:', candidato)
-            exibirMensagem(mensagem, 'Candidato cadastrado com sucesso!', 'mensagem-sucesso')
-            formulario.reset()
+        if (resposta.status === (candidatoEmEdicao ? 200 : 201)) {
+            if (candidatoEmEdicao) {
+                localStorage.setItem('usuarioLogado', JSON.stringify(candidato))
+                window.dispatchEvent(new Event('auth-change'))
+                const { renderPerfilCandidato } = await import('../view/PerfilCandidato.ts')
+                renderPerfilCandidato(candidato)
+                mostrarNotificacaoSucesso('Usuário editado com sucesso!')
+            } else {
+                exibirMensagem(mensagem, 'Candidato cadastrado com sucesso!', 'mensagem-sucesso')
+                formulario.reset()
+            }
         } else {
             const erroBackend = await resposta.json();
             exibirMensagem(mensagem, "Erro: " + (erroBackend.mensagem || "Dados inválidos."), 'mensagem-erro')
@@ -248,7 +284,17 @@ function extrairEValidarDados(formulario: HTMLFormElement, selectPais: HTMLSelec
     const cpfLimpo = cpf.replace(/\D/g, '')
     const codigoPostalLimpo = codigoPostal.replace(/\D/g, '')
 
-    return { nome, email, idade, cpf: cpfLimpo, pais, estado, cep: codigoPostalLimpo, descricao, competencias }
+    return {
+        nome,
+        email,
+        idade,
+        cpf: formulario.dataset.modoEdicao === 'true' ? cpf : cpfLimpo,
+        pais,
+        estado,
+        cep: codigoPostalLimpo,
+        descricao,
+        competencias
+    }
 }
 
 function exibirMensagem(elemento: HTMLParagraphElement | null, texto: string, classeCSS: string): void {

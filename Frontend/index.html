@@ -23,10 +23,24 @@
   </a>
 
   <div class="menu-links">
-
-    <button id="menu-login">
+    <button id="menu-login" type="button">
       Login
     </button>
+
+    <div class="conta-menu" id="conta-menu" hidden>
+      <button
+        id="menu-conta-trigger"
+        class="menu-conta-trigger"
+        type="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+        aria-controls="menu-conta-opcoes"
+      >
+        <span id="menu-nome-usuario"></span>
+        <span class="indicador-menu-conta" aria-hidden="true">⌄</span>
+      </button>
+      <div id="menu-conta-opcoes" class="menu-conta-opcoes" role="menu"></div>
+    </div>
 
   </div>
 
