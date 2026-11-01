@@ -1230,11 +1230,25 @@ textarea:focus {
 }
 
 .logo-linketinder {
+    display: inline-block;
     font-size: 22px;
     font-weight: 800;
     letter-spacing: 1.5px;
     color: var(--primary);
     text-shadow: 2px 2px 0 var(--accent-soft);
+    text-decoration: none;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.logo-linketinder:hover {
+    color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.logo-linketinder:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid var(--primary);
+    outline-offset: 5px;
 }
 
 .menu-links {
@@ -1774,7 +1788,7 @@ textarea:focus {
 }
 
 .cadastro-container form > div:has(textarea),
-.cadastro-container form > div:has(#mensagem-cep),
+.cadastro-container form > div:has(#mensagem-cep):not(.campo-codigo-postal),
 .cadastro-container form > button,
 .cadastro-container form > p {
     grid-column: 1 / -1;

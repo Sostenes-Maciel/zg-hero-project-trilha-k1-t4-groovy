@@ -36,7 +36,7 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     <input type="text" id="cnpj" name="cnpj" required>
                 </div>
 
-                <div>
+                <div class="campo-codigo-postal">
                     <label for="codigoPostal">Código Postal</label>
                     <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
                     <p id="mensagem-cep" aria-live="polite"></p>
