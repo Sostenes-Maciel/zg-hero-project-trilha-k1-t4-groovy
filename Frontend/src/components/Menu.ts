@@ -1,7 +1,5 @@
 import { renderCadastroCandidato } from '../service/CadastroCandidato.ts'
-import { renderListaCandidatos } from '../view/ListaCandidatos.ts'
 import { renderCadastroEmpresa } from '../service/CadastroEmpresa.ts'
-import { renderListaEmpresas } from '../view/ListaEmpresas.ts'
 import { renderLogin } from "../view/RenderLogin.ts"
 import { renderPerfilCandidato } from '../view/PerfilCandidato.ts'
 import { renderPerfilEmpresa } from '../view/PerfilEmpresa.ts'
@@ -51,26 +49,10 @@ export function configurarMenu(): void {
     })
 
     document.querySelector<HTMLButtonElement>(
-        '#menu-candidatos'
-    )?.addEventListener('click', () => {
-        renderListaCandidatos().catch((erro: unknown) => {
-            console.error('Erro ao carregar lista de candidatos:', erro)
-        })
-    })
-
-    document.querySelector<HTMLButtonElement>(
         '#menu-cadastro-empresa'
     )?.addEventListener('click', () => {
         renderCadastroEmpresa().catch((erro: unknown) => {
             console.error('Erro ao cadastrar empresa:', erro)
-        })
-    })
-
-    document.querySelector<HTMLButtonElement>(
-        '#menu-empresas'
-    )?.addEventListener('click', () => {
-        renderListaEmpresas().catch((erro: unknown) => {
-            console.error('Erro ao carregar lista de empresas:', erro)
         })
     })
 

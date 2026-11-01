@@ -1,7 +1,5 @@
-import {renderListaEmpresas} from "../view/ListaEmpresas.ts";
 import {renderCadastroCandidato} from '../service/CadastroCandidato.ts'
 import {renderCadastroEmpresa} from '../service/CadastroEmpresa.ts'
-import {renderListaCandidatos} from "../view/ListaCandidatos.ts";
 
 const movimentoReduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -58,19 +56,5 @@ document
     .querySelector<HTMLButtonElement>('#menu-cadastro-empresa-hero')
     ?.addEventListener('click', async () => {
         await renderCadastroEmpresa()
-        rolarParaApp()
-    })
-
-document
-    .querySelector<HTMLButtonElement>('#menu-candidatos')
-    ?.addEventListener('click', () => {
-        renderListaCandidatos()
-        rolarParaApp()
-    })
-
-document
-    .querySelector<HTMLButtonElement>('#menu-empresas')
-    ?.addEventListener('click', () => {
-        renderListaEmpresas()
         rolarParaApp()
     })
