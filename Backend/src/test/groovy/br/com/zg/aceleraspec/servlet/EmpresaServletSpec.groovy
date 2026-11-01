@@ -72,8 +72,9 @@ class EmpresaServletSpec extends Specification {
         stringWriter.toString().contains("CNPJ deve conter 14 números.")
     }
 
-    def "deve capturar excecao nao tratada no Servlet e retornar 500"() {
+    def "deve retornar 400 quando ocorre excecao ao processar POST"() {
         given: "O leitor da requisição configurado para dar erro"
+        requestMock.getServletPath() >> "/api/empresas"
 
         when: "O doPost é chamado"
         servlet.doPost(requestMock, responseMock)
@@ -81,14 +82,14 @@ class EmpresaServletSpec extends Specification {
         then: "Quando o Servlet tentar ler, disparamos uma exceção violenta"
         1 * requestMock.getReader() >> { throw new RuntimeException("Conexão de rede interrompida") }
 
-        and: "O catch do Servlet deve assumir o controle e retornar status 500"
+        and: "O catch do Servlet deve assumir o controle e retornar status 400"
         1 * responseMock.setContentType("application/json")
         1 * responseMock.setCharacterEncoding("UTF-8")
-        1 * responseMock.setStatus(500)
+        1 * responseMock.setStatus(400)
         1 * responseMock.getWriter() >> printWriter
 
         and: "A resposta devolve a mensagem formatada pelo catch do próprio Servlet"
-        stringWriter.toString().contains("Erro interno no Servlet: Conexão de rede interrompida")
+        stringWriter.toString().contains("Erro ao processar a requisição: Conexão de rede interrompida")
     }
     // --- TESTES DO GET ---
     def "deve retornar 200 e listar todas as empresas quando não passar CNPJ"() {

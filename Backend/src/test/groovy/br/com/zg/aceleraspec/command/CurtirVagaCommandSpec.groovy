@@ -94,7 +94,7 @@ class CurtirVagaCommandSpec extends Specification {
 
         then:
         1 * vagaControllerMock.listar() >> [status: 200, dados: [vaga1, vaga2]]
-        1 * matchControllerMock.curtirVaga(candidatoTeste.cpf, vaga2) >> [status: 200, mensagem: "Vaga curtida com sucesso!"]
+        1 * matchControllerMock.curtirVaga(candidatoTeste.cpf, vaga2.id) >> [status: 200, mensagem: "Vaga curtida com sucesso!"]
         notThrown(Exception)
     }
 
@@ -110,7 +110,7 @@ class CurtirVagaCommandSpec extends Specification {
 
         then:
         1 * vagaControllerMock.listar() >> [status: 200, dados: [vaga]]
-        1 * matchControllerMock.curtirVaga(candidatoTeste.cpf, vaga) >> { throw new RuntimeException("Falha no banco") }
+        1 * matchControllerMock.curtirVaga(candidatoTeste.cpf, vaga.id) >> { throw new RuntimeException("Falha no banco") }
         notThrown(Exception)
     }
 }

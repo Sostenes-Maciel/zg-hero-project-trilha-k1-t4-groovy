@@ -61,7 +61,7 @@ class CurtirVagaCommand implements ICommand {
                 throw new IllegalArgumentException("Número de vaga inexistente.")
             }
 
-            def respostaMatch = matchController.curtirVaga(candidato.cpf, vagas[idx])
+            def respostaMatch = matchController.curtirVaga(candidato.cpf, vagas[idx].id)
             println "\n[${respostaMatch.status}] - ${respostaMatch.mensagem}"
 
         } catch (IllegalArgumentException e) {
