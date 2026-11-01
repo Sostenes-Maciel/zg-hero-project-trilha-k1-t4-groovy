@@ -7,7 +7,7 @@ export interface EnderecoCep {
 }
 
 interface RespostaViaCep extends EnderecoCep {
-    erro?: boolean
+    erro?: boolean | string
 }
 
 const FORMATO_CEP_BR = /^\d{5}-?\d{3}$/

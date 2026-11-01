@@ -388,6 +388,12 @@ A solução foi arquitetada separando claramente as responsabilidades entre clie
 
 O projeto segue a arquitetura REST. O Frontend age como um cliente consumindo a API disponibilizada pelo Tomcat/Servlet. O estado de navegação é protegido por validadores (checagem de sessão) e os dados trafegados seguem estruturas estritas de JSON, garantindo que máscaras de entrada (como CPF e CNPJ) sejam tratadas tanto no lado do cliente (Regex) quanto higienizadas no servidor.
 
+### Atualização - Consulta e preenchimento de endereço por CEP
+
+Os formulários de cadastro de candidato e empresa consultam a API ViaCEP diretamente pelo frontend quando o CEP brasileiro é informado. A aplicação valida o formato do CEP, trata casos de CEP não encontrado e falhas na consulta, e preenche automaticamente logradouro, bairro, cidade e estado.
+
+Os campos de logradouro, bairro e cidade são exibidos durante o cadastro, mas não são persistidos. O perfil salva somente os dados de endereço já suportados pelo banco (país, estado e CEP) e consulta novamente a ViaCEP para exibir o endereço disponível. O número não é solicitado, pois não é fornecido pela API.
+
 
 👤 Autor
 

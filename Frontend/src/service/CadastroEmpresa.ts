@@ -120,7 +120,7 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
         const estados = await getStatesOfCountry(codigoPais)
         estados.forEach(estado => {
             const option = document.createElement('option')
-            option.value = estado.name
+            option.value = estado.iso2
             option.textContent = estado.name
             option.dataset.uf = estado.iso2
             selectEstado.appendChild(option)

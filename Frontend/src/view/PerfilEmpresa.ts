@@ -371,7 +371,7 @@ function configurarNavegacaoMatches(empresa: Empresa): void {
     const botaoMatches = document.querySelector<HTMLButtonElement>('#btn-meus-matches')
     botaoMatches?.addEventListener('click', (e) => {
         e.preventDefault()
-        renderListaMatchesEmpresa(empresa, () => {
+        void renderListaMatchesEmpresa(empresa, () => {
             void renderPerfilEmpresa(empresa)
         })
     })
@@ -415,7 +415,8 @@ async function buscarVagasDaEmpresa(cnpj: string): Promise<Vaga[]> {
     try {
         const resposta = await fetch(`http://localhost:8080/api/vagas?cnpj=${encodeURIComponent(cnpj)}`)
         if (!resposta.ok) {
-            throw new Error(`Falha ao buscar vagas (${resposta.status}).`)
+            console.error(`Falha ao buscar vagas da empresa (HTTP ${resposta.status}).`)
+            return []
         }
 
         const dados: { dados?: VagaDaApi[] } | VagaDaApi[] = await resposta.json()
