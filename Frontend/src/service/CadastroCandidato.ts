@@ -17,8 +17,9 @@ export async function renderCadastroCandidato(): Promise<void> {
 
 function renderizarFormulario(app: HTMLDivElement): void {
     app.innerHTML = `
-        <section class="cadastro-container">
+        <section class="cadastro-container tela-com-transicao">
             <h1>Cadastro de Candidato</h1>
+            <p class="form-descricao">Crie seu perfil e encontre oportunidades alinhadas às suas competências.</p>
             <form id="form-candidato">
                 <div>
                     <label for="nome">Nome</label>

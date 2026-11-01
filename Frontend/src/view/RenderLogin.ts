@@ -13,8 +13,9 @@ export function renderLogin(): void {
 
 function renderizarFormularioLogin(app: HTMLDivElement): void {
     app.innerHTML = `
-        <section class="login-container">
+        <section class="login-container tela-com-transicao">
             <h1>Login no Linketinder</h1>
+            <p class="form-descricao">Acesse seu espaço e continue sua jornada profissional.</p>
             <form id="form-login">
                 <div>
                     <label for="tipoUsuario">Entrar como:</label>

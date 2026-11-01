@@ -44,7 +44,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
             <h1>Perfil da Empresa</h1>
             <p id="mensagem" class="${mensagemSucesso ? 'mensagem-sucesso' : ''}">${mensagemSucesso ?? ''}</p>
 
-            <div>
+            <div class="card-perfil">
                 <h2>${empresa.nome}</h2>
                 <p><strong>E-mail:</strong> ${empresa.email}</p>
                 <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
@@ -78,11 +78,12 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                         <th class="coluna-candidato">Candidato</th>
                         <th class="coluna-competencias">Competências</th>
                         <th class="coluna-afinidade">Afinidade</th>
-                        <th class="coluna-acao">Ação e vaga</th>
+                        <th class="coluna-acao">Ação</th>
+                        <th class="coluna-vaga">Vaga</th>
                     </tr>
                 </thead>
                 <tbody id="lista-candidatos-empresa">
-                    <tr><td colspan="4">Carregando candidatos...</td></tr>
+                    <tr><td colspan="5">Carregando candidatos...</td></tr>
                 </tbody>
             </table>
 
@@ -139,19 +140,63 @@ function renderizarGraficoCompetencias(candidatos: Candidato[]): void {
         const canvas = document.querySelector<HTMLCanvasElement>('#grafico-competencias')
         if (!canvas || Object.keys(quantidadePorCompetencia).length === 0) return
 
+        const context = canvas.getContext('2d')
+        if (!context) return
+
+        const gradiente = context.createLinearGradient(0, 0, 0, canvas.height)
+        gradiente.addColorStop(0, '#20b486')
+        gradiente.addColorStop(1, '#2855a6')
+
         new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: Object.keys(quantidadePorCompetencia),
                 datasets: [{
                     label: 'Quantidade de candidatos',
-                    data: Object.values(quantidadePorCompetencia)
+                    data: Object.values(quantidadePorCompetencia),
+                    backgroundColor: gradiente,
+                    hoverBackgroundColor: '#168a68',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 48
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: true } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                animation: {
+                    duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900,
+                    easing: 'easeOutQuart',
+                    delay: context => context.dataIndex * 45
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#25324b',
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded',
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#173b80',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#526176' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#526176' },
+                        grid: { color: 'rgba(23, 59, 128, 0.08)' }
+                    }
+                }
             }
         })
     } catch (erro) {
@@ -164,7 +209,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
     if (!lista) return
 
     if (candidatos.length === 0) {
-        lista.innerHTML = '<tr><td colspan="4" class="tabela-vazia">Nenhum candidato disponível no momento.</td></tr>'
+        lista.innerHTML = '<tr><td colspan="5" class="tabela-vazia">Nenhum candidato disponível no momento.</td></tr>'
         return
     }
 
@@ -180,7 +225,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
         )
         const vagaSelecionada = statusCandidato.find(s => s.status === 'match')?.idVaga
             ?? statusCandidato.find(s => s.status === 'curtido')?.idVaga
-            ?? vagas[0]?.id
+            ?? ''
         const status = statusCandidato.find(s => s.idVaga === vagaSelecionada)?.status
         const temMatch = status === 'match'
         const temMatchComCandidato = statusCandidato.some(s => s.status === 'match')
@@ -203,25 +248,28 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
                 ${calcularAfinidade(candidato, empresa)}%
             </td>
             <td class="coluna-acao">
+                <button
+                    class="btn-curtir-candidato"
+                    data-cpf="${candidato.cpf}"
+                    data-id-vaga="${vagaSelecionada ?? ''}"
+                    data-curtido="${curtiu}"
+                    data-match="${temMatch}"
+                    title="${temMatch ? 'Match confirmado' : curtiu ? 'Remover curtida' : 'Curtir candidato'}"
+                    ${vagas.length === 0 || !vagaSelecionada || temMatch ? 'disabled' : ''}
+                >
+                    ${iconeCurtida}
+                </button>
+            </td>
+            <td class="coluna-vaga">
                 <div class="acoes-curtida-empresa">
-                    <button
-                        class="btn-curtir-candidato"
-                        data-cpf="${candidato.cpf}"
-                        data-id-vaga="${vagaSelecionada ?? ''}"
-                        data-curtido="${curtiu}"
-                        data-match="${temMatch}"
-                        title="${temMatch ? 'Match confirmado' : curtiu ? 'Remover curtida' : 'Curtir candidato'}"
-                        ${vagas.length === 0 || temMatch ? 'disabled' : ''}
-                    >
-                        ${iconeCurtida}
-                    </button>
                     <select
                         class="select-vaga-curtir"
                         data-cpf="${candidato.cpf}"
                         aria-label="Selecionar vaga para curtir candidato"
                         ${vagas.length === 0 ? 'disabled' : ''}
                     >
-                        ${vagas.length > 0 ? opcoesVaga : '<option value="">Cadastre uma vaga primeiro</option>'}
+                        <option value="" ${vagaSelecionada ? '' : 'selected'} disabled>Selecionar vaga</option>
+                        ${opcoesVaga}
                     </select>
                 </div>
             </td>
@@ -253,13 +301,17 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
 
     botoesCurtir.forEach(botao => {
         const seletorVaga = botao.parentElement?.querySelector<HTMLSelectElement>('.select-vaga-curtir')
+            ?? botao.closest('tr')?.querySelector<HTMLSelectElement>('.select-vaga-curtir')
         const cpf = botao.dataset.cpf?.replace(/\D/g, '')
         if (!cpf) return
 
         seletorVaga?.addEventListener('change', () => {
+            animarEscolhaVaga(seletorVaga)
             const idVagaSelecionada = Number(seletorVaga.value)
             const status = buscarStatusMatchesEmMemoria(statusMatches, cpf, idVagaSelecionada)
             atualizarBotaoCurtida(botao, status)
+            botao.dataset.idVaga = seletorVaga.value
+            botao.disabled = status === 'match' || !seletorVaga.value
         })
 
         botao.addEventListener('click', async (e) => {
@@ -299,6 +351,11 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
                     const novoStatus = deuMatch ? 'match' : jaCurtido ? undefined : 'curtido'
                     atualizarStatusEmMemoria(statusMatches, cpfCandidato.replace(/\D/g, ''), idVaga, novoStatus)
                     atualizarBotaoCurtida(botao, novoStatus)
+                    if (novoStatus === 'curtido') {
+                        animarCurtida(botao)
+                    } else {
+                        botao.classList.remove('curtida-animada')
+                    }
                     if (deuMatch) {
                         mostrarAnimacaoMatch()
                         const candidato = candidatos.find(item =>
@@ -350,6 +407,21 @@ function atualizarBotaoCurtida(botao: HTMLButtonElement, status?: 'curtido' | 'm
     botao.dataset.curtido = String(curtiu)
     botao.dataset.match = String(temMatch)
     botao.disabled = temMatch
+}
+
+function animarCurtida(botao: HTMLButtonElement): void {
+    botao.classList.remove('curtida-animada')
+    void botao.offsetWidth
+    botao.classList.add('curtida-animada')
+}
+
+function animarEscolhaVaga(seletor: HTMLSelectElement): void {
+    const acoes = seletor.closest<HTMLElement>('.acoes-curtida-empresa')
+    acoes?.classList.remove('vaga-selecionada')
+    seletor.classList.remove('vaga-escolhida')
+    void seletor.offsetWidth
+    acoes?.classList.add('vaga-selecionada')
+    seletor.classList.add('vaga-escolhida')
 }
 
 function configurarFiltroCompetencia(): void {

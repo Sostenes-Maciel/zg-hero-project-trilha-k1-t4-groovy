@@ -100,38 +100,41 @@ function renderizarFormulario(app: HTMLDivElement): void {
     app.innerHTML = `
         <section class="cadastro-container tela-com-transicao">
             <h1>Cadastro de Vaga</h1>
+            <p class="form-descricao">Descreva a oportunidade e indique onde ela está disponível.</p>
 
             <form id="form-vaga">
-                <div>
+                <div class="campo-vaga-titulo">
                     <label for="titulo">Título da vaga</label>
                     <input type="text" id="titulo" name="titulo" required>
                 </div>
-                <div>
+                <div class="campo-vaga-descricao">
                     <label for="descricao">Descrição</label>
                     <textarea id="descricao" name="descricao" required></textarea>
                 </div>
-                
-                <div>
+
+                <div class="campo-vaga-competencias">
+                    <label for="competencias">Competências</label>
+                    <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Spring, Git" required>
+                </div>
+
+                <div class="campo-vaga-pais">
                     <label for="pais">País</label>
                     <select id="pais" name="pais" required>
                         <option value="">Selecione um país</option>
                     </select>
                 </div>
-                
-                <div>
+
+                <div class="campo-vaga-estado">
                     <label for="estado">Estado</label>
                     <select id="estado" name="estado" required disabled>
                         <option value="">Selecione um país primeiro</option>
                     </select>
                 </div>
-                
-                <div>
-                    <label for="competencias">Competências</label>
-                    <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Spring, Git" required>
-                </div>
 
-                <button type="submit">Cadastrar</button> 
-                <button type="button" id="btn-voltar-vaga">Voltar</button>
+                <div class="acoes-form-vaga">
+                    <button type="submit">Cadastrar vaga</button>
+                    <button type="button" id="btn-voltar-vaga">Voltar</button>
+                </div>
 
                 <p id="mensagem"></p>
             </form>

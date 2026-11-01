@@ -16,7 +16,7 @@ function atualizarBotaoLogin(): void {
 
     if (!botaoLogin) return
 
-    botaoLogin.textContent = usuarioEstaLogado() ? 'Sair' : 'Login'
+    botaoLogin.textContent = 'Login'
 }
 
 export function configurarMenu(): void {

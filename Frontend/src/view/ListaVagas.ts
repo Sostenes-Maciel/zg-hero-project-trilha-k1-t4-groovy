@@ -117,7 +117,11 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
 
     vagas.forEach(vaga => {
         const linha = document.createElement('tr')
-        linha.dataset.titulo = vaga.titulo.toLowerCase()
+        linha.dataset.busca = [
+            vaga.titulo,
+            vaga.empresa?.nome ?? '',
+            ...(vaga.competencias ?? [])
+        ].join(' ').toLocaleLowerCase('pt-BR')
 
         const afinidade = candidato
             ? calcularAfinidadePorCompetencias(candidato.competencias, vaga.competencias)
@@ -139,6 +143,7 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
                     class="btn-curtir-vaga"
                     data-id="${vaga.id}"
                     data-curtido="${curtiu}"
+                    data-match="${temMatch}"
                     title="${temMatch ? 'Match confirmado!' : curtiu ? 'Descurtir' : 'Curtir vaga'}"
                     ${temMatch ? 'disabled' : ''}
                 >
@@ -175,8 +180,8 @@ function configurarFiltroBusca(): void {
         const linhas = lista?.querySelectorAll<HTMLTableRowElement>('tr') ?? []
 
         linhas.forEach(linha => {
-            const titulo = linha.dataset.titulo ?? ''
-            linha.hidden = !titulo.includes(termo)
+            const textoBusca = linha.dataset.busca ?? ''
+            linha.hidden = !textoBusca.includes(termo)
         })
     })
 }
@@ -218,20 +223,26 @@ function configurarBotoesCurtir(candidato?: Candidato): void {
                         botao.innerHTML = '♡'
                         botao.title = 'Curtir vaga'
                         botao.dataset.curtido = 'false'
+                        botao.dataset.match = 'false'
+                        botao.classList.remove('curtida-animada')
                     } else {
                         // Curtiu a vaga
                         const resultado = await resposta.json()
                         if (resultado.mensagem && resultado.mensagem.toLowerCase().includes('match')) {
                             botao.innerHTML = '🤝'
                             botao.title = 'Match confirmado!'
+                            botao.dataset.match = 'true'
                             botao.disabled = true
                             mostrarAnimacaoMatch()
                         } else {
                             botao.innerHTML = '♥'
                             botao.title = 'Descurtir'
+                            botao.dataset.match = 'false'
                         }
                         botao.dataset.curtido = 'true'
-                        botao.classList.add('curtida-animada')
+                        if (botao.dataset.match !== 'true') {
+                            animarCurtida(botao)
+                        }
                     }
                 } else {
                     const resultado = await resposta.json()
@@ -249,6 +260,12 @@ function configurarBotoesCurtir(candidato?: Candidato): void {
             }
         })
     })
+}
+
+function animarCurtida(botao: HTMLButtonElement): void {
+    botao.classList.remove('curtida-animada')
+    void botao.offsetWidth
+    botao.classList.add('curtida-animada')
 }
 
 function configurarBotoesPerfil(onVoltar?: () => void, vagas?: Vaga[], statusMatches: StatusMatchVaga[] = [], candidato?: Candidato): void {

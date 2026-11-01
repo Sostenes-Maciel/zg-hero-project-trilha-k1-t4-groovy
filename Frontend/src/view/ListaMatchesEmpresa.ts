@@ -59,7 +59,7 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
     }
 
     const cardsHtml = curtidas.map(curtida => `
-        <div class="card-match">
+        <div class="card-match card-curtida-pendente">
             <h3>♥ Curtida pendente</h3>
             ${curtida.vaga?.titulo ? `<p><strong>Vaga:</strong> ${curtida.vaga.titulo}</p>` : ''}
             <p>
@@ -83,7 +83,7 @@ function gerarSecaoMatchesRealizados(matches: Match[]): string {
     }
 
     const cardsHtml = matches.map(match => `
-        <div class="card-match">
+        <div class="card-match card-match-confirmado">
             <h3>🤝 ${match.candidato?.nome ?? 'Candidato'}</h3>
             <p>
                 <strong>Vaga:</strong> ${match.vaga?.titulo ?? 'Vaga'}
