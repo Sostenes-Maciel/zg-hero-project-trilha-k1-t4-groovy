@@ -51,7 +51,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                 </header>
                 <div class="perfil-grade">
                     <section class="perfil-bloco">
-                        <h3>Sobre a empresa</h3>
+                        <h3>Sobre a empresa:</h3>
                         <p>${escaparHtml(empresa.descricao || 'Adicione uma descrição para apresentar sua empresa.')}</p>
                     </section>
                     <section class="perfil-bloco">
@@ -64,10 +64,10 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
                     </section>
                 </div>
                 <div class="perfil-resumo-empresa">
-                    <p><strong>E-mail</strong><span>${escaparHtml(empresa.email)}</span></p>
-                    <p><strong>CNPJ</strong><span>${escaparHtml(empresa.cnpj)}</span></p>
-                    <p><strong>Localização</strong><span>${escaparHtml([empresa.estado, empresa.pais].filter(Boolean).join(', '))}</span></p>
-                    <p><strong>Endereço</strong><span id="endereco-perfil-empresa">Consultando CEP...</span></p>
+                    <p><strong>E-mail:</strong> <span>${escaparHtml(empresa.email)}</span></p>
+                    <p><strong>CNPJ:</strong> <span>${escaparHtml(empresa.cnpj)}</span></p>
+                    <p><strong>Localização:</strong> <span>${escaparHtml([empresa.estado, empresa.pais].filter(Boolean).join(', '))}</span></p>
+                    <p><strong>Endereço:</strong> <span id="endereco-perfil-empresa">Consultando CEP...</span></p>
                 </div>
             </div>
             
@@ -77,6 +77,7 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
             </div>
 
             <h2>Candidatos disponíveis</h2>
+            <p class="aviso-curtida-empresa">Selecione uma vaga antes de curtir um candidato.</p>
             <div class="filtro-candidatos">
                 <label for="filtro-competencia">Buscar por competência</label>
                 <input

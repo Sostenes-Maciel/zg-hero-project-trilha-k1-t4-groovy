@@ -2704,6 +2704,12 @@ textarea:focus {
     font-weight: 600;
 }
 
+.aviso-curtida-empresa {
+    margin: -8px 0 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
 .perfil-detalhes,
 .perfil-resumo-empresa {
     display: grid;
