@@ -2,8 +2,6 @@ import type { Candidato } from '../model/Candidato'
 import { consultarEnderecoPorCep, formatarEndereco } from '../service/ConsultaCep.ts'
 
 export function renderPerfilCandidato(candidato: Candidato): void {
-    console.log("Dados do candidato:", candidato)
-
     const app = document.querySelector<HTMLDivElement>('#app')
     if (!app) return
 
@@ -12,29 +10,52 @@ export function renderPerfilCandidato(candidato: Candidato): void {
 }
 
 function renderizarTemplatePerfil(app: HTMLDivElement, candidato: Candidato): void {
+    const competencias = Array.isArray(candidato.competencias) ? candidato.competencias : []
     app.innerHTML = `
-        <section class="perfil-candidato tela-com-transicao">            
+        <section class="perfil-candidato tela-com-transicao">
             <h1>Perfil do Candidato</h1>
 
             <div class="card-perfil">
-                <h2>${candidato.nome}</h2>
+                <header class="perfil-cabecalho">
+                    <h2>${escaparHtml(candidato.nome)}</h2>
+                    <p class="perfil-subtitulo">Candidato</p>
+                </header>
 
-                <p><strong>E-mail:</strong> ${candidato.email}</p>
-                <p><strong>Idade:</strong> ${candidato.idade}</p>
-                <p><strong>CPF:</strong> ${candidato.cpf}</p>
-                <p><strong>Pais:</strong> ${candidato.pais}</p>
-                <p><strong>Estado:</strong> ${candidato.estado}</p>
-                <p><strong>CEP:</strong> ${candidato.cep}</p>
-                <p><strong>Endereço:</strong> <span id="endereco-perfil-candidato">Consultando CEP...</span></p>
-                <p><strong>Descrição:</strong> ${candidato.descricao}</p>
-                <p>
-                    <strong>Competências:</strong>
-                    ${candidato.competencias.join(', ')}
-                </p>
+                <div class="perfil-grade">
+                    <section class="perfil-bloco">
+                        <h3>Sobre</h3>
+                        <p>${escaparHtml(candidato.descricao || 'Adicione uma descrição para apresentar sua trajetória.')}</p>
+                    </section>
+                    <section class="perfil-bloco">
+                        <h3>Competências</h3>
+                        <div class="perfil-tags">
+                            ${competencias.length
+                                ? competencias.map(competencia => `<span class="perfil-tag">${escaparHtml(competencia)}</span>`).join('')
+                                : '<span>Sem competências informadas</span>'}
+                        </div>
+                    </section>
+                </div>
+
+                <div class="perfil-detalhes">
+                    <p><strong>E-mail:</strong> ${escaparHtml(candidato.email)}</p>
+                    <p><strong>Idade:</strong> ${escaparHtml(String(candidato.idade))}</p>
+                    <p><strong>Localização:</strong> ${escaparHtml([candidato.estado, candidato.pais].filter(Boolean).join(', '))}</p>
+                    <p><strong>Endereço:</strong> <span id="endereco-perfil-candidato">Consultando CEP...</span></p>
+                </div>
             </div>
 
         </section>
     `
+}
+
+function escaparHtml(valor: string): string {
+    return valor.replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[caractere]!)
 }
 
 async function preencherEnderecoPerfil(cep: string): Promise<void> {

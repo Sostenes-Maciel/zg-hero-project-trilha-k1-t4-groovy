@@ -2643,6 +2643,85 @@ textarea:focus {
     animation: sair-notificacao 0.24s ease-in both;
 }
 
+.perfil-candidato .card-perfil,
+.perfil-empresa .card-perfil-empresa {
+    text-align: left;
+}
+
+.perfil-candidato .perfil-cabecalho,
+.perfil-empresa .perfil-cabecalho {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.perfil-candidato .perfil-cabecalho h2,
+.perfil-empresa .perfil-cabecalho h2 {
+    margin-bottom: 6px;
+}
+
+.perfil-subtitulo {
+    margin: 0;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.perfil-grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.perfil-bloco {
+    margin: 0 0 20px;
+}
+
+.perfil-bloco h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+}
+
+.perfil-bloco p,
+.perfil-detalhes p {
+    margin: 0;
+    line-height: 1.65;
+    white-space: pre-line;
+}
+
+.perfil-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.perfil-tag {
+    display: inline-flex;
+    padding: 6px 11px;
+    border: 1px solid rgba(32, 180, 134, 0.25);
+    border-radius: 999px;
+    background: rgba(32, 180, 134, 0.09);
+    color: #176b50;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.perfil-detalhes,
+.perfil-resumo-empresa {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+    .perfil-grade,
+    .perfil-detalhes,
+    .perfil-resumo-empresa {
+        grid-template-columns: 1fr;
+    }
+}
+
 @keyframes entrar-notificacao {
     from {
         opacity: 0;

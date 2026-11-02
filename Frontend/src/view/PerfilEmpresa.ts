@@ -37,22 +37,38 @@ export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: st
 }
 
 function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
+    const competencias = Array.isArray(empresa.competencias) ? empresa.competencias : []
+
     app.innerHTML = `
         <section class="perfil-empresa ${animarTransicao ? 'tela-com-transicao' : ''}">
             <h1>Perfil da Empresa</h1>
             <p id="mensagem" class="${mensagemSucesso ? 'mensagem-sucesso' : ''}">${mensagemSucesso ?? ''}</p>
 
-            <div class="card-perfil">
-                <h2>${empresa.nome}</h2>
-                <p><strong>E-mail:</strong> ${empresa.email}</p>
-                <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
-                <p><strong>Estado:</strong> ${empresa.estado}</p>
-                <p><strong>Endereço:</strong> <span id="endereco-perfil-empresa">Consultando CEP...</span></p>
-                <p><strong>Descrição:</strong> ${empresa.descricao}</p>
-                <p>
-                    <strong>Competências Desejadas:</strong>
-                    ${Array.isArray(empresa.competencias) ? empresa.competencias.join(', ') : 'Nenhuma competência informada'}
-                </p>
+            <div class="card-perfil card-perfil-empresa">
+                <header class="perfil-cabecalho">
+                    <h2>${escaparHtml(empresa.nome)}</h2>
+                    <p class="perfil-subtitulo">Empresa</p>
+                </header>
+                <div class="perfil-grade">
+                    <section class="perfil-bloco">
+                        <h3>Sobre a empresa</h3>
+                        <p>${escaparHtml(empresa.descricao || 'Adicione uma descrição para apresentar sua empresa.')}</p>
+                    </section>
+                    <section class="perfil-bloco">
+                        <h3>Competências desejadas</h3>
+                        <div class="perfil-tags">
+                            ${competencias.length
+                                ? competencias.map(competencia => `<span class="perfil-tag">${escaparHtml(competencia)}</span>`).join('')
+                                : '<span>Nenhuma competência informada</span>'}
+                        </div>
+                    </section>
+                </div>
+                <div class="perfil-resumo-empresa">
+                    <p><strong>E-mail</strong><span>${escaparHtml(empresa.email)}</span></p>
+                    <p><strong>CNPJ</strong><span>${escaparHtml(empresa.cnpj)}</span></p>
+                    <p><strong>Localização</strong><span>${escaparHtml([empresa.estado, empresa.pais].filter(Boolean).join(', '))}</span></p>
+                    <p><strong>Endereço</strong><span id="endereco-perfil-empresa">Consultando CEP...</span></p>
+                </div>
             </div>
             
             <h2>Candidatos por competência</h2>
@@ -86,6 +102,16 @@ function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensage
 
         </section>
     `
+}
+
+function escaparHtml(valor: string): string {
+    return valor.replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[caractere]!)
 }
 
 async function preencherEnderecoPerfil(cep: string): Promise<void> {
