@@ -394,6 +394,34 @@ Os formulários de cadastro de candidato e empresa consultam a API ViaCEP direta
 
 Os campos de logradouro, bairro e cidade são exibidos durante o cadastro, mas não são persistidos. O perfil salva somente os dados de endereço já suportados pelo banco (país, estado e CEP) e consulta novamente a ViaCEP para exibir o endereço disponível. O número não é solicitado, pois não é fornecido pela API.
 
+### Atualização - Integração experimental com o microserviço de cadastro
+
+Foi explorada e testada a integração dos formulários de candidato e empresa com uma aplicação Gradle independente, localizada em `CadastroMicroService/`. O serviço foi implementado em Groovy, sem framework web, usando o servidor HTTP nativo do JDK, JSON do Groovy e JDBC.
+
+O fluxo do frontend usa a Fetch API para enviar os dados como JSON. Apenas novos cadastros (`POST`) são direcionados ao microserviço na porta `8081`; as edições (`PUT`) continuam no backend principal, na porta `8080`:
+
+| Perfil | Novo cadastro | Edição |
+|---|---|---|
+| Candidato | `POST http://localhost:8081/api/candidatos` | `PUT http://localhost:8080/api/candidatos` |
+| Empresa | `POST http://localhost:8081/api/empresas` | `PUT http://localhost:8080/api/empresas` |
+
+Para permitir as chamadas do navegador, o microserviço responde ao preflight `OPTIONS` e habilita CORS para a origem `http://localhost:5173` por padrão. Se o frontend iniciar em outra origem, configure `FRONTEND_ORIGIN` com o endereço exato exibido no navegador, incluindo esquema, host e porta.
+
+O microserviço se conecta ao PostgreSQL existente em `jdbc:postgresql://localhost:5432/LinkeTinder_BD` por padrão. A URL pode ser substituída por `DB_URL`; as credenciais são lidas de `DB_USER` e `DB_PASSWORD`. Não foram criadas nem alteradas tabelas ou colunas. Além dos dados principais do perfil, o serviço grava as competências recebidas nas tabelas existentes `competencia`, `candidato_competencia` e `empresa_competencia`, na mesma transação do cadastro.
+
+Para executar localmente, mantenha o backend principal e o frontend em execução e inicie o microserviço em outro terminal:
+
+```bash
+cd CadastroMicroService
+export DB_USER='seu_usuario'
+export DB_PASSWORD='sua_senha'
+./gradlew run
+```
+
+Inicie o frontend pelo procedimento habitual, garantindo que sua origem seja a configurada em `FRONTEND_ORIGIN`. Os testes automatizados do microserviço podem ser executados com `cd CadastroMicroService && ./gradlew test`; eles usam repositórios e drivers de teste, sem inserir dados no PostgreSQL.
+
+Na validação manual da integração, os cadastros de candidato e empresa foram enviados pelo frontend ao serviço e confirmados com sucesso. A edição de perfis continua no backend original. A integração é experimental e local; para outros ambientes, ajuste os endereços/portas e a origem CORS.
+
 
 👤 Autor
 
