@@ -209,7 +209,11 @@ async function processarSubmissao(formulario: HTMLFormElement, validarCep: () =>
         await validarCep()
         const empresa = extrairEValidarDados(formulario, selectPais)
 
-        const resposta = await fetch('http://localhost:8080/api/empresas', {
+        const url = empresaEmEdicao
+            ? 'http://localhost:8080/api/empresas'
+            : 'http://localhost:8081/api/empresas'
+
+        const resposta = await fetch(url, {
             method: empresaEmEdicao ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
