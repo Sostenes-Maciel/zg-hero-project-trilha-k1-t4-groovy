@@ -39,6 +39,7 @@ class GerenciadorDePerfisService {
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
         ValidarCandidatoService.validarDescricao(candidato.descricao)
+        ValidarCandidatoService.validarCompetencias(candidato.competencias)
 
         candidatoDAO.cadastrar(candidato)
 
@@ -57,6 +58,7 @@ class GerenciadorDePerfisService {
         ValidarEmpresaService.validarEstado(empresa.estado)
         ValidarEmpresaService.validarCep(empresa.cep)
         ValidarEmpresaService.validarDescricao(empresa.descricao)
+        ValidarCandidatoService.validarCompetencias(empresa.competencias)
 
         empresaDAO.cadastrar(empresa)
 
@@ -91,6 +93,8 @@ class GerenciadorDePerfisService {
         ValidarCandidatoService.validarEstado(candidato.estado)
         ValidarCandidatoService.validarCep(candidato.cep)
         ValidarCandidatoService.validarDescricao(candidato.descricao)
+        ValidarCandidatoService.validarCompetencias(candidato.competencias)
+
         Candidato candidatoExistente = candidatoDAO.buscarPorId(candidato.cpf)
         if (candidatoExistente == null) {
             throw new IllegalArgumentException("Candidato não encontrado.")
@@ -112,6 +116,8 @@ class GerenciadorDePerfisService {
         ValidarEmpresaService.validarEstado(empresa.estado)
         ValidarEmpresaService.validarCep(empresa.cep)
         ValidarEmpresaService.validarDescricao(empresa.descricao)
+        ValidarCandidatoService.validarCompetencias(empresa.competencias)
+
         Empresa empresaExistente = empresaDAO.buscarPorId(empresa.cnpj)
         if (empresaExistente == null) {
             throw new IllegalArgumentException("Empresa não encontrada.")

@@ -4,6 +4,7 @@ import br.com.zg.acelera.controller.VagaController
 import br.com.zg.acelera.interfaces.ICommand
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.utils.ValidacaoUtils
 
 class CadastrarVagaCommand implements ICommand {
 
@@ -37,9 +38,11 @@ class CadastrarVagaCommand implements ICommand {
         vaga.estado = sc.nextLine().trim()
 
         print "Competências necessárias (separadas por vírgula): "
-        vaga.competencia = sc.nextLine().split(",").collect { it.trim() }
+        vaga.competencia = ValidacaoUtils.extrairCompetencias(sc.nextLine())
 
         def resposta = vagaController.cadastrar(vaga)
         println "\n[${resposta.status}] - ${resposta.mensagem}"
     }
+
+
 }

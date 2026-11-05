@@ -5,6 +5,8 @@ import br.com.zg.acelera.controller.EmpresaController
 import br.com.zg.acelera.interfaces.ICommand
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.utils.ValidacaoUtils
+
 
 class CadastrarCommand implements ICommand {
 
@@ -37,7 +39,7 @@ class CadastrarCommand implements ICommand {
             print "CEP: "; c.cep = sc.nextLine().trim()
             print "Descrição: "; c.descricao = sc.nextLine().trim()
             print "Competências (separadas por vírgula): "
-            c.competencias = sc.nextLine().split(",").collect { it.trim() }
+            c.competencias = ValidacaoUtils.extrairCompetencias(sc.nextLine())
 
             def resposta = candidatoController.cadastrar(c)
             println "\n[${resposta.status}] -${resposta.mensagem}"
@@ -52,7 +54,7 @@ class CadastrarCommand implements ICommand {
             print "CEP: "; e.cep = sc.nextLine().trim()
             print "Descrição: "; e.descricao = sc.nextLine().trim()
             print "Competências desejadas (separadas por vírgula): "
-            e.competencias = sc.nextLine().split(",").collect { it.trim() }
+            e.competencias = ValidacaoUtils.extrairCompetencias(sc.nextLine())
 
             def resposta = empresaController.cadastrar(e)
             println "\n[${resposta.status}] -${resposta.mensagem}"
@@ -70,4 +72,6 @@ class CadastrarCommand implements ICommand {
         sc.nextLine()
         return op
     }
+
+
 }

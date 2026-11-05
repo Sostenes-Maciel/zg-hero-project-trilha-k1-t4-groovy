@@ -3,6 +3,7 @@ package br.com.zg.acelera.service
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.utils.ValidacaoUtils
 
 class GerenciadorDeVagasService {
 
@@ -15,6 +16,8 @@ class GerenciadorDeVagasService {
     }
 
     Integer cadastrarVaga(Vaga vaga) {
+
+        ValidacaoUtils.validarCompetencias(vaga.competencia)
         vagaDAO.cadastrar(vaga)
         Integer idVaga = vaga.id
 
@@ -61,6 +64,7 @@ class GerenciadorDeVagasService {
     }
 
     void atualizarVaga(Vaga vaga) {
+        ValidacaoUtils.validarCompetencias(vaga.competencia)
         vagaDAO.atualizar(vaga)
 
         List<String> competenciasAntigas = competenciaDAO.listarDaVaga(vaga.id)
@@ -72,6 +76,7 @@ class GerenciadorDeVagasService {
         vaga.competencia.each { competencia ->
             competenciaDAO.garantirCompetencia(competencia)
             competenciaDAO.adicionarAVaga(vaga.id, competencia)
+
         }
     }
 

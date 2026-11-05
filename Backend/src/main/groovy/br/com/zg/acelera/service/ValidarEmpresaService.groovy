@@ -5,7 +5,7 @@ import br.com.zg.acelera.utils.ValidacaoUtils
 class ValidarEmpresaService {
 
     static void validarNome(String nome) {
-        validarApenasLetras(nome, "Nome da empresa")
+        ValidacaoUtils.validarApenasLetras(nome, "Nome da empresa")
     }
 
     static void validarEmail(String email) {
@@ -19,11 +19,11 @@ class ValidarEmpresaService {
     }
 
     static void validarPais(String pais) {
-        validarApenasLetras(pais, "País")
+        ValidacaoUtils.validarApenasLetras(pais, "País")
     }
 
     static void validarEstado(String estado) {
-        validarApenasLetras(estado, "Estado")
+        ValidacaoUtils.validarApenasLetras(estado, "Estado")
     }
 
     static void validarCep(String cep) {
@@ -37,14 +37,6 @@ class ValidarEmpresaService {
     }
 
     static void validarCompetencias(List<String> competencias) {
-        if (!competencias || competencias.isEmpty()) {
-            throw new IllegalArgumentException("Informe pelo menos uma competência.")
-        }
-    }
-
-    private static void validarApenasLetras(String texto, String nomeCampo) {
-        if (!texto || !texto.matches(/[a-zA-ZÀ-ÿ\s]+/)) {
-            throw new IllegalArgumentException("${nomeCampo} inválido.")
-        }
+        ValidacaoUtils.validarCompetencias(competencias)
     }
 }
