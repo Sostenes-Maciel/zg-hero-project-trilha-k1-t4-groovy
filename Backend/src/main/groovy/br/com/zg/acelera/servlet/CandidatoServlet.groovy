@@ -99,7 +99,7 @@ class CandidatoServlet extends HttpServlet {
 
                 if (candidato) {
                     resp.setStatus(200)
-                    resp.getWriter().write(gson.toJson(candidato))
+                    resp.getWriter().write(gson.toJson(dtoAnonimo(candidato)))
                 } else {
                     resp.setStatus(404)
                     def erro = [status: 404, mensagem: "Candidato não encontrado."]
@@ -109,7 +109,7 @@ class CandidatoServlet extends HttpServlet {
                 def listaCandidatos = candidatoController.listar()
 
                 resp.setStatus(200)
-                resp.getWriter().write(gson.toJson(listaCandidatos))
+                resp.getWriter().write(gson.toJson(listaCandidatos.collect { dtoAnonimo(it) }))
             }
 
         } catch (Exception e) {
@@ -163,5 +163,20 @@ class CandidatoServlet extends HttpServlet {
     private void enviarResposta(HttpServletResponse resp, Map resultado) {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
+    }
+
+    private static Map dtoAnonimo(Object candidato) {
+        if (candidato instanceof Map) {
+            return [
+                    competencias: candidato.competencias ?: [],
+                    descricao: candidato.descricao,
+                    estado: candidato.estado
+            ]
+        }
+        [
+                competencias: candidato?.competencias ?: [],
+                descricao: candidato?.descricao,
+                estado: candidato?.estado
+        ]
     }
 }

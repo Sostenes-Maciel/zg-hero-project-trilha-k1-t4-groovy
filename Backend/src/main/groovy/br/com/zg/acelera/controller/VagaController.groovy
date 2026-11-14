@@ -1,6 +1,7 @@
 package br.com.zg.acelera.controller
 
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 
 class VagaController {
@@ -15,6 +16,8 @@ class VagaController {
         try {
             Integer id = vagaService.cadastrarVaga(vaga)
             return [status: 201, mensagem: "Vaga cadastrada com sucesso!", id: id]
+        } catch (SecurityException e) {
+            return [status: 403, mensagem: e.message]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao cadastrar vaga: ${e.message}".toString()]
         }
@@ -26,6 +29,49 @@ class VagaController {
             return [status: 200, dados: vagas]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao listar vagas: ${e.message}".toString()]
+        }
+    }
+
+    Map listar(Recrutador recrutador) {
+            try {
+                [status: 200, dados: vagaService.listarVagas(recrutador)]
+            } catch (SecurityException e) {
+                [status: 403, mensagem: e.message]
+            } catch (Exception e) {
+                [status: 500, mensagem: "Erro ao listar vagas: ${e.message}".toString()]
+            }
+    }
+
+    Map cadastrar(Vaga vaga, Recrutador recrutador) {
+            try {
+                [status: 201, mensagem: "Vaga cadastrada com sucesso!",
+                 id: vagaService.cadastrarVaga(vaga, recrutador)]
+            } catch (SecurityException e) {
+                [status: 403, mensagem: e.message]
+            } catch (Exception e) {
+                [status: 500, mensagem: "Erro ao cadastrar vaga: ${e.message}".toString()]
+            }
+    }
+
+    Map atualizar(Vaga vaga, Recrutador recrutador) {
+            try {
+                vagaService.atualizarVaga(vaga, recrutador)
+                [status: 200, mensagem: "Vaga atualizada com sucesso!"]
+            } catch (SecurityException e) {
+                [status: 403, mensagem: e.message]
+            } catch (Exception e) {
+                [status: 500, mensagem: "Erro ao atualizar vaga: ${e.message}".toString()]
+            }
+    }
+
+    Map excluir(Integer id, Recrutador recrutador) {
+            try {
+                vagaService.excluirVaga(id, recrutador)
+                [status: 200, mensagem: "Vaga excluída com sucesso!"]
+            } catch (SecurityException e) {
+                [status: 403, mensagem: e.message]
+            } catch (Exception e) {
+                [status: 500, mensagem: "Erro ao excluir vaga: ${e.message}".toString()]
         }
     }
 
@@ -42,6 +88,8 @@ class VagaController {
         try {
             vagaService.atualizarVaga(vaga)
             return [status: 200, mensagem: "Vaga atualizada com sucesso!"]
+        } catch (SecurityException e) {
+            return [status: 403, mensagem: e.message]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao atualizar vaga: ${e.message}".toString()]
         }
@@ -51,6 +99,8 @@ class VagaController {
         try {
             vagaService.excluirVaga(id)
             return [status: 200, mensagem: "Vaga excluída com sucesso!"]
+        } catch (SecurityException e) {
+            return [status: 403, mensagem: e.message]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao excluir vaga: ${e.message}".toString()]
         }

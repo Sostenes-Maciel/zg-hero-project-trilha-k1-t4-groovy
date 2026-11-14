@@ -153,7 +153,7 @@
 - **Critério de conclusão:** Rotas próprias e legadas aplicam as regras
   uniformemente, retornam contratos seguros e têm testes de integração ou
   unidade passando.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 5: Implementar modelos e serviços TypeScript
 

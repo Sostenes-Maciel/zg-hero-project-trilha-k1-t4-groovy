@@ -117,6 +117,9 @@ class MatchServlet extends HttpServlet {
                 resultado = [status: 400, mensagem: "Informe os parâmetros corretos."]
             }
 
+            if (!"true".equals(completoParam) && resultado?.dados instanceof List) {
+                resultado.dados = resultado.dados.collect { anonimizar(it) }
+            }
             enviarResposta(resp, resultado)
 
         } catch (Exception e) {
@@ -133,6 +136,21 @@ class MatchServlet extends HttpServlet {
     private void enviarResposta(HttpServletResponse resp, Map resultado) {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
+    }
+
+    private static Object anonimizar(Object valor) {
+        if (valor instanceof Map) {
+            Map copia = [:]
+            valor.each { chave, item ->
+                if (!(chave in ["nome", "cpf", "email", "dataNascimento", "idade", "foto",
+                                "senha", "senhaHash"])) {
+                    copia[chave] = anonimizar(item)
+                }
+            }
+            return copia
+        }
+        if (valor instanceof Collection) return valor.collect { anonimizar(it) }
+        valor
     }
 
     @Override

@@ -27,6 +27,10 @@ e este projeto segue o versionamento semântico.
 - Serviços de validação, autenticação, autorização por nível/área e curtidas
   com autoria de recrutador implementados na Tarefa 3.
 - Validação de nomes e textos com letras e espaços adicionada à Tarefa 3.
+- Controllers e servlets da Tarefa 4 adicionados, com autenticação de
+  recrutadores, autorização de vagas e respostas anonimizadas antes do match.
+- Testes web para autenticação, autorização HTTP e proteção de anonimato
+  adicionados.
 - Migração `BancoDeDados/Migracao_CurtidaMultiplosRecrutadores.sql` para
   permitir múltiplas curtidas da mesma empresa por recrutadores distintos,
   preservando a compatibilidade com registros legados.

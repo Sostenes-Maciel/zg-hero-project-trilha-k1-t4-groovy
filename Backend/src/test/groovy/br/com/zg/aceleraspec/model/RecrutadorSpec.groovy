@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 class RecrutadorSpec extends Specification {
 
-    def "deve mapear os dados do recrutador sem expor senha fora do modelo de escrita"() {
+    def "deve instanciar e mapear todos os campos"() {
         when:
         Recrutador recrutador = new Recrutador(
                 id: 7,
@@ -33,8 +33,36 @@ class RecrutadorSpec extends Specification {
         recrutador.ativo
     }
 
-    def "deve iniciar como ativo"() {
+    def "deve iniciar ativo mesmo sem argumentos"() {
         expect:
         new Recrutador().ativo
+    }
+
+    def "deve aceitar campos opcionais nulos sem alterar a instanciação"() {
+        when:
+        Recrutador recrutador = new Recrutador(
+                id: null, empresaId: null, nome: null, areaAtuacao: null,
+                nivelPermissao: null, descricao: null, email: null, cpf: null,
+                dataNascimento: null, senhaHash: null
+        )
+
+        then:
+        recrutador.id == null
+        recrutador.nome == null
+        recrutador.dataNascimento == null
+        recrutador.senhaHash == null
+        recrutador.ativo
+    }
+
+    def "deve preservar limites de id e data sem coerção silenciosa"() {
+        given:
+        LocalDate data = LocalDate.of(1900, 1, 1)
+
+        when:
+        Recrutador recrutador = new Recrutador(id: Integer.MAX_VALUE, dataNascimento: data)
+
+        then:
+        recrutador.id == Integer.MAX_VALUE
+        recrutador.dataNascimento == data
     }
 }

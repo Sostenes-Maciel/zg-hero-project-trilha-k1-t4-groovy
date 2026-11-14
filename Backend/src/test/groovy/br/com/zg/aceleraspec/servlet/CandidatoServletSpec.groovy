@@ -114,8 +114,9 @@ class CandidatoServletSpec extends Specification {
         1 * responseMock.setStatus(200)
         _ * responseMock.getWriter() >> printWriter
 
-        and: "A resposta deve conter o nome do candidato listado"
-        stringWriter.toString().contains("Douglas")
+        and: "A resposta não deve conter dados identificáveis antes do match"
+        !stringWriter.toString().contains("Douglas")
+        !stringWriter.toString().contains("12345678900")
     }
 
     def "deve retornar 200 e os dados do candidato quando passar CPF no GET"() {
@@ -131,7 +132,7 @@ class CandidatoServletSpec extends Specification {
         and: "Retorna 200 OK"
         1 * responseMock.setStatus(200)
         1 * responseMock.getWriter() >> printWriter
-        stringWriter.toString().contains("Sandubinha")
+        !stringWriter.toString().contains("Sandubinha")
     }
 
     def "deve retornar 404 quando o CPF não for encontrado no GET"() {
