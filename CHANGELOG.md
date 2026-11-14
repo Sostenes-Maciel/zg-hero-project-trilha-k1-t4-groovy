@@ -9,6 +9,9 @@ e este projeto segue o versionamento semântico.
 
 ### Adicionado
 
+- Especificação inicial da feature Recrutador em `docs/specs/recrutador/spec.md`,
+  incluindo modelo de dados, permissões, anonimato e critérios de aceite.
+
 ### Modificado
 
 ### Corrigido
