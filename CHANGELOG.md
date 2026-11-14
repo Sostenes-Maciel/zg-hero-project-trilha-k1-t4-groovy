@@ -50,6 +50,8 @@ e este projeto segue o versionamento semântico.
 
 ### Corrigido
 
+- Ajustado o perfil do Recrutador para consultar e exibir o nome da empresa
+  associada, sem revelar o CNPJ na interface.
 - Corrigida a renderização de candidatos anonimizados no perfil da Empresa:
   CPF ausente não interrompe mais a criação das linhas nem do gráfico de
   competências; ações que exigem identificação permanecem desabilitadas.
