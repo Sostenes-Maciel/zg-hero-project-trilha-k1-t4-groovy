@@ -2,9 +2,12 @@ package br.com.zg.acelera.servlet
 
 import br.com.zg.acelera.controller.RecrutadorController
 import br.com.zg.acelera.dao.ConexaoFactory
+import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.RecrutadorDAO
 import br.com.zg.acelera.interfaces.IConexao
+import br.com.zg.acelera.interfaces.ICompetenciaDAO
+import br.com.zg.acelera.interfaces.IEmpresaDAO
 import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.service.GerenciadorDeRecrutadoresService
 import com.google.gson.Gson
@@ -25,10 +28,12 @@ class RecrutadorServlet extends HttpServlet {
     @Override
     void init() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
+        ICompetenciaDAO competenciaDAO = new CompetenciaDAO(conexao)
+        IEmpresaDAO empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
         this.recrutadorController = new RecrutadorController(
                 new GerenciadorDeRecrutadoresService(
                         new RecrutadorDAO(conexao),
-                        new EmpresaDAO(conexao)
+                        empresaDAO
                 )
         )
         this.gson = new Gson()

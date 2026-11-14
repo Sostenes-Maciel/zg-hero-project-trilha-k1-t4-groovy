@@ -13,6 +13,20 @@
 - Toda alteração de banco será uma migração incremental aplicada
   explicitamente no PostgreSQL.
 
+## Diretrizes Arquiteturais e Design Patterns
+
+Estas regras são inquebráveis para toda implementação futura:
+
+1. **Command Pattern:** A camada de visualização (`MenuView` e afins) utiliza
+   roteamento dinâmico de comandos. NUNCA gerar ou sugerir blocos gigantes de
+   `switch-case` para menus.
+2. **Template Method:** As classes DAO herdam de `AbstractDAO`, que já lida
+   com o ciclo de vida das queries JDBC. Ao criar DAOs, implementar apenas os
+   mapeamentos específicos (por exemplo, `mapearRegistro`), sem repetir lógica
+   de abertura e fechamento de banco.
+3. **Factory & Singleton:** A conexão com o PostgreSQL é centralizada. Utilizar
+   sempre a fábrica existente de conexões passadas via construtor nos DAOs.
+
 ## Tarefa 1: Estruturar o modelo de dados e a migração do Recrutador
 
 - **Objetivo:** Criar o modelo persistente do Recrutador, o vínculo
@@ -214,7 +228,7 @@
   - Inspecionar DOM, rede e localStorage.
 - **Critério de conclusão:** Os fluxos de autenticação e gestão funcionam,
   respeitam autorização e não exibem dados permanentemente privados.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 7: Front-end - Telas próprias do Recrutador
 

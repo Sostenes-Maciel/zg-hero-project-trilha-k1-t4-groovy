@@ -10,12 +10,15 @@ import { renderListaMatchesEmpresa } from '../view/ListaMatchesEmpresa.ts'
 import { confirmarExclusao } from './Confirmacao.ts'
 import type { Candidato } from '../model/Candidato.ts'
 import type { Empresa } from '../model/Empresa.ts'
+import type { RecrutadorSessao } from '../model/Recrutador.ts'
+import { renderCadastroRecrutador } from '../view/CadastroRecrutador.ts'
+import { renderPerfilRecrutador } from '../view/PerfilRecrutador.ts'
 
-function obterSessaoAtiva(): { tipo: 'candidato'; usuario: Candidato } | { tipo: 'empresa'; usuario: Empresa } | null {
+function obterSessaoAtiva(): { tipo: 'candidato'; usuario: Candidato } | { tipo: 'empresa'; usuario: Empresa } | { tipo: 'recrutador'; usuario: RecrutadorSessao } | null {
     const usuarioSalvo = localStorage.getItem('usuarioLogado')
     const tipoUsuario = localStorage.getItem('tipoUsuario')
 
-    if (!usuarioSalvo || (tipoUsuario !== 'candidato' && tipoUsuario !== 'empresa')) {
+    if (!usuarioSalvo || !['candidato', 'empresa', 'recrutador'].includes(tipoUsuario ?? '')) {
         return null
     }
 
@@ -28,6 +31,9 @@ function obterSessaoAtiva(): { tipo: 'candidato'; usuario: Candidato } | { tipo:
         }
         if (tipoUsuario === 'empresa' && 'cnpj' in usuario) {
             return { tipo: 'empresa', usuario: usuario as Empresa }
+        }
+        if (tipoUsuario === 'recrutador' && 'areaAtuacao' in usuario) {
+            return { tipo: 'recrutador', usuario: usuario as RecrutadorSessao }
         }
         return null
     } catch {
@@ -71,12 +77,16 @@ function atualizarMenuConta(): void {
             ['excluir', 'Excluir perfil'],
             ['sair', 'Sair']
         ]
-        : [
+        : sessao.tipo === 'empresa' ? [
             ['perfil', 'Meu perfil'],
             ['vaga', 'Cadastrar vaga'],
+            ['recrutador', 'Cadastrar recrutador'],
             ['matches', 'Meus matches'],
             ['editar', 'Editar perfil'],
             ['excluir', 'Excluir perfil'],
+            ['sair', 'Sair']
+        ] : [
+            ['perfil', 'Meu perfil'],
             ['sair', 'Sair']
         ]
 
@@ -137,7 +147,8 @@ async function executarAcaoMenu(acao: string): Promise<void> {
     switch (acao) {
         case 'perfil':
             if (sessao.tipo === 'candidato') renderPerfilCandidato(sessao.usuario)
-            else await renderPerfilEmpresa(sessao.usuario)
+            else if (sessao.tipo === 'empresa') await renderPerfilEmpresa(sessao.usuario)
+            else await renderPerfilRecrutador(sessao.usuario)
             break
         case 'vagas':
             if (sessao.tipo === 'candidato') {
@@ -147,7 +158,7 @@ async function executarAcaoMenu(acao: string): Promise<void> {
         case 'matches':
             if (sessao.tipo === 'candidato') {
                 renderListaMatchesCandidato(sessao.usuario)
-            } else {
+            } else if (sessao.tipo === 'empresa') {
                 await renderListaMatchesEmpresa(sessao.usuario)
             }
             break
@@ -156,9 +167,13 @@ async function executarAcaoMenu(acao: string): Promise<void> {
                 await renderViewCadastroVaga(sessao.usuario, mensagem => void renderPerfilEmpresa(sessao.usuario, mensagem))
             }
             break
+        case 'recrutador':
+            if (sessao.tipo === 'empresa') await renderCadastroRecrutador()
+            break
         case 'editar':
             if (sessao.tipo === 'candidato') await renderCadastroCandidato(sessao.usuario)
-            else await renderCadastroEmpresa(sessao.usuario)
+            else if (sessao.tipo === 'empresa') await renderCadastroEmpresa(sessao.usuario)
+            else await renderPerfilRecrutador(sessao.usuario)
             break
         case 'excluir':
             await excluirPerfil(sessao)
@@ -172,7 +187,6 @@ async function executarAcaoMenu(acao: string): Promise<void> {
 }
 
 export function configurarMenu(): void {
-
     document.querySelector<HTMLButtonElement>(
         '#menu-cadastro-candidato'
     )?.addEventListener('click', () => {

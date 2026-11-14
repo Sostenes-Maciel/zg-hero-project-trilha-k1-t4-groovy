@@ -1,10 +1,15 @@
-import type { AreaAtuacao, NivelPermissao, Recrutador } from '../model/Recrutador.ts'
+import type { AreaAtuacao, NivelPermissao } from '../model/Recrutador.ts'
 import { ValidarRecrutador } from './ValidarRecrutador.ts'
 
 const API = 'http://localhost:8080/api/recrutadores'
 
-export type CadastroRecrutador = Omit<Recrutador, 'id' | 'ativo' | 'senhaHash'> & {
+export type CadastroRecrutador = {
     empresaId: string
+    nome: string
+    email: string
+    cpf?: string
+    dataNascimento?: string
+    descricao?: string
     area_atuacao: AreaAtuacao
     nivel_permissao: NivelPermissao
     senha: string

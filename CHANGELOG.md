@@ -35,6 +35,10 @@ e este projeto segue o versionamento semântico.
   além dos serviços de validação, cadastro e autenticação da Tarefa 5.
 - Sessão de recrutador implementada sem persistir senha, hash, CPF ou data de
   nascimento no armazenamento do navegador.
+- Telas de cadastro, login e perfil do Recrutador adicionadas com as classes
+  visuais existentes e acesso de cadastro restrito à Empresa logada.
+- Menu integrado ao fluxo de autenticação e perfil do Recrutador, mantendo
+  CPF, data de nascimento e hash fora da interface.
 - Migração `BancoDeDados/Migracao_CurtidaMultiplosRecrutadores.sql` para
   permitir múltiplas curtidas da mesma empresa por recrutadores distintos,
   preservando a compatibilidade com registros legados.
