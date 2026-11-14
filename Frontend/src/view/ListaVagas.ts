@@ -135,7 +135,7 @@ function renderizarLinhasVagas(vagas: Vaga[], statusMatches: StatusMatchVaga[], 
 
         linha.innerHTML = `
             <td>${vaga.titulo}</td>
-            <td>${temMatch ? vaga.empresa.nome : 'Match necessário para visualização'}</td>
+            <td>${temMatch ? vaga.empresa?.nome ?? 'Empresa não informada' : 'Match necessário para visualização'}</td>
             <td>${afinidade !== null ? `${afinidade}%` : '—'}</td>
             <td>
                 <button
@@ -185,9 +185,16 @@ function configurarBotoesCurtir(candidato?: Candidato): void {
     botoesCurtir.forEach(botao => {
         botao.addEventListener('click', async (e) => {
             e.preventDefault()
-            if (!candidato) return
+            if (!candidato?.cpf) {
+                alert('Sessão de candidato inválida. Faça login novamente.')
+                return
+            }
 
             const vagaId = Number(botao.dataset.id)
+            if (!Number.isInteger(vagaId) || vagaId <= 0) {
+                alert('Vaga inválida.')
+                return
+            }
             const jaCurtido = botao.dataset.curtido === 'true'
 
             botao.disabled = true

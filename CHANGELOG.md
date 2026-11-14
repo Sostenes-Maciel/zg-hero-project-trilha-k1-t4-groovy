@@ -47,6 +47,16 @@ e este projeto segue o versionamento semântico.
 
 ### Corrigido
 
+- Corrigida a renderização de candidatos anonimizados no perfil da Empresa:
+  CPF ausente não interrompe mais a criação das linhas nem do gráfico de
+  competências; ações que exigem identificação permanecem desabilitadas.
+- Corrigido o acesso à empresa anonimizada nas vagas do candidato e reforçada
+  a validação da sessão e do identificador da vaga antes das ações de curtida.
+- Corrigida a resposta de `CandidatoServlet` para preservar o envelope
+  `{status, dados}` e evitar a iteração indevida sobre `Map.Entry`, restaurando
+  a listagem de candidatos, o gráfico de competências e os status das curtidas.
+- Normalizada a lista de competências recebida pelo perfil da Empresa para
+  manter a renderização e as ações de candidatos estáveis.
 - Testes legados de `GerenciadorDePerfisService` ajustados para refletir as
   validações de competências e isolar a validação de nomes.
 

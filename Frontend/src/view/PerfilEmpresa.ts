@@ -133,9 +133,14 @@ async function buscarCandidatosDoBanco(): Promise<Candidato[]> {
         const resposta = await fetch('http://localhost:8080/api/candidatos')
         if (resposta.ok) {
             const dadosDoServidor = await resposta.json()
-            const resultado = dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+            const resultado = Array.isArray(dadosDoServidor)
+                ? dadosDoServidor
+                : dadosDoServidor.dados ?? []
 
-            return Array.isArray(resultado) ? resultado : []
+            return resultado.map((candidato: Candidato) => ({
+                ...candidato,
+                competencias: Array.isArray(candidato.competencias) ? candidato.competencias : []
+            }))
         }
         return []
     } catch (erro) {
@@ -238,9 +243,9 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
         const linha = document.createElement('tr')
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
 
-        const cpfLimpo = candidato.cpf.replace(/\D/g, '')
+        const cpfLimpo = candidato.cpf?.replace(/\D/g, '') ?? ''
         const statusCandidato = statusMatches.filter(s =>
-            s.cpfCandidato.replace(/\D/g, '') === cpfLimpo
+            cpfLimpo && s.cpfCandidato.replace(/\D/g, '') === cpfLimpo
         )
         const vagaSelecionada = statusCandidato.find(s => s.status === 'match')?.idVaga
             ?? statusCandidato.find(s => s.status === 'curtido')?.idVaga
@@ -269,12 +274,12 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
             <td class="coluna-acao">
                 <button
                     class="btn-curtir-candidato"
-                    data-cpf="${candidato.cpf}"
+                    data-cpf="${cpfLimpo}"
                     data-id-vaga="${vagaSelecionada ?? ''}"
                     data-curtido="${curtiu}"
                     data-match="${temMatch}"
                     title="${temMatch ? 'Match confirmado' : curtiu ? 'Remover curtida' : 'Curtir candidato'}"
-                    ${vagas.length === 0 || !vagaSelecionada || temMatch ? 'disabled' : ''}
+                    ${vagas.length === 0 || !vagaSelecionada || temMatch || !cpfLimpo ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
                 </button>
@@ -283,9 +288,9 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
                 <div class="acoes-curtida-empresa">
                     <select
                         class="select-vaga-curtir"
-                        data-cpf="${candidato.cpf}"
+                        data-cpf="${cpfLimpo}"
                         aria-label="Selecionar vaga para curtir candidato"
-                        ${vagas.length === 0 ? 'disabled' : ''}
+                        ${vagas.length === 0 || !cpfLimpo ? 'disabled' : ''}
                     >
                         <option value="" ${vagaSelecionada ? '' : 'selected'} disabled>Selecionar vaga</option>
                         ${opcoesVaga}

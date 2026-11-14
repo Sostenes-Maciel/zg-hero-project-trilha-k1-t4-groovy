@@ -95,21 +95,30 @@ class CandidatoServlet extends HttpServlet {
             String cpfParam = req.getParameter("cpf")
 
             if (cpfParam != null && !cpfParam.trim().isEmpty()) {
-                def candidato = candidatoController.buscarPorCpf(cpfParam)
+                Map resultado = candidatoController.buscarPorCpf(cpfParam)
 
-                if (candidato) {
+                if (resultado?.status == 200 && resultado.dados) {
                     resp.setStatus(200)
-                    resp.getWriter().write(gson.toJson(dtoAnonimo(candidato)))
+                    resp.getWriter().write(gson.toJson(dtoAnonimo(resultado.dados)))
                 } else {
-                    resp.setStatus(404)
-                    def erro = [status: 404, mensagem: "Candidato não encontrado."]
+                    Map erro = resultado ?: [status: 404, mensagem: "Candidato não encontrado."]
+                    resp.setStatus((erro.status ?: 404) as int)
                     resp.getWriter().write(gson.toJson(erro))
                 }
             } else {
-                def listaCandidatos = candidatoController.listar()
+                Map resultado = candidatoController.listar()
+                if (resultado.status != 200) {
+                    resp.setStatus(resultado.status as int)
+                    resp.getWriter().write(gson.toJson(resultado))
+                    return
+                }
 
                 resp.setStatus(200)
-                resp.getWriter().write(gson.toJson(listaCandidatos.collect { dtoAnonimo(it) }))
+                List candidatos = (resultado.dados ?: []) as List
+                resp.getWriter().write(gson.toJson([
+                        status: 200,
+                        dados: candidatos.collect { candidato -> dtoAnonimo(candidato) }
+                ]))
             }
 
         } catch (Exception e) {
