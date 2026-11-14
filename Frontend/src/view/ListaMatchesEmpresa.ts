@@ -60,6 +60,9 @@ function gerarSecaoCurtidasPendentes(curtidas: Curtida[]): string {
             <p>
                 <strong>Candidato:</strong> ${curtida.candidato?.nome ?? 'Match necessário para visualização'}
             </p>
+            <p>
+                <strong>Recrutador:</strong> ${escaparHtml(curtida.recrutador?.nome ?? 'Não identificado')}
+            </p>
         </div>
     `).join('')
 
@@ -86,8 +89,21 @@ function gerarSecaoMatchesRealizados(matches: Match[]): string {
             <p>
                 <strong>Local:</strong> ${match.vaga?.pais ?? ''} - ${match.vaga?.estado ?? ''}
             </p>
+            <p>
+                <strong>Recrutador:</strong> ${escaparHtml(match.recrutador?.nome ?? 'Não identificado')}
+            </p>
         </div>
     `).join('')
 
     return `<div class="cards-matches">${cardsHtml}</div>`
+}
+
+function escaparHtml(valor: string): string {
+    return valor.replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[caractere]!)
 }

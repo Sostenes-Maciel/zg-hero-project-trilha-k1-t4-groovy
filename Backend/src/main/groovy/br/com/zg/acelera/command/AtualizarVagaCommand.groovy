@@ -77,10 +77,18 @@ class AtualizarVagaCommand implements ICommand {
         print "Competências [${vagaParaAtualizar.competencia?.join(', ')}]: "
         String novaEntrada = sc.nextLine().trim()
         if (!novaEntrada.isEmpty()) {
-            vagaParaAtualizar.competencia = novaEntrada.split(",").collect { it.trim() }
+            vagaParaAtualizar.competencia = extrairCompetenciasUnicas(novaEntrada)
         }
 
         def resposta = vagaController.atualizar(vagaParaAtualizar)
         println "\n[${resposta.status}] - ${resposta.mensagem}"
+    }
+
+    private static List<String> extrairCompetenciasUnicas(String entrada) {
+        if (!entrada) return []
+        return entrada.split(",")
+            .collect { it.trim() }
+            .findAll { it }
+            .unique { it.toLowerCase() }
     }
 }

@@ -38,6 +38,9 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
                 empresa: [
                         nome: rs.getString("nome_empresa")
                 ],
+                recrutador: [
+                        nome: possuiColuna(rs, "nome_recrutador") ? rs.getString("nome_recrutador") : null
+                ],
                 vaga: [
                         id: possuiColuna(rs, "id_vaga") ? rs.getInt("id_vaga") : null,
                         titulo: rs.getString("titulo_vaga"),
@@ -117,11 +120,22 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
     List listarMatchesDaEmpresa(String cnpjEmpresa) {
         String sql = """
             SELECT m.id_match, m.id_vaga, c.nome AS nome_candidato, e.nome AS nome_empresa,
+                   r.nome AS nome_recrutador,
                    v.titulo AS titulo_vaga, v.pais AS pais_vaga, v.estado AS estado_vaga
             FROM match_vaga m
             JOIN candidato c ON c.cpf = m.cpf_candidato
             JOIN empresa e ON e.cnpj = m.cnpj_empresa
             JOIN vaga v ON v.id_vaga = m.id_vaga
+            LEFT JOIN LATERAL (
+                SELECT r.nome
+                FROM curtida cu
+                JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
+                WHERE cu.cpf_candidato = m.cpf_candidato
+                  AND cu.cnpj_empresa = m.cnpj_empresa
+                  AND cu.id_vaga = m.id_vaga
+                ORDER BY cu.id_curtida DESC
+                LIMIT 1
+            ) r ON TRUE
             WHERE m.cnpj_empresa = ?
             ORDER BY m.id_match
         """
@@ -138,6 +152,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
             v.titulo AS titulo_vaga,
             v.pais AS pais_vaga,
             v.estado AS estado_vaga,
+            r.nome AS nome_recrutador,
             (
                 SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
                 FROM candidato_competencia cc
@@ -147,6 +162,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
             ) AS competencias_candidato
         FROM curtida cu
         LEFT JOIN vaga v ON v.id_vaga = cu.id_vaga
+        LEFT JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
         WHERE cu.cnpj_empresa = ?
           AND cu.id_vaga IS NOT NULL
           AND NOT EXISTS (
@@ -165,6 +181,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
             NULL::text AS titulo_vaga,
             NULL::text AS pais_vaga,
             NULL::text AS estado_vaga,
+            r.nome AS nome_recrutador,
             (
                 SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
                 FROM candidato_competencia cc
@@ -173,6 +190,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
                 WHERE cc.cpf_candidato = cu.cpf_candidato
             ) AS competencias_candidato
         FROM curtida cu
+        LEFT JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
         WHERE cu.cnpj_empresa = ?
           AND cu.id_vaga IS NULL
           AND NOT EXISTS (

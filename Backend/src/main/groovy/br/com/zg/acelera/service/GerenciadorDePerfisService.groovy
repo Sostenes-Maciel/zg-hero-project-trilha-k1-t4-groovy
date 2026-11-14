@@ -356,6 +356,9 @@ class GerenciadorDePerfisService {
                             titulo: vaga?.titulo,
                             pais: vaga?.pais,
                             estado: vaga?.estado
+                    ],
+                    recrutador: [
+                            nome: (item['recrutador'] as Map)?.nome
                     ]
             ]
         }

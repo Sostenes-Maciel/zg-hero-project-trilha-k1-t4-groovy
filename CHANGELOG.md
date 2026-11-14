@@ -50,6 +50,9 @@ e este projeto segue o versionamento semântico.
 
 ### Corrigido
 
+- Os cards de “Meus matches” da Empresa agora exibem o nome do Recrutador
+  responsável pela curtida correspondente à mesma vaga e candidato, incluindo
+  curtidas pendentes quando houver autoria registrada.
 - Corrigida a aba “Vagas da minha área” do Recrutador: a listagem passou a
   consultar as vagas da empresa associada e comparar a área da vaga com a área
   do Recrutador, sem depender do objeto de empresa removido pela anonimização.

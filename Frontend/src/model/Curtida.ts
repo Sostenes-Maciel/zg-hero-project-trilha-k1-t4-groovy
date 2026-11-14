@@ -7,4 +7,5 @@ export interface Curtida {
     vaga?: Vaga
     empresa?: Empresa
     recrutador_id?: number
+    recrutador?: { nome?: string }
 }
