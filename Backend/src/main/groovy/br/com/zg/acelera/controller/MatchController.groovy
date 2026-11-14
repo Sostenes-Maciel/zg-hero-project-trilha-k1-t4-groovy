@@ -3,22 +3,41 @@ package br.com.zg.acelera.controller
 import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDeMatchesService
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.service.GerenciadorDeVagasService
 
 class MatchController {
 
     private GerenciadorDeMatchesService matchService
     private GerenciadorDePerfisService perfilService
+    private GerenciadorDeVagasService vagaService
 
-    MatchController(GerenciadorDeMatchesService matchService, GerenciadorDePerfisService perfilService) {
+    MatchController(GerenciadorDeMatchesService matchService,
+                    GerenciadorDePerfisService perfilService,
+                    GerenciadorDeVagasService vagaService) {
         this.matchService = matchService
         this.perfilService = perfilService
+        this.vagaService = vagaService
     }
 
     Map curtirVaga(String cpfCandidato, Integer idVaga) {
         try {
             boolean deuMatch = perfilService.curtirVaga(cpfCandidato, idVaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Vaga curtida com sucesso!"
-            return [status: 201, mensagem: msg, match: deuMatch]
+
+            // Monta a resposta base
+            Map resposta = [status: 201, mensagem: msg, match: deuMatch]
+
+
+            if (deuMatch) {
+
+                Vaga vaga = vagaService.buscarVaga(idVaga)
+                if (vaga && vaga.empresa) {
+                    resposta.nomeRevelado = vaga.empresa.nome
+
+                }
+            }
+
+            return resposta
         } catch (IllegalStateException e) {
             return [status: 400, mensagem: e.message]
         } catch (Exception e) {

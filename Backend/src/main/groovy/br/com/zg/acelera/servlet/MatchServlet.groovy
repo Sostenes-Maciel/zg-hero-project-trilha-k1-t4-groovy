@@ -48,7 +48,9 @@ class MatchServlet extends HttpServlet {
                 gerenciadorDeVagas
         )
 
-        this.matchController = new MatchController(matchService, perfilService)
+
+
+        this.matchController = new MatchController(matchService, perfilService, gerenciadorDeVagas)
         this.gson = new Gson()
     }
 

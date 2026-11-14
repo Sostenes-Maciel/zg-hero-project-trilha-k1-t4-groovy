@@ -234,6 +234,12 @@ function configurarBotoesCurtir(candidato?: Candidato): void {
                             botao.dataset.match = 'true'
                             botao.disabled = true
                             mostrarAnimacaoMatch()
+                            if (resultado.nomeRevelado) {
+                                const celulaEmpresa = botao.closest('tr')?.querySelectorAll('td')[1]
+                                if (celulaEmpresa) {
+                                    celulaEmpresa.textContent = resultado.nomeRevelado
+                                }
+                            }
                         } else {
                             botao.innerHTML = '♥'
                             botao.title = 'Descurtir'
