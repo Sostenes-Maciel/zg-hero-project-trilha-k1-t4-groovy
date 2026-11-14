@@ -191,12 +191,16 @@ class CandidatoServlet extends HttpServlet {
     private static Map dtoAnonimo(Object candidato) {
         if (candidato instanceof Map) {
             return [
+                    cpf: candidato.cpf, // Chave técnica mantida para o frontend
+                    nome: "Candidato Oculto", // Mascara a identidade visualmente
                     competencias: candidato.competencias ?: [],
                     descricao: candidato.descricao,
                     estado: candidato.estado
             ]
         }
         [
+                cpf: candidato?.cpf,
+                nome: "Candidato Oculto",
                 competencias: candidato?.competencias ?: [],
                 descricao: candidato?.descricao,
                 estado: candidato?.estado

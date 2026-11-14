@@ -142,7 +142,7 @@ class MatchServlet extends HttpServlet {
         if (valor instanceof Map) {
             Map copia = [:]
             valor.each { chave, item ->
-                if (!(chave in ["nome", "cpf", "email", "dataNascimento", "idade", "foto",
+                if (!(chave in ["nome", "email", "dataNascimento", "idade", "foto",
                                 "senha", "senhaHash"])) {
                     copia[chave] = anonimizar(item)
                 }

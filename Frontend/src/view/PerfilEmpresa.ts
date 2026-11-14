@@ -279,7 +279,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
                     data-curtido="${curtiu}"
                     data-match="${temMatch}"
                     title="${temMatch ? 'Match confirmado' : curtiu ? 'Remover curtida' : 'Curtir candidato'}"
-                    ${vagas.length === 0 || !vagaSelecionada || temMatch || !cpfLimpo ? 'disabled' : ''}
+                    ${vagas.length === 0 || temMatch  ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
                 </button>
@@ -290,7 +290,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
                         class="select-vaga-curtir"
                         data-cpf="${cpfLimpo}"
                         aria-label="Selecionar vaga para curtir candidato"
-                        ${vagas.length === 0 || !cpfLimpo ? 'disabled' : ''}
+                        ${vagas.length === 0 ? 'disabled' : ''}
                     >
                         <option value="" ${vagaSelecionada ? '' : 'selected'} disabled>Selecionar vaga</option>
                         ${opcoesVaga}
