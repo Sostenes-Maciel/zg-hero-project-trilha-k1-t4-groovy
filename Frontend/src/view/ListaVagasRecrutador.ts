@@ -1,5 +1,6 @@
 import type { RecrutadorSessao } from '../model/Recrutador.ts'
 import type { Vaga } from '../model/Vaga.ts'
+import { renderViewEditarVaga } from '../service/CadastroVaga.ts'
 
 export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): Promise<void> {
     const app = document.querySelector<HTMLDivElement>('#app')
@@ -19,7 +20,11 @@ export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): 
         const resposta = await fetch(`http://localhost:8080/api/vagas?cnpj=${encodeURIComponent(recrutador.empresaId)}`)
         if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
         const payload = await resposta.json() as { dados?: Vaga[] } | Vaga[]
-        const vagas = Array.isArray(payload) ? payload : payload.dados ?? []
+        const vagasBrutas = Array.isArray(payload) ? payload : payload.dados ?? []
+        const vagas = vagasBrutas.map(vaga => ({
+            ...vaga,
+            competencias: vaga.competencias ?? (vaga as Vaga & { competencia?: string[] }).competencia ?? []
+        }))
         const areaRecrutador = normalizarArea(recrutador.areaAtuacao)
         const autorizadas = vagas.filter(vaga =>
             normalizarArea((vaga as Vaga & { areaAtuacao?: string }).areaAtuacao) === areaRecrutador
@@ -40,6 +45,18 @@ export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): 
                 </tr>
             `).join('')
             : '<tr><td colspan="4" class="tabela-vazia">Nenhuma vaga disponível para sua área.</td></tr>'
+
+        lista.querySelectorAll<HTMLButtonElement>('.btn-editar-vaga-recrutador').forEach(botao => {
+            botao.addEventListener('click', () => {
+                const vaga = autorizadas.find(item => String(item.id) === botao.dataset.id)
+                if (!vaga || recrutador.nivelPermissao !== 'Total') return
+                void renderViewEditarVaga(
+                    vaga,
+                    { cnpj: recrutador.empresaId },
+                    () => void renderListaVagasRecrutador(recrutador)
+                )
+            })
+        })
     } catch (erro) {
         console.error('Erro ao carregar vagas do recrutador:', erro)
         document.querySelector<HTMLTableSectionElement>('#lista-vagas-recrutador')!.innerHTML =

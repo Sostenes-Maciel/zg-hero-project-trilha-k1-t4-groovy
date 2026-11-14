@@ -3,6 +3,28 @@ import type { Vaga } from "../model/Vaga.ts"
 import { getCountries, getStatesOfCountry } from "@countrystatecity/countries-browser"
 
 export class CadastroVagasService {
+    static async atualizar(vaga: Vaga, empresa: Pick<Empresa, 'cnpj'>): Promise<void> {
+        const competencias = vaga.competencias ?? []
+        this.validarCampos(vaga.titulo, vaga.descricao, vaga.pais, vaga.estado, vaga.areaAtuacao ?? '', competencias)
+
+        const resposta = await fetch('http://localhost:8080/api/vagas', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: vaga.id,
+                titulo: vaga.titulo.trim(),
+                descricao: vaga.descricao.trim(),
+                pais: vaga.pais.trim(),
+                estado: vaga.estado.trim(),
+                areaAtuacao: vaga.areaAtuacao?.trim(),
+                competencia: competencias,
+                empresa: { cnpj: empresa.cnpj.replace(/\D/g, '') }
+            })
+        })
+        const resultado = await resposta.json()
+        if (!resposta.ok) throw new Error(resultado.mensagem || 'Erro ao atualizar vaga.')
+    }
+
     static async cadastrar(
         titulo: string,
         descricao: string,
@@ -104,7 +126,23 @@ export async function renderViewCadastroVaga(
     configurarEventosFormulario(empresa, onCadastroConcluido)
 }
 
-function renderizarFormulario(app: HTMLDivElement): void {
+export async function renderViewEditarVaga(
+    vaga: Vaga,
+    empresa: Pick<Empresa, 'cnpj'>,
+    onAtualizacaoConcluida?: (mensagem?: string) => void
+): Promise<void> {
+    const app = document.querySelector<HTMLDivElement>('#app')
+    if (!app) return
+
+    renderizarFormulario(app, vaga)
+    await configurarSelectsLocalizacao(vaga.pais, vaga.estado)
+    document.querySelector<HTMLFormElement>('#form-vaga')?.addEventListener('submit', evento => {
+        evento.preventDefault()
+        void processarAtualizacao(evento.currentTarget as HTMLFormElement, vaga, empresa, onAtualizacaoConcluida)
+    })
+}
+
+function renderizarFormulario(app: HTMLDivElement, vaga?: Vaga): void {
     app.innerHTML = `
         <section class="cadastro-container tela-com-transicao">
             <h1>Cadastro de Vaga</h1>
@@ -113,16 +151,16 @@ function renderizarFormulario(app: HTMLDivElement): void {
             <form id="form-vaga">
                 <div class="campo-vaga-titulo">
                     <label for="titulo">Título da vaga</label>
-                    <input type="text" id="titulo" name="titulo" required>
+                    <input type="text" id="titulo" name="titulo" value="${escaparAtributo(vaga?.titulo ?? '')}" required>
                 </div>
                 <div class="campo-vaga-descricao">
                     <label for="descricao">Descrição</label>
-                    <textarea id="descricao" name="descricao" required></textarea>
+                    <textarea id="descricao" name="descricao" required>${escaparHtml(vaga?.descricao ?? '')}</textarea>
                 </div>
 
                 <div class="campo-vaga-competencias">
                     <label for="competencias">Competências</label>
-                    <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Spring, Git" required>
+                    <input type="text" id="competencias" name="competencias" value="${escaparAtributo((vaga?.competencias ?? []).join(', '))}" placeholder="Ex.: Java, Spring, Git" required>
                 </div>
 
                 <div class="campo-vaga-pais">
@@ -143,16 +181,13 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     <label for="areaAtuacao">Área de atuação</label>
                     <select id="areaAtuacao" name="areaAtuacao" required>
                         <option value="">Selecione uma área</option>
-                        <option value="TI">TI</option>
-                        <option value="RH">RH</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Vendas">Vendas</option>
-                        <option value="Segurança">Segurança</option>
+                        ${['TI', 'RH', 'Marketing', 'Vendas', 'Segurança'].map(area =>
+                            `<option value="${area}" ${vaga?.areaAtuacao === area ? 'selected' : ''}>${area}</option>`).join('')}
                     </select>
                 </div>
 
                 <div class="acoes-form-vaga">
-                    <button type="submit">Cadastrar vaga</button>
+                    <button type="submit">${vaga ? 'Salvar alterações' : 'Cadastrar vaga'}</button>
                 </div>
 
                 <p id="mensagem"></p>
@@ -161,7 +196,7 @@ function renderizarFormulario(app: HTMLDivElement): void {
     `
 }
 
-async function configurarSelectsLocalizacao(): Promise<void> {
+async function configurarSelectsLocalizacao(paisInicial?: string, estadoInicial?: string): Promise<void> {
     const selectPais = document.querySelector<HTMLSelectElement>('#pais')
     const selectEstado = document.querySelector<HTMLSelectElement>('#estado')
 
@@ -175,6 +210,11 @@ async function configurarSelectsLocalizacao(): Promise<void> {
             option.textContent = pais.name
             selectPais.appendChild(option)
         })
+        const paisEncontrado = paises.find(pais => pais.name === paisInicial)
+        if (paisEncontrado) {
+            selectPais.value = paisEncontrado.iso2
+            await atualizarEstadosPorPais(selectPais.value, selectEstado, estadoInicial)
+        }
     } catch (erro) {
         console.error('Erro ao carregar países:', erro)
     }
@@ -184,7 +224,7 @@ async function configurarSelectsLocalizacao(): Promise<void> {
     })
 }
 
-async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSelectElement): Promise<void> {
+async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSelectElement, estadoInicial?: string): Promise<void> {
     selectEstado.innerHTML = '<option value="">Selecione um estado</option>'
     selectEstado.disabled = true
 
@@ -198,10 +238,50 @@ async function atualizarEstadosPorPais(codigoPais: string, selectEstado: HTMLSel
             option.textContent = estado.name
             selectEstado.appendChild(option)
         })
+        if (estadoInicial) selectEstado.value = estadoInicial
         selectEstado.disabled = false
     } catch (erro) {
         console.error('Erro ao carregar estados:', erro)
     }
+
+}
+
+async function processarAtualizacao(
+    formulario: HTMLFormElement,
+    vagaOriginal: Vaga,
+    empresa: Pick<Empresa, 'cnpj'>,
+    onAtualizacaoConcluida?: (mensagem?: string) => void
+): Promise<void> {
+    const dados = new FormData(formulario)
+    const vaga: Vaga = {
+        ...vagaOriginal,
+        titulo: String(dados.get('titulo') ?? ''),
+        descricao: String(dados.get('descricao') ?? ''),
+        pais: document.querySelector<HTMLSelectElement>('#pais')?.selectedOptions[0]?.textContent?.trim() ?? '',
+        estado: String(dados.get('estado') ?? ''),
+        areaAtuacao: String(dados.get('areaAtuacao') ?? ''),
+        competencias: String(dados.get('competencias') ?? '').split(',').map(item => item.trim()).filter(Boolean)
+    }
+    try {
+        await CadastroVagasService.atualizar(vaga, empresa)
+        onAtualizacaoConcluida?.('Vaga atualizada com sucesso!')
+    } catch (erro) {
+        const mensagem = document.querySelector<HTMLParagraphElement>('#mensagem')
+        if (mensagem) {
+            mensagem.textContent = erro instanceof Error ? erro.message : 'Não foi possível atualizar a vaga.'
+            mensagem.className = 'mensagem-erro'
+        }
+    }
+}
+
+function escaparAtributo(valor: string): string {
+    return escaparHtml(valor)
+}
+
+function escaparHtml(valor: string): string {
+    return valor.replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[caractere]!)
 }
 
 function configurarEventosFormulario(empresa: Empresa, onCadastroConcluido?: (mensagem?: string) => void): void {

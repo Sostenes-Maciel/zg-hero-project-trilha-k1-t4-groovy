@@ -50,6 +50,9 @@ e este projeto segue o versionamento semântico.
 
 ### Corrigido
 
+- Habilitada a edição de vagas na aba “Vagas da minha área” para Recrutadores
+  com permissão `Total`, com formulário preenchido, atualização via `PUT` e
+  retorno à listagem após salvar.
 - Os cards de “Meus matches” da Empresa agora exibem o nome do Recrutador
   responsável pela curtida correspondente à mesma vaga e candidato, incluindo
   curtidas pendentes quando houver autoria registrada.
