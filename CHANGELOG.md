@@ -31,6 +31,10 @@ e este projeto segue o versionamento semântico.
   recrutadores, autorização de vagas e respostas anonimizadas antes do match.
 - Testes web para autenticação, autorização HTTP e proteção de anonimato
   adicionados.
+- Modelos TypeScript de Recrutador, curtida e match ampliados com autoria,
+  além dos serviços de validação, cadastro e autenticação da Tarefa 5.
+- Sessão de recrutador implementada sem persistir senha, hash, CPF ou data de
+  nascimento no armazenamento do navegador.
 - Migração `BancoDeDados/Migracao_CurtidaMultiplosRecrutadores.sql` para
   permitir múltiplas curtidas da mesma empresa por recrutadores distintos,
   preservando a compatibilidade com registros legados.

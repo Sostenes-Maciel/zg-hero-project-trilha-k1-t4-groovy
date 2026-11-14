@@ -6,4 +6,5 @@ export interface Curtida {
     candidato: Candidato
     vaga?: Vaga
     empresa?: Empresa
+    recrutador_id?: number
 }

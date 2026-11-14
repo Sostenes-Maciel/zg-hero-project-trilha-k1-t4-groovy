@@ -184,7 +184,7 @@
     anonimizadas.
 - **Critério de conclusão:** Modelos e serviços compilam, integram a API e não
   expõem ou armazenam dados proibidos.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 6: Implementar telas de autenticação e cadastro
 
