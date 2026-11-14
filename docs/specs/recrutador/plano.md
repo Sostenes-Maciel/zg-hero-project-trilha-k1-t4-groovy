@@ -47,7 +47,7 @@
   - Executar `git diff --check`.
 - **Critério de conclusão:** A migração suporta o relacionamento, múltiplas
   autorias, escopo por área, inativação e match único sem senha em texto puro.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 2: Implementar modelos e DAOs do Recrutador
 
@@ -216,47 +216,112 @@
   respeitam autorização e não exibem dados permanentemente privados.
 - **Status:** [ ] Pendente
 
-## Tarefa 7: Implementar listagens, curtidas e aplicação final do anonimato
+## Tarefa 7: Front-end - Telas próprias do Recrutador
 
-- **Objetivo:** Implementar a operação diária do Recrutador e revisar todas as
-  telas existentes para aplicar escopo, permissões e anonimato ponta a ponta.
+- **Objetivo:** Implementar as telas próprias para operação diária do
+  Recrutador, com listagem de vagas, análise de candidatos, curtidas e
+  matches dentro da área e da Empresa autorizadas.
 - **Camada afetada:** Front-end.
 - **Arquivos previstos:**
   - `Frontend/src/view/ListaVagasRecrutador.ts`
   - `Frontend/src/view/ListaCandidatosRecrutador.ts`
   - `Frontend/src/view/ListaMatchesRecrutador.ts`
-  - `Frontend/src/view/ListaCandidatos.ts`
-  - `Frontend/src/view/ListaEmpresas.ts`
-  - `Frontend/src/view/ListaVagas.ts`
+  - `Frontend/src/style.css`
+  - `CHANGELOG.md`
+- **Implementação prevista:**
+  - Mostrar somente vagas e candidatos da área/Empresa autorizadas.
+  - Exibir antes do match apenas competências, descrição profissional,
+    Estado/Cidade e afinidade.
+  - Permitir curtidas múltiplas sem criar matches duplicados na interface.
+  - Exibir controles de vaga conforme `Total` ou `Limitado`.
+- **Como validar:**
+  - Executar `cd Frontend && npm run build`.
+  - Validar visualmente listas por área e Empresa para os níveis `Total` e
+    `Limitado`.
+  - Testar curtidas de dois Recrutadores para a mesma vaga e confirmar que a
+    interface não duplica o Match.
+  - Inspecionar payloads, DOM, console e localStorage para confirmar que
+    nenhum dado proibido é recebido ou renderizado antes do match.
+  - Executar `git diff --check`.
+- **Critério de conclusão:** As três telas próprias funcionam com o escopo
+  correto, exibem controles conforme a permissão, integram curtidas e matches
+  sem duplicação e preservam o anonimato pré-match.
+- **Status:** [ ] Pendente
+
+## Tarefa 8: Front-end - Telas de Match e Perfil
+
+- **Objetivo:** Adaptar as telas de perfil e match para revelar somente os
+  dados autorizados depois do match e manter o anonimato quando ele ainda não
+  existir.
+- **Camada afetada:** Front-end.
+- **Arquivos previstos:**
   - `Frontend/src/view/PerfilCandidato.ts`
   - `Frontend/src/view/PerfilEmpresa.ts`
   - `Frontend/src/view/PerfilVaga.ts`
   - `Frontend/src/view/ListaMatchesCandidato.ts`
   - `Frontend/src/view/ListaMatchesEmpresa.ts`
+  - `Frontend/src/style.css`
+  - `CHANGELOG.md`
+- **Implementação prevista:**
+  - Usar o estado de Match autorizado para decidir os campos renderizados.
+  - Manter antes do match somente competências, descrição profissional,
+    Estado/Cidade e afinidade.
+  - Após o match, mostrar ao Recrutador apenas os dados liberados do candidato
+    para a tupla candidato–Empresa–vaga.
+  - Após o match, mostrar ao candidato nome, área de atuação e e-mail do
+    Recrutador, nunca CPF, data de nascimento, senha ou hash.
+  - Manter o nome da Empresa oculto na vaga antes do match e revelá-lo somente
+    após autorização da mesma tupla.
+  - Escapar valores interpolados e tratar respostas incompletas sem fallback
+    identificável.
+- **Como validar:**
+  - Executar `cd Frontend && npm run build`.
+  - Validar visualmente perfis e cards antes e depois de Match válido.
+  - Inspecionar respostas de rede, DOM, atributos HTML, console e localStorage.
+  - Confirmar que acesso a outra vaga, Empresa ou candidato não libera dados.
+  - Confirmar que CPF, data de nascimento, senha e hash nunca aparecem.
+  - Executar `git diff --check`.
+- **Critério de conclusão:** As telas de perfil e Match exibem exatamente os
+  dados permitidos em cada estado, liberam contato somente após Match
+  autorizado e escapam conteúdo sem expor dados sensíveis.
+- **Status:** [ ] Pendente
+
+## Tarefa 9: Front-end - Correção de anonimato nas listagens legadas
+
+- **Objetivo:** Corrigir as telas legadas para garantir anonimato antes do
+  Match e escaping seguro de todo conteúdo renderizado.
+- **Camada afetada:** Front-end.
+- **Arquivos previstos:**
+  - `Frontend/src/view/ListaCandidatos.ts`
+  - `Frontend/src/view/ListaEmpresas.ts`
+  - `Frontend/src/view/ListaVagas.ts`
   - `Frontend/src/components/Menu.ts`
   - `Frontend/src/style.css`
   - `CHANGELOG.md`
 - **Implementação prevista:**
-  - Mostrar somente vagas e candidatos da área/Empresa autorizadas.
-  - Renderizar candidatos pré-match apenas com competências, descrição,
-    Estado/Cidade e afinidade.
-  - Ocultar nome, idade, foto, CPF, e-mail, data de nascimento e endereço
-    detalhado antes do match.
-  - Permitir curtidas múltiplas sem apresentar matches duplicados.
-  - Após o match, liberar ao candidato nome, área e e-mail do Recrutador,
-    nunca CPF, data de nascimento, senha ou hash.
-  - Exibir controles de vaga conforme `Total` ou `Limitado`.
-  - Escapar dados renderizados e impedir identificação por campos derivados.
+  - Remover das listagens pré-match nome, CPF, CNPJ, e-mail, CEP/endereço e
+    outros identificadores da parte sem Match autorizado.
+  - Aplicar anonimato também aos perfis abertos a partir das listagens.
+  - Manter em vagas pré-match somente título, descrição, localidade permitida,
+    competências e afinidade; ocultar a identidade da Empresa.
+  - Impedir que Menu, atributos `data-*`, filtros, URLs ou estado local revelem
+    identificadores protegidos.
+  - Escapar nomes, descrições, competências, localidades e mensagens antes de
+    inserir conteúdo no DOM.
+  - Impedir fallbacks de API que usem dados legados para contornar anonimato.
 - **Como validar:**
   - Executar `cd Frontend && npm run build`.
-  - Validar visualmente listas, detalhes, curtidas, múltiplos autores e
-    matches antes e depois do match.
-  - Testar ações disponíveis por nível e filtros por área.
-  - Inspecionar payloads, DOM, console e localStorage em todas as telas.
+  - Validar visualmente cada listagem e abertura de perfil antes e depois do
+    Match.
+  - Inspecionar DOM, atributos, URLs, payloads, console e localStorage em
+    busca por CPF, CNPJ, e-mail, nome e endereço indevidos.
+  - Testar valores com caracteres HTML para confirmar escaping e ausência de
+    injeção no DOM.
+  - Confirmar que dados só aparecem após Match da tupla exata.
   - Executar `git diff --check`.
-- **Critério de conclusão:** Todas as telas novas e existentes respeitam
-  escopo, permissão e anonimato; curtidas e matches funcionam sem duplicação e
-  nenhum dado sensível é exposto antes ou fora da autorização do match.
+- **Critério de conclusão:** As listagens legadas não expõem dados
+  identificáveis antes do Match, todas as entradas são escapadas e nenhuma
+  rota visual ou estado local contorna o anonimato.
 - **Status:** [ ] Pendente
 
 ## Validação final
@@ -269,4 +334,5 @@
 - **Resultado esperado:** Banco, back-end e front-end integrados, com
   `1 Empresa -> N Recrutadores`, níveis de permissão, escopo por área,
   curtidas múltiplas, match único e Princípio do Anonimato validados sem
-  falhas novas.
+  falhas novas; as telas próprias do Recrutador, telas de perfil e Match e
+  listagens legadas exibem somente os dados autorizados em cada estado.

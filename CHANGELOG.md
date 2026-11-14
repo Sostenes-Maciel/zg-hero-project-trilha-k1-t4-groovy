@@ -16,6 +16,9 @@ e este projeto segue o versionamento semântico.
 - Plano da feature Recrutador detalhado em sete tarefas incrementais,
   separando banco, modelos/DAOs, serviços, rotas, modelos/serviços de front-end
   e telas.
+- Script `BancoDeDados/Migracao_Recrutador.sql` criado e aplicado com sucesso,
+  adicionando a tabela de Recrutadores, vínculo com Empresas, autoria de
+  curtidas e área de atuação das vagas.
 
 ### Modificado
 
