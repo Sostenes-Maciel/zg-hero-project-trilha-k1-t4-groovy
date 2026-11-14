@@ -80,7 +80,7 @@
   - Confirmar que mapeamentos e consultas não retornam senha/hash.
 - **Critério de conclusão:** Modelos e DAOs persistem e consultam Recrutadores
   e autorias corretamente, com testes passando e sem regressão do match.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 3: Implementar serviços e regras de negócio
 

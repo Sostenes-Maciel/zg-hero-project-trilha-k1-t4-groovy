@@ -62,7 +62,11 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
             return
         }
 
-        String sql = "INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga) VALUES (?, ?, ?)"
+        String sql = """
+            INSERT INTO match_vaga (cpf_candidato, cnpj_empresa, id_vaga)
+            VALUES (?, ?, ?)
+            ON CONFLICT (cpf_candidato, cnpj_empresa, id_vaga) DO NOTHING
+        """
         executarUpdate(sql, [cpfCandidato, cnpjEmpresa, idVaga])
     }
 

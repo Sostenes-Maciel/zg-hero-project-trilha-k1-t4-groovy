@@ -39,14 +39,17 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
 
     @Override
     void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
-        if (jaCurtiuCandidato(cnpjEmpresa, cpfCandidato, idVaga)) return
+        registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa, idVaga, null)
+    }
 
+    @Override
+    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga, Integer recrutadorId) {
         String sqlInserir = """
-            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga)
-            VALUES (?, ?, ?)
+            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga, recrutador_id)
+            VALUES (?, ?, ?, ?)
             ON CONFLICT DO NOTHING
         """
-        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga])
+        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga, recrutadorId])
     }
 
     @Override
@@ -138,9 +141,9 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     @Override
     List listarStatusCurtidasEmpresa(String cnpj) {
         String sql = """
-            SELECT cpf_candidato, id_vaga, status
+            SELECT cpf_candidato, id_vaga, recrutador_id, status
             FROM (
-                SELECT c.cpf_candidato, c.id_vaga,
+                SELECT c.cpf_candidato, c.id_vaga, c.recrutador_id,
                        CASE WHEN m.id_match IS NULL THEN 'curtido' ELSE 'match' END AS status
                 FROM curtida c
                 LEFT JOIN match_vaga m
@@ -150,7 +153,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
                 WHERE c.cnpj_empresa = ?
                   AND c.id_vaga IS NOT NULL
                 UNION
-                SELECT m.cpf_candidato, m.id_vaga, 'match' AS status
+                SELECT m.cpf_candidato, m.id_vaga, NULL::integer AS recrutador_id, 'match' AS status
                 FROM match_vaga m
                 WHERE m.cnpj_empresa = ?
             ) status_empresa
@@ -172,6 +175,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
                 resultados.add([
                         cpfCandidato: rs.getString("cpf_candidato"),
                         idVaga: rs.getInt("id_vaga"),
+                        recrutadorId: rs.getObject("recrutador_id"),
                         status: rs.getString("status")
                 ])
             }

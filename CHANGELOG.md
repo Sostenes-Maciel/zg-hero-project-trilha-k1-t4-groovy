@@ -19,6 +19,11 @@ e este projeto segue o versionamento semântico.
 - Script `BancoDeDados/Migracao_Recrutador.sql` criado e aplicado com sucesso,
   adicionando a tabela de Recrutadores, vínculo com Empresas, autoria de
   curtidas e área de atuação das vagas.
+- Modelos, contratos e DAOs de Recrutador implementados, com consultas sem
+  `senha_hash`, autoria opcional em curtidas e proteção contra duplicidade de
+  matches.
+- Testes Spock de modelo, `RecrutadorDAO` e autoria de curtidas adicionados e
+  executados com sucesso.
 
 ### Modificado
 
