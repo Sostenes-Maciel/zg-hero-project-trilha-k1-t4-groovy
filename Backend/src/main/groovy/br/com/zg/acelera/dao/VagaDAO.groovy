@@ -25,6 +25,7 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
                 pais: rs.getString("pais"),
                 estado: rs.getString("estado"),
                 descricao: rs.getString("descricao"),
+                areaAtuacao: rs.getString("area_atuacao"),
                 empresa: empresa
         )
     }
@@ -32,12 +33,12 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
     @Override
     void cadastrar(Vaga vaga) {
         String sql = """
-            INSERT INTO vaga (titulo, pais, estado, descricao, cnpj_empresa)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO vaga (titulo, pais, estado, descricao, cnpj_empresa, area_atuacao)
+            VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id_vaga
         """
         Integer idGerado = executarInsertComRetorno(sql, [
-                vaga.titulo, vaga.pais, vaga.estado, vaga.descricao, vaga.empresa.cnpj
+                vaga.titulo, vaga.pais, vaga.estado, vaga.descricao, vaga.empresa.cnpj, vaga.areaAtuacao
         ])
 
         if (idGerado != null) {
@@ -48,7 +49,7 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
     @Override
     List<Vaga> listarTodos() {
         String sql = """
-            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
+            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, v.area_atuacao, e.cnpj, e.nome
             FROM vaga v
             INNER JOIN empresa e ON v.cnpj_empresa = e.cnpj
             ORDER BY v.id_vaga
@@ -59,7 +60,7 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
     @Override
     Vaga buscarPorId(Integer id) {
         String sql = """
-            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
+            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, v.area_atuacao, e.cnpj, e.nome
             FROM vaga v
             INNER JOIN empresa e ON v.cnpj_empresa = e.cnpj
             WHERE v.id_vaga = ?
@@ -71,7 +72,7 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
     @Override
     List<Vaga> listarPorEmpresa(String cnpj) {
         String sql = """
-            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, e.cnpj, e.nome
+            SELECT v.id_vaga, v.titulo, v.pais, v.estado, v.descricao, v.area_atuacao, e.cnpj, e.nome
             FROM vaga v
             INNER JOIN empresa e ON v.cnpj_empresa = e.cnpj
             WHERE v.cnpj_empresa = ?
@@ -84,11 +85,11 @@ class VagaDAO extends AbstractDAO<Vaga> implements IVagaDAO {
     void atualizar(Vaga vaga) {
         String sql = """
             UPDATE vaga
-            SET titulo = ?, pais = ?, estado = ?, descricao = ?, cnpj_empresa = ?
+            SET titulo = ?, pais = ?, estado = ?, descricao = ?, cnpj_empresa = ?, area_atuacao = ?
             WHERE id_vaga = ?
         """
         executarUpdate(sql, [
-                vaga.titulo, vaga.pais, vaga.estado, vaga.descricao, vaga.empresa.cnpj, vaga.id
+                vaga.titulo, vaga.pais, vaga.estado, vaga.descricao, vaga.empresa.cnpj, vaga.areaAtuacao, vaga.id
         ])
     }
 

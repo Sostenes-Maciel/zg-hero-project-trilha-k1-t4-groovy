@@ -118,7 +118,7 @@
 - **Critério de conclusão:** Todas as regras de domínio estão centralizadas
   nos serviços, são rejeitadas no servidor quando inválidas e têm cobertura
   automatizada para permissões, área, match e anonimato.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 4: Implementar controllers, servlets e rotas
 

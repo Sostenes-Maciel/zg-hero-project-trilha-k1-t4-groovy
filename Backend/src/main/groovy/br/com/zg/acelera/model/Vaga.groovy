@@ -7,6 +7,7 @@ class Vaga {
     String pais
     String estado
     String descricao
+    String areaAtuacao
     List<String> competencia = []
     Empresa empresa
 }

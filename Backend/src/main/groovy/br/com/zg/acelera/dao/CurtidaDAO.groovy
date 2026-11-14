@@ -30,6 +30,12 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
+    boolean jaCurtiuCandidatoPorRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        String sql = "SELECT 1 FROM curtida WHERE recrutador_id = ? AND cpf_candidato = ? AND id_vaga = ?"
+        executarQueryBooleana(sql, [recrutadorId, cpfCandidato, idVaga])
+    }
+
+    @Override
     void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga) {
         if (jaCurtiuVaga(cpfCandidato, idVaga)) return
 

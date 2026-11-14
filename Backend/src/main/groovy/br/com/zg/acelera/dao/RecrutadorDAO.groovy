@@ -97,6 +97,12 @@ class RecrutadorDAO extends AbstractDAO<Recrutador> implements IRecrutadorDAO {
         """, [email])
     }
 
+    String buscarHashPorEmail(String email) {
+        String sql = "SELECT senha_hash FROM recrutador WHERE email = ?"
+        List<String> hashes = executarValor(sql, [email])
+        hashes.isEmpty() ? null : hashes[0]
+    }
+
     @Override
     Recrutador buscarPorCpf(String cpf) {
         return buscarUnico("""
@@ -130,5 +136,24 @@ class RecrutadorDAO extends AbstractDAO<Recrutador> implements IRecrutadorDAO {
     private Recrutador buscarUnico(String sql, List parametros) {
         List<Recrutador> resultados = executarQuery(sql, parametros)
         return resultados.isEmpty() ? null : resultados[0]
+    }
+
+    private List<String> executarValor(String sql, List parametros) {
+        java.sql.Connection conexao = null
+        java.sql.PreparedStatement stmt = null
+        java.sql.ResultSet rs = null
+        try {
+            conexao = conexaoFactory.conectar()
+            stmt = conexao.prepareStatement(sql)
+            parametros.eachWithIndex { valor, indice -> stmt.setObject(indice + 1, valor) }
+            rs = stmt.executeQuery()
+            List<String> valores = []
+            while (rs.next()) valores << rs.getString(1)
+            valores
+        } finally {
+            rs?.close()
+            stmt?.close()
+            conexao?.close()
+        }
     }
 }

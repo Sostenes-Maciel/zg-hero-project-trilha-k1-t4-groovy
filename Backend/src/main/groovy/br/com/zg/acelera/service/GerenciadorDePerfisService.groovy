@@ -8,6 +8,7 @@ import br.com.zg.acelera.interfaces.IMatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.utils.ValidacaoUtils
 
 class GerenciadorDePerfisService {
@@ -71,6 +72,19 @@ class GerenciadorDePerfisService {
 
     List<Candidato> listarCandidatos() {
         return candidatoDAO.listarTodos()
+    }
+
+    List<Candidato> listarCandidatos(Recrutador recrutador, Vaga vaga) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId ||
+                (vaga.areaAtuacao && vaga.areaAtuacao != recrutador.areaAtuacao)) {
+            throw new SecurityException("Vaga fora do escopo do recrutador.")
+        }
+        Set<String> competenciasDaVaga = (vaga.competencia ?: [])*.toLowerCase() as Set
+        candidatoDAO.listarTodos().findAll { Candidato candidato ->
+            Set<String> competencias = (competenciaDAO.listarDoCandidato(candidato.cpf) ?: [])*.toLowerCase() as Set
+            competenciasDaVaga.isEmpty() || !competencias.intersect(competenciasDaVaga).isEmpty()
+        }
     }
 
     List<Empresa> listarEmpresas() {
@@ -228,6 +242,23 @@ class GerenciadorDePerfisService {
         return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
     }
 
+    boolean curtirCandidato(Recrutador recrutador, String cpfCandidato, Integer idVaga) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        Vaga vaga = gerenciadorDeVagas.buscarVagaPorId(idVaga)
+        if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId) {
+            throw new SecurityException("Vaga fora do escopo da empresa.")
+        }
+        if (vaga.areaAtuacao && vaga.areaAtuacao != recrutador.areaAtuacao) {
+            throw new SecurityException("Vaga fora da área de atuação do recrutador.")
+        }
+        if (matchDAO.existeMatch(cpfCandidato, recrutador.empresaId, idVaga)) return true
+        if (!curtidaDAO.jaCurtiuCandidatoPorRecrutador(recrutador.id, cpfCandidato, idVaga)) {
+            curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, recrutador.empresaId, idVaga, recrutador.id)
+        }
+        processarPossivelMatch(cpfCandidato, recrutador.empresaId, idVaga)
+    }
+
     boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
         cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
         // Verifica se os dados chegaram corretamente
@@ -297,10 +328,8 @@ class GerenciadorDePerfisService {
             Map vaga = item['vaga'] as Map
 
             [
-                    candidato: [
-                            nome: candidato?.nome,
-                            competencias: candidato?.competencias ?: []
-                    ],
+                    // A identidade só é liberada em matches reais.
+                    candidato: [competencias: candidato?.competencias ?: []],
                     vaga: [
                             id: vaga?.id,
                             titulo: vaga?.titulo,

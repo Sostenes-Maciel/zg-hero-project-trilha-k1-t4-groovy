@@ -24,9 +24,18 @@ e este projeto segue o versionamento semântico.
   matches.
 - Testes Spock de modelo, `RecrutadorDAO` e autoria de curtidas adicionados e
   executados com sucesso.
+- Serviços de validação, autenticação, autorização por nível/área e curtidas
+  com autoria de recrutador implementados na Tarefa 3.
+- Validação de nomes e textos com letras e espaços adicionada à Tarefa 3.
+- Migração `BancoDeDados/Migracao_CurtidaMultiplosRecrutadores.sql` para
+  permitir múltiplas curtidas da mesma empresa por recrutadores distintos,
+  preservando a compatibilidade com registros legados.
 
 ### Modificado
 
 ### Corrigido
+
+- Testes legados de `GerenciadorDePerfisService` ajustados para refletir as
+  validações de competências e isolar a validação de nomes.
 
 ### Removido

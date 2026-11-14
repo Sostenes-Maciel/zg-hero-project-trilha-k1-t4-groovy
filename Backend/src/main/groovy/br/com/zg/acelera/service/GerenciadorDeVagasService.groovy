@@ -3,6 +3,7 @@ package br.com.zg.acelera.service
 import br.com.zg.acelera.dao.CompetenciaDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.utils.ValidacaoUtils
 
 class GerenciadorDeVagasService {
@@ -82,6 +83,48 @@ class GerenciadorDeVagasService {
 
     void excluirVaga(Integer id) {
         vagaDAO.excluir(id)
+    }
+
+    Integer cadastrarVaga(Vaga vaga, Recrutador recrutador) {
+        validarGerenciamento(recrutador, vaga.areaAtuacao)
+        if (vaga.empresa?.cnpj != recrutador.empresaId) {
+            throw new SecurityException("Recrutador só pode gerenciar vagas da própria empresa.")
+        }
+        cadastrarVaga(vaga)
+    }
+
+    void atualizarVaga(Vaga vaga, Recrutador recrutador) {
+        validarGerenciamento(recrutador, vaga.areaAtuacao)
+        if (vaga.empresa?.cnpj != recrutador.empresaId) {
+            throw new SecurityException("Recrutador só pode gerenciar vagas da própria empresa.")
+        }
+        atualizarVaga(vaga)
+    }
+
+    void excluirVaga(Integer id, Recrutador recrutador) {
+        validarGerenciamento(recrutador, null)
+        Vaga vaga = vagaDAO.buscarPorId(id)
+        if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId) {
+            throw new SecurityException("Recrutador só pode gerenciar vagas da própria empresa.")
+        }
+        excluirVaga(id)
+    }
+
+    List<Vaga> listarVagas(Recrutador recrutador) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        listarVagasDaEmpresa(recrutador.empresaId).findAll { vaga ->
+            !vaga.areaAtuacao || vaga.areaAtuacao == recrutador.areaAtuacao
+        }
+    }
+
+    private static void validarGerenciamento(Recrutador recrutador, String area) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        if (recrutador.nivelPermissao != 'Total') {
+            throw new SecurityException("Recrutador com permissão Limitada não pode gerenciar vagas.")
+        }
+        if (area && recrutador.areaAtuacao != area) {
+            throw new SecurityException("A vaga está fora da área de atuação do recrutador.")
+        }
     }
 
     static List<String> extrairCompetencias(String entrada) {
