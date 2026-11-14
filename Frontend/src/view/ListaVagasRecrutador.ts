@@ -16,13 +16,13 @@ export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): 
     `
 
     try {
-        const resposta = await fetch(`http://localhost:8080/api/vagas?area_atuacao=${encodeURIComponent(recrutador.areaAtuacao)}`)
+        const resposta = await fetch(`http://localhost:8080/api/vagas?cnpj=${encodeURIComponent(recrutador.empresaId)}`)
         if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
         const payload = await resposta.json() as { dados?: Vaga[] } | Vaga[]
         const vagas = Array.isArray(payload) ? payload : payload.dados ?? []
+        const areaRecrutador = normalizarArea(recrutador.areaAtuacao)
         const autorizadas = vagas.filter(vaga =>
-            vaga.empresa?.cnpj === recrutador.empresaId ||
-            vaga.empresa?.cnpj?.replace(/\D/g, '') === recrutador.empresaId.replace(/\D/g, '')
+            normalizarArea((vaga as Vaga & { areaAtuacao?: string }).areaAtuacao) === areaRecrutador
         )
         const lista = document.querySelector<HTMLTableSectionElement>('#lista-vagas-recrutador')
         if (!lista) return
@@ -30,7 +30,7 @@ export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): 
             ? autorizadas.map(vaga => `
                 <tr>
                     <td>${escaparHtml(vaga.titulo || 'Vaga')}</td>
-                    <td>${escaparHtml((vaga as Vaga & { areaAtuacao?: string }).areaAtuacao || recrutador.areaAtuacao)}</td>
+                    <td>${escaparHtml((vaga as Vaga & { areaAtuacao?: string }).areaAtuacao || 'Não informada')}</td>
                     <td>${escaparHtml(vaga.descricao || 'Descrição não informada')}</td>
                     <td>
                         ${recrutador.nivelPermissao === 'Total'
@@ -45,6 +45,10 @@ export async function renderListaVagasRecrutador(recrutador: RecrutadorSessao): 
         document.querySelector<HTMLTableSectionElement>('#lista-vagas-recrutador')!.innerHTML =
             '<tr><td colspan="4" class="tabela-vazia">Não foi possível carregar as vagas.</td></tr>'
     }
+}
+
+function normalizarArea(area: string | undefined): string {
+    return (area ?? '').trim().toLocaleLowerCase('pt-BR')
 }
 
 function escaparHtml(valor: string): string {

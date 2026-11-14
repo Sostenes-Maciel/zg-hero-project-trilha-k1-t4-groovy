@@ -6,6 +6,7 @@ export interface Vaga {
     pais: string
     estado: string
     descricao: string
+    areaAtuacao?: string
     competencias: string[]
     empresa: Empresa
 

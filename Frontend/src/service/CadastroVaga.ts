@@ -8,17 +8,19 @@ export class CadastroVagasService {
         descricao: string,
         pais: string,
         estado: string,
+        areaAtuacao: string,
         competencias: string[],
         empresa: Empresa
     ): Promise<Vaga> {
 
-        this.validarCampos(titulo, descricao, pais, estado, competencias)
+        this.validarCampos(titulo, descricao, pais, estado, areaAtuacao, competencias)
 
         const dadosVaga = {
             titulo: titulo.trim(),
             descricao: descricao.trim(),
             pais: pais.trim(),
             estado: estado.trim(),
+            areaAtuacao: areaAtuacao.trim(),
 
             // O backend utiliza "competencia" no singular
             competencia: competencias,
@@ -49,6 +51,7 @@ export class CadastroVagasService {
             descricao: dadosVaga.descricao,
             pais: dadosVaga.pais,
             estado: dadosVaga.estado,
+            areaAtuacao: dadosVaga.areaAtuacao,
             competencias,
             empresa
         }
@@ -59,6 +62,7 @@ export class CadastroVagasService {
         descricao: string,
         pais: string,
         estado: string,
+        areaAtuacao: string,
         competencias: string[]
     ): void {
 
@@ -76,6 +80,10 @@ export class CadastroVagasService {
 
         if (!estado.trim()) {
             throw new Error('Estado da vaga é obrigatório.')
+        }
+
+        if (!areaAtuacao.trim()) {
+            throw new Error('Área de atuação da vaga é obrigatória.')
         }
 
         if (competencias.length === 0) {
@@ -128,6 +136,18 @@ function renderizarFormulario(app: HTMLDivElement): void {
                     <label for="estado">Estado</label>
                     <select id="estado" name="estado" required disabled>
                         <option value="">Selecione um país primeiro</option>
+                    </select>
+                </div>
+
+                <div class="campo-vaga-area">
+                    <label for="areaAtuacao">Área de atuação</label>
+                    <select id="areaAtuacao" name="areaAtuacao" required>
+                        <option value="">Selecione uma área</option>
+                        <option value="TI">TI</option>
+                        <option value="RH">RH</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Vendas">Vendas</option>
+                        <option value="Segurança">Segurança</option>
                     </select>
                 </div>
 
@@ -209,6 +229,7 @@ async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa,
         const descricao = dados.get('descricao') as string
         const pais = selectPais?.selectedOptions[0]?.textContent?.trim() ?? ''
         const estado = dados.get('estado') as string
+        const areaAtuacao = String(dados.get('areaAtuacao') ?? '')
         const competencias = (dados.get('competencias') as string)
             .split(',')
             .map(c => c.trim())
@@ -219,6 +240,7 @@ async function processarSubmissao(formulario: HTMLFormElement, empresa: Empresa,
             descricao,
             pais,
             estado,
+            areaAtuacao,
             competencias,
             empresa
         )

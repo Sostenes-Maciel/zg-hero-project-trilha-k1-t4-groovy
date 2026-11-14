@@ -86,7 +86,7 @@ class GerenciadorDeVagasService {
     }
 
     Integer cadastrarVaga(Vaga vaga, Recrutador recrutador) {
-        validarGerenciamento(recrutador, vaga.areaAtuacao)
+        validarGerenciamento(recrutador, null)
         if (vaga.empresa?.cnpj != recrutador.empresaId) {
             throw new SecurityException("Recrutador só pode gerenciar vagas da própria empresa.")
         }
@@ -94,7 +94,7 @@ class GerenciadorDeVagasService {
     }
 
     void atualizarVaga(Vaga vaga, Recrutador recrutador) {
-        validarGerenciamento(recrutador, vaga.areaAtuacao)
+        validarGerenciamento(recrutador, null)
         if (vaga.empresa?.cnpj != recrutador.empresaId) {
             throw new SecurityException("Recrutador só pode gerenciar vagas da própria empresa.")
         }

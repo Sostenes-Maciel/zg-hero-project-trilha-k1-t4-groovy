@@ -74,6 +74,27 @@ class GerenciadorDePerfisService {
         return candidatoDAO.listarTodos()
     }
 
+    List<Candidato> listarCandidatosPorArea(Recrutador recrutador) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+
+        List<Vaga> vagas = gerenciadorDeVagas.listarVagas(recrutador)
+        Set<String> competenciasDaArea = vagas
+                .collectMany { it.competencia ?: [] }
+                .findAll { it?.trim() }
+                .collect { it.trim().toLowerCase() } as Set
+
+        if (competenciasDaArea.isEmpty()) {
+            return []
+        }
+
+        candidatoDAO.listarTodos().findAll { Candidato candidato ->
+            Set<String> competencias = (candidato.competencias ?: [])
+                    .findAll { it?.trim() }
+                    .collect { it.trim().toLowerCase() } as Set
+            competenciasDaArea.isEmpty() || !competencias.intersect(competenciasDaArea).isEmpty()
+        }
+    }
+
     List<Candidato> listarCandidatos(Recrutador recrutador, Vaga vaga) {
         if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
         if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId ||

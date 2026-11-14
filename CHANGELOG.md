@@ -50,6 +50,13 @@ e este projeto segue o versionamento semântico.
 
 ### Corrigido
 
+- Corrigida a aba “Vagas da minha área” do Recrutador: a listagem passou a
+  consultar as vagas da empresa associada e comparar a área da vaga com a área
+  do Recrutador, sem depender do objeto de empresa removido pela anonimização.
+- Adicionado o campo independente de área da vaga no cadastro, com persistência
+  em `vaga.area_atuacao`; o perfil do Recrutador agora filtra candidatos pelas
+  competências das vagas da área do próprio Recrutador, sem reutilizar essa
+  área para preencher ou restringir o cadastro da vaga.
 - Ajustado o perfil do Recrutador para consultar e exibir o nome da empresa
   associada, sem revelar o CNPJ na interface.
 - Corrigida a renderização de candidatos anonimizados no perfil da Empresa:
