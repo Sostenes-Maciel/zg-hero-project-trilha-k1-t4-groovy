@@ -260,7 +260,7 @@ Estas regras são inquebráveis para toda implementação futura:
 - **Critério de conclusão:** As três telas próprias funcionam com o escopo
   correto, exibem controles conforme a permissão, integram curtidas e matches
   sem duplicação e preservam o anonimato pré-match.
-- **Status:** [ ] Pendente
+- **Status:** [x] Concluída
 
 ## Tarefa 8: Front-end - Telas de Match e Perfil
 

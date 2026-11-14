@@ -13,6 +13,9 @@ import type { Empresa } from '../model/Empresa.ts'
 import type { RecrutadorSessao } from '../model/Recrutador.ts'
 import { renderCadastroRecrutador } from '../view/CadastroRecrutador.ts'
 import { renderPerfilRecrutador } from '../view/PerfilRecrutador.ts'
+import { renderListaVagasRecrutador } from '../view/ListaVagasRecrutador.ts'
+import { renderListaCandidatosRecrutador } from '../view/ListaCandidatosRecrutador.ts'
+import { renderListaMatchesRecrutador } from '../view/ListaMatchesRecrutador.ts'
 
 function obterSessaoAtiva(): { tipo: 'candidato'; usuario: Candidato } | { tipo: 'empresa'; usuario: Empresa } | { tipo: 'recrutador'; usuario: RecrutadorSessao } | null {
     const usuarioSalvo = localStorage.getItem('usuarioLogado')
@@ -87,6 +90,9 @@ function atualizarMenuConta(): void {
             ['sair', 'Sair']
         ] : [
             ['perfil', 'Meu perfil'],
+            ['vagas-recrutador', 'Vagas da minha área'],
+            ['candidatos-recrutador', 'Candidatos da minha área'],
+            ['matches-recrutador', 'Meus matches'],
             ['sair', 'Sair']
         ]
 
@@ -154,6 +160,15 @@ async function executarAcaoMenu(acao: string): Promise<void> {
             if (sessao.tipo === 'candidato') {
                 renderListaVagas(sessao.usuario)
             }
+            break
+        case 'vagas-recrutador':
+            if (sessao.tipo === 'recrutador') await renderListaVagasRecrutador(sessao.usuario)
+            break
+        case 'candidatos-recrutador':
+            if (sessao.tipo === 'recrutador') await renderListaCandidatosRecrutador(sessao.usuario)
+            break
+        case 'matches-recrutador':
+            if (sessao.tipo === 'recrutador') await renderListaMatchesRecrutador(sessao.usuario)
             break
         case 'matches':
             if (sessao.tipo === 'candidato') {

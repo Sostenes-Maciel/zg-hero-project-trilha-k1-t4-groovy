@@ -816,6 +816,22 @@ body {
     gap: 10px;
 }
 
+.lista-vagas-recrutador,
+.lista-candidatos-recrutador,
+.lista-matches-recrutador {
+    margin-top: 24px;
+}
+
+.lista-vagas-recrutador table,
+.lista-candidatos-recrutador table {
+    width: 100%;
+}
+
+.acao-bloqueada {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
 .acoes-curtida-empresa .select-vaga-curtir {
     min-width: 150px;
 }

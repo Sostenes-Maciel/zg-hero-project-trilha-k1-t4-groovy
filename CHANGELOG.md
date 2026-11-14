@@ -42,6 +42,9 @@ e este projeto segue o versionamento semântico.
 - Migração `BancoDeDados/Migracao_CurtidaMultiplosRecrutadores.sql` para
   permitir múltiplas curtidas da mesma empresa por recrutadores distintos,
   preservando a compatibilidade com registros legados.
+- Telas próprias do Recrutador para vagas, candidatos e matches, com escopo
+  por área/empresa, controles de edição por permissão e deduplicação de
+  matches por candidato, empresa e vaga.
 
 ### Modificado
 
