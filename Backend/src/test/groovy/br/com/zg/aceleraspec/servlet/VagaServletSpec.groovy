@@ -27,6 +27,7 @@ class VagaServletSpec extends Specification {
 
         servlet.vagaController = controllerMock
         servlet.gson = new Gson()
+        requestMock.getSession(false) >> null
     }
 
     // --- TESTES DO POST ---

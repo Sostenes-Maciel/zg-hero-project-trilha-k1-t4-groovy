@@ -7,10 +7,12 @@ import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
+import br.com.zg.acelera.dao.RecrutadorDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.service.GerenciadorDeMatchesService
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.service.GerenciadorDeRecrutadoresService
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 import com.google.gson.Gson
 import jakarta.servlet.annotation.WebServlet
@@ -35,8 +37,12 @@ class MatchServlet extends HttpServlet {
         def matchDAO = new MatchDAO(conexao)
         def vagaDAO = new VagaDAO(conexao)
 
-        def gerenciadorDeVagas = new GerenciadorDeVagasService(vagaDAO, competenciaDAO)
+        // 1. FALTAVA INSTANCIAR O DAO DO RECRUTADOR AQUI:
+        def recrutadorDAO = new RecrutadorDAO(conexao)
 
+        def recrutadorService = new GerenciadorDeRecrutadoresService(recrutadorDAO, empresaDAO)
+
+        def gerenciadorDeVagas = new GerenciadorDeVagasService(vagaDAO, competenciaDAO)
         def matchService = new GerenciadorDeMatchesService(matchDAO)
 
         def perfilService = new GerenciadorDePerfisService(
@@ -48,7 +54,14 @@ class MatchServlet extends HttpServlet {
                 gerenciadorDeVagas
         )
 
-        this.matchController = new MatchController(matchService, perfilService)
+        // 2. PASSANDO O RECRUTADOR SERVICE COMO O 4º PARÂMETRO DO CONTROLLER:
+        this.matchController = new MatchController(
+                matchService,
+                perfilService,
+                gerenciadorDeVagas,
+                recrutadorService
+        )
+
         this.gson = new Gson()
     }
 
@@ -78,10 +91,18 @@ class MatchServlet extends HttpServlet {
                 Integer idVaga = payload.idVaga != null
                         ? payload.idVaga.toString().toDouble().toInteger()
                         : null
-
                 resultado = matchController.curtirCandidato(cnpj, cpf, idVaga)
+
+            } else if (autor == "RECRUTADOR") {
+                String idRecrutador = payload.idRecrutador
+                String cnpj = payload.cnpjEmpresa
+                String cpf = payload.cpfCandidato
+                Integer idVaga = payload.idVaga != null ? payload.idVaga.toString().toDouble().toInteger() : null
+
+                resultado = matchController.curtirCandidatoPorRecrutador(idRecrutador, cnpj, cpf, idVaga)
+
             } else {
-                resultado = [status: 400, mensagem: "Autor inválido. Informe 'CANDIDATO' ou 'EMPRESA' no JSON."]
+                resultado = [status: 400, mensagem: "Autor inválido. Informe 'CANDIDATO', 'EMPRESA' ou 'RECRUTADOR' no JSON."]
             }
 
             enviarResposta(resp, resultado)
@@ -98,18 +119,23 @@ class MatchServlet extends HttpServlet {
         try {
             String cpfParam = req.getParameter("cpf")
             String cnpjParam = req.getParameter("cnpj")
-            String completoParam = req.getParameter("completo") // Lê o &completo=true da URL
+            String idRecrutadorParam = req.getParameter("idRecrutador") // <-- 1. CAPTURAMOS O ID DO RECRUTADOR AQUI
+            String completoParam = req.getParameter("completo")
             Map resultado
 
             if (cpfParam != null && !cpfParam.trim().isEmpty()) {
-                if ("true".equals(completoParam)) {
+                if ("true" == completoParam) {
                     resultado = matchController.listarMatchesCompletosCandidato(cpfParam)
                 } else {
                     resultado = matchController.listarMatchesCandidato(cpfParam)
                 }
-            } else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
+            }
+            else if (idRecrutadorParam != null && !idRecrutadorParam.trim().isEmpty()) {
+                resultado = matchController.listarMatchesCompletosRecrutador(idRecrutadorParam)
+            }
+            else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
                 if ("true".equals(completoParam)) {
-                    resultado = matchController.listarMatchesCompletosEmpresa(cnpjParam) // <-- Adicionado aqui!
+                    resultado = matchController.listarMatchesCompletosEmpresa(cnpjParam)
                 } else {
                     resultado = matchController.listarMatchesEmpresa(cnpjParam)
                 }
@@ -117,6 +143,9 @@ class MatchServlet extends HttpServlet {
                 resultado = [status: 400, mensagem: "Informe os parâmetros corretos."]
             }
 
+            if (!"true".equals(completoParam) && resultado?.dados instanceof List) {
+                resultado.dados = resultado.dados.collect { anonimizar(it) }
+            }
             enviarResposta(resp, resultado)
 
         } catch (Exception e) {
@@ -133,6 +162,21 @@ class MatchServlet extends HttpServlet {
     private void enviarResposta(HttpServletResponse resp, Map resultado) {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
+    }
+
+    private static Object anonimizar(Object valor) {
+        if (valor instanceof Map) {
+            Map copia = [:]
+            valor.each { chave, item ->
+                if (!(chave in ["nome", "email", "dataNascimento", "idade", "foto",
+                                "senha", "senhaHash"])) {
+                    copia[chave] = anonimizar(item)
+                }
+            }
+            return copia
+        }
+        if (valor instanceof Collection) return valor.collect { anonimizar(it) }
+        valor
     }
 
     @Override
@@ -153,16 +197,33 @@ class MatchServlet extends HttpServlet {
                         : null
                 resultado = matchController.removerCurtidaEmpresa(cnpj, cpf, idVaga)
 
+            } else if (autor == "RECRUTADOR") {
+                String idRecrutador = payload.idRecrutador
+                String cpf = payload.cpfCandidato
+                Integer idVaga = payload.idVaga != null ? payload.idVaga.toString().toDouble().toInteger() : null
+
+                resultado = matchController.removerCurtidaRecrutador(idRecrutador, cpf, idVaga)
+
             } else if (autor == "CANDIDATO") {
                 String cpf = payload.cpfCandidato
 
-                // Blindagem: Garante que o ID será um número inteiro perfeito, independente de como o Gson leu
                 Integer idVaga = null
                 if (payload.idVaga != null) {
                     idVaga = payload.idVaga.toString().toDouble().toInteger()
                 }
 
                 resultado = matchController.removerCurtidaCandidato(cpf, idVaga)
+
+            } else if (autor == "EMPRESA" || autor == "RECRUTADOR") {
+                String cnpj = payload.cnpjEmpresa
+                String cpf = payload.cpfCandidato
+                Integer idVaga = null
+                if (payload.idVaga != null) {
+                    idVaga = payload.idVaga.toString().toDouble().toInteger()
+                }
+
+                resultado = matchController.removerCurtidaEmpresa(cnpj, cpf, idVaga)
+
             } else {
                 resultado = [status: 400, mensagem: "Autor inválido."]
             }

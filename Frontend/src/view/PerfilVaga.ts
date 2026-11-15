@@ -78,7 +78,9 @@ function renderizarMensagem(app: HTMLDivElement, mensagem: string, onVoltar?: ()
 
 function renderizarPerfilVagaHTML(app: HTMLDivElement, vaga: Vaga, temMatch: boolean): void {
     const competenciasTexto = vaga.competencias?.join(', ') || 'Nenhuma competência especificada'
-    const nomeEmpresa = temMatch ? vaga.empresa.nome : 'Match necessário para visualização'
+    const nomeEmpresa = temMatch && vaga.empresa?.nome
+        ? escaparHtml(vaga.empresa.nome)
+        : 'Match necessário para visualização'
 
     app.innerHTML = `
         <section class="perfil-vaga tela-com-transicao">
@@ -116,6 +118,12 @@ function renderizarPerfilVagaHTML(app: HTMLDivElement, vaga: Vaga, temMatch: boo
             <button id="btn-voltar-lista">Voltar para Vagas</button>
         </section>
     `
+}
+
+function escaparHtml(valor: string): string {
+    return valor.replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[caractere]!)
 }
 
 function configurarEventoVoltar(onVoltar?: () => void): void {

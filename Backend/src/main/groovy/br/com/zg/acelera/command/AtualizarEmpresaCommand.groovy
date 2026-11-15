@@ -47,9 +47,19 @@ class AtualizarEmpresaCommand implements ICommand {
 
         print "Competências [${empresa.competencias?.join(', ')}]: "
         String competencias = sc.nextLine().trim()
-        if (!competencias.isEmpty()) empresa.competencias = competencias.split(",").collect { it.trim() }
+        if (!competencias.isEmpty()) {
+            empresa.competencias = extrairCompetenciasUnicas(competencias)
+        }
 
         def resposta = empresaController.atualizar(empresa)
         println "\n[${resposta.status}] - ${resposta.mensagem}"
+    }
+
+    private static List<String> extrairCompetenciasUnicas(String entrada) {
+        if (!entrada) return []
+        return entrada.split(",")
+            .collect { it.trim() }
+            .findAll { it }
+            .unique { it.toLowerCase() }
     }
 }

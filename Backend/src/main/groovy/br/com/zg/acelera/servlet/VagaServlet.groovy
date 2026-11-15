@@ -6,6 +6,7 @@ import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 import com.google.gson.Gson
 import jakarta.servlet.annotation.WebServlet
@@ -39,8 +40,11 @@ class VagaServlet extends HttpServlet {
             BufferedReader reader = req.getReader()
             Vaga novaVaga = gson.fromJson(reader, Vaga.class)
 
-            Map resultado = vagaController.cadastrar(novaVaga)
-            enviarResposta(resp, resultado)
+            Recrutador recrutador = req.getSession(false)?.getAttribute("recrutador") as Recrutador
+            Map resultado = recrutador
+                    ? vagaController.cadastrar(novaVaga, recrutador)
+                    : vagaController.cadastrar(novaVaga)
+            enviarResposta(resp, anonimizarEmpresa(resultado))
         } catch (Exception e) {
             e.printStackTrace()
             enviarResposta(resp, [status: 500, mensagem: "Erro interno: " + e.message])
@@ -54,6 +58,7 @@ class VagaServlet extends HttpServlet {
             String idParam = req.getParameter("id")
             String cnpjParam = req.getParameter("cnpj")
             Map resultado
+            Recrutador recrutador = req.getSession(false)?.getAttribute("recrutador") as Recrutador
 
             if (idParam != null && !idParam.trim().isEmpty()) {
                 try {
@@ -67,10 +72,10 @@ class VagaServlet extends HttpServlet {
                 resultado = vagaController.listarDaEmpresa(cnpjParam)
             }
             else {
-                resultado = vagaController.listar()
+                resultado = recrutador ? vagaController.listar(recrutador) : vagaController.listar()
             }
 
-            enviarResposta(resp, resultado)
+            enviarResposta(resp, anonimizarEmpresa(resultado))
         } catch (Exception e) {
             e.printStackTrace()
             enviarResposta(resp, [status: 500, mensagem: "Erro interno: " + e.message])
@@ -84,7 +89,10 @@ class VagaServlet extends HttpServlet {
             BufferedReader reader = req.getReader()
             Vaga vagaAtualizada = gson.fromJson(reader, Vaga.class)
 
-            Map resultado = vagaController.atualizar(vagaAtualizada)
+            Recrutador recrutador = req.getSession(false)?.getAttribute("recrutador") as Recrutador
+            Map resultado = recrutador
+                    ? vagaController.atualizar(vagaAtualizada, recrutador)
+                    : vagaController.atualizar(vagaAtualizada)
             enviarResposta(resp, resultado)
         } catch (Exception e) {
             e.printStackTrace()
@@ -104,7 +112,10 @@ class VagaServlet extends HttpServlet {
             }
 
             Integer id = Integer.parseInt(idParam)
-            Map resultado = vagaController.excluir(id)
+            Recrutador recrutador = req.getSession(false)?.getAttribute("recrutador") as Recrutador
+            Map resultado = recrutador
+                    ? vagaController.excluir(id, recrutador)
+                    : vagaController.excluir(id)
             enviarResposta(resp, resultado)
 
         } catch (NumberFormatException ignored) {
@@ -123,5 +134,22 @@ class VagaServlet extends HttpServlet {
     private void enviarResposta(HttpServletResponse resp, Map resultado) {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
+    }
+
+    private static Map anonimizarEmpresa(Map resultado) {
+        if (!(resultado?.dados instanceof List)) return resultado
+        resultado.dados = resultado.dados.collect { Object item ->
+            Vaga vaga = item instanceof Map ? new Vaga(
+                    id: item.id, titulo: item.titulo, pais: item.pais,
+                    estado: item.estado, descricao: item.descricao,
+                    areaAtuacao: item.areaAtuacao, competencia: item.competencia
+            ) : item
+            [
+                    id: vaga.id, titulo: vaga.titulo, pais: vaga.pais,
+                    estado: vaga.estado, descricao: vaga.descricao,
+                    areaAtuacao: vaga.areaAtuacao, competencia: vaga.competencia
+            ]
+        }
+        resultado
     }
 }

@@ -33,7 +33,7 @@ export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: st
 
     renderizarGraficoCompetencias(candidatosDoBanco)
     renderizarTabelaCandidatos(empresa, candidatosDoBanco, statusMatches, vagasDaEmpresa)
-    configurarEventos(empresa, statusMatches, candidatosDoBanco)
+    configurarEventos(empresa, statusMatches)
 }
 
 function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
@@ -133,9 +133,14 @@ async function buscarCandidatosDoBanco(): Promise<Candidato[]> {
         const resposta = await fetch('http://localhost:8080/api/candidatos')
         if (resposta.ok) {
             const dadosDoServidor = await resposta.json()
-            const resultado = dadosDoServidor.dados ? dadosDoServidor.dados : dadosDoServidor
+            const resultado = Array.isArray(dadosDoServidor)
+                ? dadosDoServidor
+                : dadosDoServidor.dados ?? []
 
-            return Array.isArray(resultado) ? resultado : []
+            return resultado.map((candidato: Candidato) => ({
+                ...candidato,
+                competencias: Array.isArray(candidato.competencias) ? candidato.competencias : []
+            }))
         }
         return []
     } catch (erro) {
@@ -237,10 +242,11 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
     candidatos.forEach((candidato) => {
         const linha = document.createElement('tr')
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
+        linha.dataset.nomeReal = candidato.nome
 
-        const cpfLimpo = candidato.cpf.replace(/\D/g, '')
+        const cpfLimpo = candidato.cpf?.replace(/\D/g, '') ?? ''
         const statusCandidato = statusMatches.filter(s =>
-            s.cpfCandidato.replace(/\D/g, '') === cpfLimpo
+            cpfLimpo && s.cpfCandidato.replace(/\D/g, '') === cpfLimpo
         )
         const vagaSelecionada = statusCandidato.find(s => s.status === 'match')?.idVaga
             ?? statusCandidato.find(s => s.status === 'curtido')?.idVaga
@@ -269,12 +275,12 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
             <td class="coluna-acao">
                 <button
                     class="btn-curtir-candidato"
-                    data-cpf="${candidato.cpf}"
+                    data-cpf="${cpfLimpo}"
                     data-id-vaga="${vagaSelecionada ?? ''}"
                     data-curtido="${curtiu}"
                     data-match="${temMatch}"
                     title="${temMatch ? 'Match confirmado' : curtiu ? 'Remover curtida' : 'Curtir candidato'}"
-                    ${vagas.length === 0 || !vagaSelecionada || temMatch ? 'disabled' : ''}
+                    ${vagas.length === 0 || temMatch  ? 'disabled' : ''}
                 >
                     ${iconeCurtida}
                 </button>
@@ -283,7 +289,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
                 <div class="acoes-curtida-empresa">
                     <select
                         class="select-vaga-curtir"
-                        data-cpf="${candidato.cpf}"
+                        data-cpf="${cpfLimpo}"
                         aria-label="Selecionar vaga para curtir candidato"
                         ${vagas.length === 0 ? 'disabled' : ''}
                     >
@@ -297,12 +303,12 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
     })
 }
 
-function configurarEventos(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
-    configurarBotoesCurtirCandidato(empresa, statusMatches, candidatos)
+function configurarEventos(empresa: Empresa, statusMatches: StatusMatch[]): void {
+    configurarBotoesCurtirCandidato(empresa, statusMatches)
     configurarFiltroCompetencia()
 }
 
-function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
+function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: StatusMatch[]): void {
     const botoesCurtir = document.querySelectorAll<HTMLButtonElement>('.btn-curtir-candidato')
 
     botoesCurtir.forEach(botao => {
@@ -318,6 +324,17 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
             atualizarBotaoCurtida(botao, status)
             botao.dataset.idVaga = seletorVaga.value
             botao.disabled = status === 'match' || !seletorVaga.value
+
+            const linha = botao.closest('tr')
+            const celulaNome = linha?.querySelector<HTMLTableCellElement>('.coluna-candidato')
+
+            if (linha && celulaNome) {
+                if (status === 'match') {
+                    celulaNome.textContent = linha.dataset.nomeReal || 'Candidato Oculto'
+                } else {
+                    celulaNome.textContent = 'Match necessário para visualização'
+                }
+            }
         })
 
         botao.addEventListener('click', async (e) => {
@@ -364,11 +381,15 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
                     }
                     if (deuMatch) {
                         mostrarAnimacaoMatch()
-                        const candidato = candidatos.find(item =>
-                            item.cpf.replace(/\D/g, '') === cpfCandidato.replace(/\D/g, '')
-                        )
-                        const celulaNome = botao.closest('tr')?.querySelector<HTMLTableCellElement>('.coluna-candidato')
-                        if (celulaNome && candidato) celulaNome.textContent = candidato.nome
+                        const linha = botao.closest('tr') // Pega a linha
+                        const celulaNome = linha?.querySelector<HTMLTableCellElement>('.coluna-candidato')
+
+
+                        // Pega o nome real diretamente do backend!
+                        if (celulaNome && resultado.nomeRevelado) {
+                            celulaNome.textContent = resultado.nomeRevelado
+                            if (linha) linha.dataset.nomeReal = resultado.nomeRevelado
+                        }
                     }
                 } else {
                     const resultado = await resposta.json()

@@ -8,6 +8,7 @@ import br.com.zg.acelera.interfaces.IMatchDAO
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.utils.ValidacaoUtils
 
 class GerenciadorDePerfisService {
@@ -31,6 +32,7 @@ class GerenciadorDePerfisService {
     }
 
     void cadastrarCandidato(Candidato candidato) {
+        ValidacaoUtils.validarCompetencias(candidato.competencias)
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)
         ValidarCandidatoService.validarCpf(candidato.cpf)
@@ -51,6 +53,7 @@ class GerenciadorDePerfisService {
     }
 
     void cadastrarEmpresa(Empresa empresa) {
+        ValidacaoUtils.validarCompetencias(empresa.competencias)
         ValidarEmpresaService.validarNome(empresa.nome)
         ValidarEmpresaService.validarEmail(empresa.email)
         ValidarEmpresaService.validarCnpj(empresa.cnpj)
@@ -71,6 +74,40 @@ class GerenciadorDePerfisService {
 
     List<Candidato> listarCandidatos() {
         return candidatoDAO.listarTodos()
+    }
+
+    List<Candidato> listarCandidatosPorArea(Recrutador recrutador) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+
+        List<Vaga> vagas = gerenciadorDeVagas.listarVagas(recrutador)
+        Set<String> competenciasDaArea = vagas
+                .collectMany { it.competencia ?: [] }
+                .findAll { it?.trim() }
+                .collect { it.trim().toLowerCase() } as Set
+
+        if (competenciasDaArea.isEmpty()) {
+            return []
+        }
+
+        candidatoDAO.listarTodos().findAll { Candidato candidato ->
+            Set<String> competencias = (candidato.competencias ?: [])
+                    .findAll { it?.trim() }
+                    .collect { it.trim().toLowerCase() } as Set
+            competenciasDaArea.isEmpty() || !competencias.intersect(competenciasDaArea).isEmpty()
+        }
+    }
+
+    List<Candidato> listarCandidatos(Recrutador recrutador, Vaga vaga) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId ||
+                (vaga.areaAtuacao && vaga.areaAtuacao != recrutador.areaAtuacao)) {
+            throw new SecurityException("Vaga fora do escopo do recrutador.")
+        }
+        Set<String> competenciasDaVaga = (vaga.competencia ?: [])*.toLowerCase() as Set
+        candidatoDAO.listarTodos().findAll { Candidato candidato ->
+            Set<String> competencias = (competenciaDAO.listarDoCandidato(candidato.cpf) ?: [])*.toLowerCase() as Set
+            competenciasDaVaga.isEmpty() || !competencias.intersect(competenciasDaVaga).isEmpty()
+        }
     }
 
     List<Empresa> listarEmpresas() {
@@ -188,6 +225,7 @@ class GerenciadorDePerfisService {
         if (vagaCompleta == null) {
             throw new IllegalStateException("Vaga não encontrada com o ID informado.")
         }
+        String cnpjLimpo = ValidacaoUtils.limparFormatacao(vagaCompleta.empresa.cnpj)
 
         if (curtidaDAO.jaCurtiuVaga(cpfCandidato, idVaga)) {
             if (matchDAO.existeMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)) {
@@ -200,11 +238,12 @@ class GerenciadorDePerfisService {
         }
 
         curtidaDAO.registrarCurtidaCandidato(cpfCandidato, idVaga)
-        return processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)
+        return processarPossivelMatch(cpfCandidato, cnpjLimpo, idVaga)
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
         cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        cnpjEmpresa = ValidacaoUtils.limparFormatacao(cnpjEmpresa)
         if (idVaga == null) {
             throw new IllegalArgumentException("Selecione uma vaga para curtir o candidato.")
         }
@@ -226,6 +265,25 @@ class GerenciadorDePerfisService {
 
         curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa, idVaga)
         return processarPossivelMatch(cpfCandidato, cnpjEmpresa, idVaga)
+    }
+
+    boolean curtirCandidato(Recrutador recrutador, String cpfCandidato, Integer idVaga) {
+        if (!recrutador?.ativo) throw new SecurityException("Recrutador inativo.")
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        Vaga vaga = gerenciadorDeVagas.buscarVagaPorId(idVaga)
+        if (vaga == null || vaga.empresa?.cnpj != recrutador.empresaId) {
+            throw new SecurityException("Vaga fora do escopo da empresa.")
+        }
+        if (vaga.areaAtuacao && vaga.areaAtuacao != recrutador.areaAtuacao) {
+            throw new SecurityException("Vaga fora da área de atuação do recrutador.")
+        }
+        if (matchDAO.existeMatch(cpfCandidato, recrutador.empresaId, idVaga)) return true
+
+        if (!curtidaDAO.jaCurtiuCandidatoPorRecrutador(recrutador.id, cpfCandidato, idVaga)) {
+            curtidaDAO.registrarCurtidaRecrutador(cpfCandidato, recrutador.empresaId, idVaga, recrutador.id)
+        }
+
+        return processarPossivelMatch(cpfCandidato, recrutador.empresaId, idVaga)
     }
 
     boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
@@ -288,30 +346,118 @@ class GerenciadorDePerfisService {
                 curtidasPendentes: pendentesFormatadas
         ]
     }
+    boolean removerCurtidaRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        if (!recrutadorId || !cpfCandidato || !idVaga) {
+            return false
+        }
+        return curtidaDAO.removerCurtidaRecrutador(recrutadorId, cpfCandidato, idVaga)
+    }
     Map listarMatchesCompletosEmpresa(String cnpj) {
         def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
         def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)
 
+        def empresaReal = buscarEmpresaPorCnpj(cnpj)
+        String nomeDaEmpresaReal = empresaReal != null ? empresaReal.nome : "Empresa"
+
+        def matchesFormatados = matchesReais.collect { item ->
+            String recNome = item['nome_recrutador'] ?: item['recrutador_nome'] ?: (item['recrutador'] instanceof Map ? item['recrutador']['nome'] : null)
+
+            [
+                    id_match: item['id_match'],
+                    candidato: [
+                            cpf: item['cpf_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['cpf'] : null),
+                            nome: item['nome_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['nome'] : null),
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
+                    ],
+                    vaga: [
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            pais: item['pais_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
+                    ],
+                    recrutador: [
+                            nome: recNome ?: nomeDaEmpresaReal
+                    ]
+            ]
+        }
+
         def pendentesFormatadas = pendentes.collect { item ->
-            Map candidato = item['candidato'] as Map
-            Map vaga = item['vaga'] as Map
+            String recNome = item['nome_recrutador'] ?: item['recrutador_nome'] ?: (item['recrutador'] instanceof Map ? item['recrutador']['nome'] : null)
 
             [
                     candidato: [
-                            nome: candidato?.nome,
-                            competencias: candidato?.competencias ?: []
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
                     ],
                     vaga: [
-                            id: vaga?.id,
-                            titulo: vaga?.titulo,
-                            pais: vaga?.pais,
-                            estado: vaga?.estado
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            pais: item['pais_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
+                    ],
+                    recrutador: [
+                            // Injeta o nome real da Empresa também nas curtidas pendentes
+                            nome: recNome ?: nomeDaEmpresaReal
                     ]
             ]
         }
 
         return [
-                matches: matchesReais,
+                matches: matchesFormatados,
+                curtidasPendentes: pendentesFormatadas
+        ]
+    }
+    Map listarMatchesCompletosRecrutador(Integer recrutadorId) {
+        def matchesFlat = matchDAO.listarMatchesDoRecrutador(recrutadorId)
+        def pendentesFlat = matchDAO.listarCurtidasPendentesDoRecrutador(recrutadorId)
+
+        def matchesFormatados = matchesFlat.collect { Map item ->
+            [
+                    id_match: item['id_match'],
+                    candidato: [
+                            cpf: item['cpf_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['cpf'] : item['cpf']),
+
+                            nome: item['nome_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['nome'] : item['nome']),
+
+                            pais: item['pais_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['pais'] : null),
+                            estado: item['estado_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['estado'] : null),
+
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
+                    ],
+                    empresa: [
+                            nome: item['nome_empresa'] ?: item['empresa_nome'] ?: item['nome']
+                    ],
+                    vaga: [
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+
+                            // DADO 2: Nome da Vaga (mandamos como titulo e nome para garantir)
+                            titulo: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            nome: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['nome'] : null),
+
+                            // DADO 3: Local (País/Estado) da Vaga
+                            pais: item['pais_vaga'] ?: item['pais'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: item['estado'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
+                    ]
+            ]
+        }
+
+        def pendentesFormatadas = pendentesFlat.collect { Map item ->
+            [
+                    candidato: [
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
+                    ],
+                    vaga: [
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            nome: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['nome'] : null),
+                            pais: item['pais_vaga'] ?: item['pais'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: item['estado'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
+                    ]
+            ]
+        }
+
+        return [
+                matches: matchesFormatados,
                 curtidasPendentes: pendentesFormatadas
         ]
     }

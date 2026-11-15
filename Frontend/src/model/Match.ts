@@ -6,4 +6,6 @@ export interface Match {
     candidato: Candidato
     empresa: Empresa
     vaga: Vaga
+    recrutador_id?: number
+    recrutador?: { nome?: string }
 }

@@ -4,6 +4,13 @@ import br.com.zg.acelera.utils.ValidacaoUtils
 
 class ValidarCandidatoService {
 
+    static boolean validarApenasLetras(String texto, String... nomeCampo) {
+        if (!texto || !texto.matches(/^[a-zA-ZÀ-ÿ\s]+$/)) {
+            throw new IllegalArgumentException("${nomeCampo ? nomeCampo[0] : 'Texto'} inválido.")
+        }
+        true
+    }
+
     static void validarNome(String nome) {
         validarApenasLetras(nome, "Nome")
     }

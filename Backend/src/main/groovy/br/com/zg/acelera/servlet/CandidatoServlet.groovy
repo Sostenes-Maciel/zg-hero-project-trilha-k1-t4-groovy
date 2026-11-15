@@ -10,6 +10,7 @@ import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.model.Candidato
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 import com.google.gson.Gson
@@ -23,9 +24,8 @@ import jakarta.servlet.http.HttpServletResponse
 @WebServlet(name = "CandidatoServlet", urlPatterns = ["/api/candidatos", "/api/candidatos/login"])
 class CandidatoServlet extends HttpServlet {
 
-     CandidatoController candidatoController
-     Gson gson
-
+    CandidatoController candidatoController
+    Gson gson
 
     @Override
     void init() throws ServletException {
@@ -86,30 +86,42 @@ class CandidatoServlet extends HttpServlet {
 
         enviarResposta(response, resultado)
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        resp.setContentType("application/json")
-        resp.setCharacterEncoding("UTF-8")
+        configurarResposta(resp)
 
         try {
             String cpfParam = req.getParameter("cpf")
 
             if (cpfParam != null && !cpfParam.trim().isEmpty()) {
-                def candidato = candidatoController.buscarPorCpf(cpfParam)
+                Map resultado = candidatoController.buscarPorCpf(cpfParam)
 
-                if (candidato) {
+                if (resultado?.status == 200 && resultado.dados) {
                     resp.setStatus(200)
-                    resp.getWriter().write(gson.toJson(candidato))
+                    resp.getWriter().write(gson.toJson(dtoAnonimo(resultado.dados)))
                 } else {
-                    resp.setStatus(404)
-                    def erro = [status: 404, mensagem: "Candidato não encontrado."]
+                    Map erro = resultado ?: [status: 404, mensagem: "Candidato não encontrado."]
+                    resp.setStatus((erro.status ?: 404) as int)
                     resp.getWriter().write(gson.toJson(erro))
                 }
             } else {
-                def listaCandidatos = candidatoController.listar()
+                Recrutador recrutador = req.getSession(false)?.getAttribute("recrutador") as Recrutador
+                Map resultado = recrutador
+                        ? candidatoController.listar(recrutador)
+                        : candidatoController.listar()
+                if (resultado.status != 200) {
+                    resp.setStatus(resultado.status as int)
+                    resp.getWriter().write(gson.toJson(resultado))
+                    return
+                }
 
                 resp.setStatus(200)
-                resp.getWriter().write(gson.toJson(listaCandidatos))
+                List candidatos = (resultado.dados ?: []) as List
+                resp.getWriter().write(gson.toJson([
+                        status: 200,
+                        dados: candidatos.collect { candidato -> dtoAnonimo(candidato) }
+                ]))
             }
 
         } catch (Exception e) {
@@ -119,6 +131,7 @@ class CandidatoServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(erro))
         }
     }
+
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         configurarResposta(resp)
@@ -158,10 +171,39 @@ class CandidatoServlet extends HttpServlet {
     private static void configurarResposta(HttpServletResponse resp) {
         resp.setContentType("application/json")
         resp.setCharacterEncoding("UTF-8")
+        resp.setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+        resp.setHeader("Access-Control-Allow-Credentials", "true")
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin")
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) {
+        configurarResposta(resp)
+        resp.setStatus(HttpServletResponse.SC_OK)
     }
 
     private void enviarResposta(HttpServletResponse resp, Map resultado) {
         resp.setStatus(resultado.status as int)
         resp.getWriter().write(gson.toJson(resultado))
+    }
+
+    private static Map dtoAnonimo(Object candidato) {
+        if (candidato instanceof Map) {
+            return [
+                    cpf: candidato.cpf, // Chave técnica mantida para o frontend
+                    nome: "Candidato Oculto", // Mascara a identidade visualmente
+                    competencias: candidato.competencias ?: [],
+                    descricao: candidato.descricao,
+                    estado: candidato.estado
+            ]
+        }
+        [
+                cpf: candidato?.cpf,
+                nome: "Candidato Oculto",
+                competencias: candidato?.competencias ?: [],
+                descricao: candidato?.descricao,
+                estado: candidato?.estado
+        ]
     }
 }

@@ -9,6 +9,7 @@ import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.model.Empresa
+import br.com.zg.acelera.model.Recrutador
 import br.com.zg.acelera.model.Vaga
 import spock.lang.Specification
 
@@ -19,6 +20,7 @@ class CurtidaDAOSpec extends Specification {
     private EmpresaDAO empresaDAO
     private VagaDAO vagaDAO
     private CompetenciaDAO competenciaDAO
+    private br.com.zg.acelera.dao.RecrutadorDAO recrutadorDAO
 
     def setup() {
         IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
@@ -27,6 +29,7 @@ class CurtidaDAOSpec extends Specification {
         candidatoDAO = new CandidatoDAO(conexao, competenciaDAO)
         empresaDAO = new EmpresaDAO(conexao, competenciaDAO)
         vagaDAO = new VagaDAO(conexao)
+        recrutadorDAO = new br.com.zg.acelera.dao.RecrutadorDAO(conexao)
     }
 
     def "deve registrar curtida do candidato em uma vaga"() {
@@ -144,5 +147,54 @@ class CurtidaDAOSpec extends Specification {
         vagaDAO.excluir(vaga.id)
         empresaDAO.excluir(empresa.cnpj)
         candidatoDAO.excluir(candidato.cpf)
+    }
+
+    def "deve registrar a autoria opcional da curtida da empresa"() {
+        given:
+        Empresa empresa = new Empresa(cnpj: "77.666.555/0001-33", nome: "Empresa Curtida", email: "e@teste.com", pais: "Brasil", estado: "PE", cep: "55299-300", descricao: "Teste")
+        Vaga vaga = new Vaga(titulo: "Dev Teste", pais: "Brasil", estado: "PE", descricao: "Teste", empresa: empresa)
+        Candidato candidato = new Candidato(cpf: "77788899900", nome: "Cand Curtida", email: "c@teste.com", pais: "Brasil", estado: "PE", cep: "55299-300", descricao: "Teste", idade: 25)
+        Recrutador recrutador = new Recrutador(
+                empresaId: empresa.cnpj,
+                nome: "Recrutador Curtida",
+                areaAtuacao: "TI",
+                nivelPermissao: "Limitado",
+                email: "recrutador.curtida.${System.nanoTime()}@teste.com",
+                cpf: "${System.nanoTime()}".takeRight(11),
+                dataNascimento: java.time.LocalDate.of(1990, 1, 1),
+                senhaHash: "hash"
+        )
+
+        empresaDAO.cadastrar(empresa)
+        vagaDAO.cadastrar(vaga)
+        candidatoDAO.cadastrar(candidato)
+        recrutadorDAO.salvar(recrutador)
+
+        when:
+        curtidaDAO.registrarCurtidaEmpresa(candidato.cpf, empresa.cnpj, vaga.id, recrutador.id)
+
+        then:
+        def curtida = curtidaDAO.listarStatusCurtidasEmpresa(empresa.cnpj).find {
+            it.cpfCandidato == candidato.cpf && it.idVaga == vaga.id
+        }
+        curtida.recrutadorId == recrutador.id
+
+        cleanup:
+        removerRecrutador(recrutador.email)
+        vagaDAO.excluir(vaga.id)
+        empresaDAO.excluir(empresa.cnpj)
+        candidatoDAO.excluir(candidato.cpf)
+    }
+
+    private static void removerRecrutador(String email) {
+        def conexao = ConexaoFactory.getBancoDeDados("POSTGRES").conectar()
+        def stmt = conexao.prepareStatement("DELETE FROM recrutador WHERE email = ?")
+        try {
+            stmt.setString(1, email)
+            stmt.executeUpdate()
+        } finally {
+            stmt.close()
+            conexao.close()
+        }
     }
 }

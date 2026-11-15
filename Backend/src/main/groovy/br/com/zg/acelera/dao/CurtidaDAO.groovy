@@ -30,6 +30,12 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
+    boolean jaCurtiuCandidatoPorRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        String sql = "SELECT 1 FROM curtida WHERE recrutador_id = ? AND cpf_candidato = ? AND id_vaga = ?"
+        executarQueryBooleana(sql, [recrutadorId, cpfCandidato, idVaga])
+    }
+
+    @Override
     void registrarCurtidaCandidato(String cpfCandidato, Integer idVaga) {
         if (jaCurtiuVaga(cpfCandidato, idVaga)) return
 
@@ -39,14 +45,27 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
 
     @Override
     void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
-        if (jaCurtiuCandidato(cnpjEmpresa, cpfCandidato, idVaga)) return
+        registrarCurtidaEmpresa(cpfCandidato, cnpjEmpresa, idVaga, null)
+    }
 
+    @Override
+    void registrarCurtidaEmpresa(String cpfCandidato, String cnpjEmpresa, Integer idVaga, Integer recrutadorId) {
         String sqlInserir = """
-            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga)
-            VALUES (?, ?, ?)
+            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga, recrutador_id)
+            VALUES (?, ?, ?, ?)
             ON CONFLICT DO NOTHING
         """
-        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga])
+        executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga, recrutadorId])
+    }
+
+    @Override
+    boolean registrarCurtidaRecrutador(String cpfCandidato, String cnpjEmpresa, Integer idVaga, Integer recrutadorId) {
+        String sqlInserir = """
+            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga, recrutador_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (cpf_candidato, id_vaga, cnpj_empresa, recrutador_id) DO NOTHING
+        """
+        return executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga, recrutadorId]) > 0
     }
 
     @Override
@@ -75,6 +94,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
             WHERE c.cnpj_empresa = ?
               AND c.cpf_candidato = ?
               AND c.id_vaga = ?
+              AND c.recrutador_id IS NULL -- BLINDAGEM: Não toca nas curtidas dos recrutadores
               AND NOT EXISTS (
                   SELECT 1 FROM match_vaga m
                   WHERE m.cnpj_empresa = c.cnpj_empresa
@@ -99,6 +119,22 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
               )
         """
         return executarUpdate(sqlDeletar, [cpfCandidato, idVaga]) > 0
+    }
+
+    @Override
+    boolean removerCurtidaRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        String sqlDeletar = """
+            DELETE FROM curtida c
+            WHERE c.recrutador_id = ? 
+              AND c.cpf_candidato = ? 
+              AND c.id_vaga = ?
+              AND NOT EXISTS (
+                  SELECT 1 FROM match_vaga m
+                  WHERE m.cpf_candidato = c.cpf_candidato
+                    AND m.id_vaga = c.id_vaga
+              )
+        """
+        return executarUpdate(sqlDeletar, [recrutadorId, cpfCandidato, idVaga]) > 0
     }
 
     @Override
@@ -138,9 +174,9 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     @Override
     List listarStatusCurtidasEmpresa(String cnpj) {
         String sql = """
-            SELECT cpf_candidato, id_vaga, status
+            SELECT cpf_candidato, id_vaga, recrutador_id, status
             FROM (
-                SELECT c.cpf_candidato, c.id_vaga,
+                SELECT c.cpf_candidato, c.id_vaga, c.recrutador_id,
                        CASE WHEN m.id_match IS NULL THEN 'curtido' ELSE 'match' END AS status
                 FROM curtida c
                 LEFT JOIN match_vaga m
@@ -150,7 +186,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
                 WHERE c.cnpj_empresa = ?
                   AND c.id_vaga IS NOT NULL
                 UNION
-                SELECT m.cpf_candidato, m.id_vaga, 'match' AS status
+                SELECT m.cpf_candidato, m.id_vaga, NULL::integer AS recrutador_id, 'match' AS status
                 FROM match_vaga m
                 WHERE m.cnpj_empresa = ?
             ) status_empresa
@@ -172,6 +208,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
                 resultados.add([
                         cpfCandidato: rs.getString("cpf_candidato"),
                         idVaga: rs.getInt("id_vaga"),
+                        recrutadorId: rs.getObject("recrutador_id"),
                         status: rs.getString("status")
                 ])
             }

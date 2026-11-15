@@ -10,6 +10,7 @@ import br.com.zg.acelera.model.Empresa
 import br.com.zg.acelera.model.Vaga
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import br.com.zg.acelera.service.GerenciadorDeVagasService
+import br.com.zg.acelera.service.ValidarCandidatoService
 import spock.lang.Specification
 
 class GerenciadorDePerfisServiceSpec extends Specification {
@@ -38,11 +39,13 @@ class GerenciadorDePerfisServiceSpec extends Specification {
                 matchDAOMock,
                 vagaServiceMock
         )
+        GroovySpy(ValidarCandidatoService, global: true)
+        ValidarCandidatoService.validarNome(_) >> { }
     }
 
     def "deve cadastrar candidato com sucesso"() {
         given:
-        Candidato candidato = new Candidato(nome: "Joao", email: "joao@email.com", cpf: "123.456.789-01", idade: 25, estado: "SP", cep: "12345678", descricao: "Dev")
+        Candidato candidato = new Candidato(nome: "Joao", email: "joao@email.com", cpf: "123.456.789-01", idade: 25, estado: "SP", cep: "12345678", descricao: "Dev", competencias: ["Groovy"])
 
         when:
         service.cadastrarCandidato(candidato)
@@ -54,7 +57,7 @@ class GerenciadorDePerfisServiceSpec extends Specification {
 
     def "deve cadastrar empresa com sucesso"() {
         given:
-        Empresa empresa = new Empresa(nome: "Zup", email: "zup@email.com", cnpj: "12345678901234", pais: "Brasil", estado: "SP", cep: "12345678", descricao: "Tech")
+        Empresa empresa = new Empresa(nome: "Zup", email: "zup@email.com", cnpj: "12345678901234", pais: "Brasil", estado: "SP", cep: "12345678", descricao: "Tech", competencias: ["Groovy"])
 
         when:
         service.cadastrarEmpresa(empresa)

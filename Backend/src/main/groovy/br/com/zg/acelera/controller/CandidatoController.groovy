@@ -4,6 +4,7 @@ import br.com.zg.acelera.model.Candidato
 import br.com.zg.acelera.service.GerenciadorDePerfisService
 import br.com.zg.acelera.utils.ValidacaoUtils
 import br.com.zg.acelera.dao.CompetenciaDAO
+import br.com.zg.acelera.model.Recrutador
 
 class CandidatoController {
 
@@ -32,6 +33,16 @@ class CandidatoController {
             return [status: 200, dados: candidatos]
         } catch (Exception e) {
             return [status: 500, mensagem: "Erro ao listar candidatos: ${e.message}".toString()]
+        }
+    }
+
+    Map listar(Recrutador recrutador) {
+        try {
+            [status: 200, dados: perfilService.listarCandidatosPorArea(recrutador)]
+        } catch (SecurityException e) {
+            [status: 403, mensagem: e.message]
+        } catch (Exception e) {
+            [status: 500, mensagem: "Erro ao listar candidatos: ${e.message}".toString()]
         }
     }
 
