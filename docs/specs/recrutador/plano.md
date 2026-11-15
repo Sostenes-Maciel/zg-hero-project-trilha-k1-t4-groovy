@@ -298,7 +298,7 @@ Estas regras são inquebráveis para toda implementação futura:
 - **Critério de conclusão:** As telas de perfil e Match exibem exatamente os
   dados permitidos em cada estado, liberam contato somente após Match
   autorizado e escapam conteúdo sem expor dados sensíveis.
-- **Status:** [ ] Pendente
+- **Status:** [ ] Abortado
 
 ## Tarefa 9: Front-end - Correção de anonimato nas listagens legadas
 
@@ -336,7 +336,7 @@ Estas regras são inquebráveis para toda implementação futura:
 - **Critério de conclusão:** As listagens legadas não expõem dados
   identificáveis antes do Match, todas as entradas são escapadas e nenhuma
   rota visual ou estado local contorna o anonimato.
-- **Status:** [ ] Pendente
+- **Status:** [ ] Abortado
 
 ## Validação final
 

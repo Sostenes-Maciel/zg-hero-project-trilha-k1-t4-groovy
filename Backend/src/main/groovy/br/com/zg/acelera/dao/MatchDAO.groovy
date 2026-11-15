@@ -217,13 +217,21 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
         String sql = """
         SELECT 
             m.id_match, 
-            m.cpf_candidato,
+            m.cpf_candidato, 
             m.id_vaga, 
-            c.nome AS nome_candidato, 
+            
+            -- 1. Nome do Candidato + Local (caso o frontend leia do candidato)
+            c.nome AS nome_candidato,
+            c.pais AS pais_candidato,
+            c.estado AS estado_candidato,
+            
             e.nome AS nome_empresa, 
+            
+            -- 2. Nome da Vaga + Local (caso o frontend leia da vaga)
             v.titulo AS titulo_vaga, 
             v.pais AS pais_vaga, 
             v.estado AS estado_vaga,
+            
             r.nome AS nome_recrutador,
             (
                 SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
@@ -232,7 +240,6 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
                 WHERE cc.cpf_candidato = m.cpf_candidato
             ) AS competencias_candidato
         FROM match_vaga m
-        -- O JOIN com curtida garante que vamos trazer apenas os matches onde ESTE recrutador deu o like
         JOIN curtida cu ON m.cpf_candidato = cu.cpf_candidato 
                        AND m.cnpj_empresa = cu.cnpj_empresa 
                        AND (m.id_vaga = cu.id_vaga OR (m.id_vaga IS NULL AND cu.id_vaga IS NULL))

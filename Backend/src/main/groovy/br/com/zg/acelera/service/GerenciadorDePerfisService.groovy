@@ -411,39 +411,47 @@ class GerenciadorDePerfisService {
         def matchesFlat = matchDAO.listarMatchesDoRecrutador(recrutadorId)
         def pendentesFlat = matchDAO.listarCurtidasPendentesDoRecrutador(recrutadorId)
 
-        // 1. MATCH CONFIRMADO
         def matchesFormatados = matchesFlat.collect { Map item ->
             [
                     id_match: item['id_match'],
                     candidato: [
-                            // Sem truques e sem falhas de formatação: pegamos o CPF e Nome direto do banco, igual fizemos na Empresa!
                             cpf: item['cpf_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['cpf'] : item['cpf']),
+
                             nome: item['nome_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['nome'] : item['nome']),
+
+                            pais: item['pais_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['pais'] : null),
+                            estado: item['estado_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['estado'] : null),
+
                             competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
                     ],
                     empresa: [
                             nome: item['nome_empresa'] ?: item['empresa_nome'] ?: item['nome']
                     ],
                     vaga: [
-                            id: item['id_vaga'],
-                            titulo: item['titulo_vaga'] ?: item['titulo'],
-                            pais: item['pais_vaga'] ?: item['pais'],
-                            estado: item['estado_vaga'] ?: item['estado']
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+
+                            // DADO 2: Nome da Vaga (mandamos como titulo e nome para garantir)
+                            titulo: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            nome: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['nome'] : null),
+
+                            // DADO 3: Local (País/Estado) da Vaga
+                            pais: item['pais_vaga'] ?: item['pais'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: item['estado'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
                     ]
             ]
         }
 
-        // 2. CURTIDA PENDENTE
         def pendentesFormatadas = pendentesFlat.collect { Map item ->
             [
                     candidato: [
                             competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
                     ],
                     vaga: [
-                            id: item['id_vaga'],
-                            titulo: item['titulo_vaga'] ?: item['titulo'],
-                            pais: item['pais_vaga'] ?: item['pais'],
-                            estado: item['estado_vaga'] ?: item['estado']
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            nome: item['titulo_vaga'] ?: item['titulo'] ?: (item['vaga'] instanceof Map ? item['vaga']['nome'] : null),
+                            pais: item['pais_vaga'] ?: item['pais'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: item['estado'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
                     ]
             ]
         }

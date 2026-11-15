@@ -45,8 +45,11 @@ e este projeto segue o versionamento semântico.
 - Telas próprias do Recrutador para vagas, candidatos e matches, com escopo
   por área/empresa, controles de edição por permissão e deduplicação de
   matches por candidato, empresa e vaga.
+- **Implementação de logout automático por inatividade (30 minutos), com script de vigilância no frontend (`index.html`) limpando o armazenamento local, sincronizado com a expiração de sessão `HttpSession` no backend (via Servlet/`web.xml`).**
 
 ### Modificado
+
+- **Refatoração dos métodos `listarMatchesCompletosEmpresa` e `listarMatchesCompletosRecrutador` no `GerenciadorDePerfisService` para mapeamento seguro de dados usando operadores de fallback (`?:`), garantindo compatibilidade com estruturas de dados planas e aninhadas vindas do banco de dados.**
 
 ### Corrigido
 
@@ -77,5 +80,13 @@ e este projeto segue o versionamento semântico.
   manter a renderização e as ações de candidatos estáveis.
 - Testes legados de `GerenciadorDePerfisService` ajustados para refletir as
   validações de competências e isolar a validação de nomes.
+- **Correção de falha na consolidação de Matches causada por divergência de formatação de CNPJ (com e sem máscara), aplicando sanitização (`ValidacaoUtils.limparFormatacao`) nos métodos `curtirVaga` e `curtirCandidato` da camada de serviço.**
+- **Resolução de `NullPointerException` (Erro 500) no `MatchServlet` durante a ação de curtida da Empresa, ocasionado pela ausência da chamada ao `matchController` correspondente.**
+- **Proteção da query em `CurtidaDAO.removerCurtidaEmpresa` (`recrutador_id IS NULL`), impedindo que a remoção de curtidas da Matriz excluísse acidentalmente as ações realizadas por seus Recrutadores.**
+- **Correção da exibição do nome do Candidato (substituindo o texto genérico) nos cards e tabelas de Match Confirmado para o Recrutador, adicionando a projeção de `m.cpf_candidato` na query SQL de listagem.**
+- **Correção da exibição do autor da curtida no painel de Matches da Empresa Matriz; injetando o nome real da Empresa (buscado ativamente no banco) nos cards sempre que a ação não for de um Recrutador.**
 
 ### Removido
+
+#### Tarefa 8: Front-end - Telas de Match e Perfil
+#### Tarefa 9: Front-end - Correção de anonimato nas listagens legadas
