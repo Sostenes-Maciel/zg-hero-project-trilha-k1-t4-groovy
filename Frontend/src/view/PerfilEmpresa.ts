@@ -242,6 +242,7 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
     candidatos.forEach((candidato) => {
         const linha = document.createElement('tr')
         linha.dataset.competencias = candidato.competencias.join(' ').toLowerCase()
+        linha.dataset.nomeReal = candidato.nome
 
         const cpfLimpo = candidato.cpf?.replace(/\D/g, '') ?? ''
         const statusCandidato = statusMatches.filter(s =>
@@ -323,6 +324,17 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
             atualizarBotaoCurtida(botao, status)
             botao.dataset.idVaga = seletorVaga.value
             botao.disabled = status === 'match' || !seletorVaga.value
+
+            const linha = botao.closest('tr')
+            const celulaNome = linha?.querySelector<HTMLTableCellElement>('.coluna-candidato')
+
+            if (linha && celulaNome) {
+                if (status === 'match') {
+                    celulaNome.textContent = linha.dataset.nomeReal || 'Candidato Oculto'
+                } else {
+                    celulaNome.textContent = 'Match necessário para visualização'
+                }
+            }
         })
 
         botao.addEventListener('click', async (e) => {
@@ -369,11 +381,14 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
                     }
                     if (deuMatch) {
                         mostrarAnimacaoMatch()
-                        const celulaNome = botao.closest('tr')?.querySelector<HTMLTableCellElement>('.coluna-candidato')
+                        const linha = botao.closest('tr') // Pega a linha
+                        const celulaNome = linha?.querySelector<HTMLTableCellElement>('.coluna-candidato')
+
 
                         // Pega o nome real diretamente do backend!
                         if (celulaNome && resultado.nomeRevelado) {
                             celulaNome.textContent = resultado.nomeRevelado
+                            if (linha) linha.dataset.nomeReal = resultado.nomeRevelado
                         }
                     }
                 } else {
