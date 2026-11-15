@@ -213,4 +213,97 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
 
         return false
     }
+    List listarMatchesDoRecrutador(Integer recrutadorId) {
+        String sql = """
+        SELECT 
+            m.id_match, 
+            m.id_vaga, 
+            c.nome AS nome_candidato, 
+            e.nome AS nome_empresa, 
+            v.titulo AS titulo_vaga, 
+            v.pais AS pais_vaga, 
+            v.estado AS estado_vaga,
+            r.nome AS nome_recrutador,
+            (
+                SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
+                FROM candidato_competencia cc
+                JOIN competencia comp ON comp.id_competencia = cc.id_competencia
+                WHERE cc.cpf_candidato = m.cpf_candidato
+            ) AS competencias_candidato
+        FROM match_vaga m
+        -- O JOIN com curtida garante que vamos trazer apenas os matches onde ESTE recrutador deu o like
+        JOIN curtida cu ON m.cpf_candidato = cu.cpf_candidato 
+                       AND m.cnpj_empresa = cu.cnpj_empresa 
+                       AND (m.id_vaga = cu.id_vaga OR (m.id_vaga IS NULL AND cu.id_vaga IS NULL))
+        JOIN candidato c ON c.cpf = m.cpf_candidato
+        JOIN empresa e ON e.cnpj = m.cnpj_empresa
+        LEFT JOIN vaga v ON v.id_vaga = m.id_vaga
+        JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
+        WHERE cu.recrutador_id = ?
+        """
+
+        return executarQuery(sql, [recrutadorId])
+    }
+
+    List listarCurtidasPendentesDoRecrutador(Integer recrutadorId) {
+        String sql = """
+        SELECT 
+            0 AS id_match, 
+            cu.id_vaga, 
+            NULL::text AS nome_candidato, 
+            NULL::text AS nome_empresa, 
+            v.titulo AS titulo_vaga, 
+            v.pais AS pais_vaga, 
+            v.estado AS estado_vaga,
+            r.nome AS nome_recrutador,
+            (
+                SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
+                FROM candidato_competencia cc
+                JOIN competencia comp ON comp.id_competencia = cc.id_competencia
+                WHERE cc.cpf_candidato = cu.cpf_candidato
+            ) AS competencias_candidato
+        FROM curtida cu
+        LEFT JOIN vaga v ON v.id_vaga = cu.id_vaga
+        LEFT JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
+        -- A MUDANÇA PRINCIPAL AQUI: Filtramos pelo ID do Recrutador em vez do CNPJ
+        WHERE cu.recrutador_id = ?
+          AND cu.id_vaga IS NOT NULL
+          AND NOT EXISTS (
+              SELECT 1 
+              FROM match_vaga m 
+              WHERE m.cnpj_empresa = cu.cnpj_empresa 
+                AND m.cpf_candidato = cu.cpf_candidato 
+                AND m.id_vaga = cu.id_vaga
+          )
+        UNION ALL
+        SELECT 
+            0 AS id_match, 
+            NULL::integer AS id_vaga, 
+            NULL::text AS nome_candidato, 
+            NULL::text AS nome_empresa, 
+            NULL::text AS titulo_vaga, 
+            NULL::text AS pais_vaga, 
+            NULL::text AS estado_vaga,
+            r.nome AS nome_recrutador,
+            (
+                SELECT ARRAY_AGG(DISTINCT comp.nome ORDER BY comp.nome)
+                FROM candidato_competencia cc
+                JOIN competencia comp ON comp.id_competencia = cc.id_competencia
+                WHERE cc.cpf_candidato = cu.cpf_candidato
+            ) AS competencias_candidato
+        FROM curtida cu
+        LEFT JOIN recrutador r ON r.id_recrutador = cu.recrutador_id
+        WHERE cu.recrutador_id = ?
+          AND cu.id_vaga IS NULL
+          AND NOT EXISTS (
+              SELECT 1 
+              FROM match_vaga m 
+              WHERE m.cnpj_empresa = cu.cnpj_empresa 
+                AND m.cpf_candidato = cu.cpf_candidato
+          )
+        """
+
+        // Passamos a variável recrutadorId duas vezes por causa do UNION ALL
+        return executarQuery(sql, [recrutadorId, recrutadorId])
+    }
 }

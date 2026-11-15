@@ -7,16 +7,18 @@ export async function renderListaMatchesRecrutador(recrutador: RecrutadorSessao)
     if (!app) return
     app.innerHTML = '<section class="lista-matches tela-com-transicao"><h2>Carregando matches...</h2></section>'
     try {
-        const resposta = await fetch(`http://localhost:8080/api/matches?cnpj=${encodeURIComponent(recrutador.empresaId.replace(/\D/g, ''))}&completo=true`)
+        const resposta = await fetch(`http://localhost:8080/api/matches?idRecrutador=${recrutador.id}&completo=true`)
         if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
         const dados = await resposta.json() as { matches?: Match[]; curtidasPendentes?: Curtida[] }
         const matches = deduplicarMatches(dados.matches ?? [])
         const pendentes = deduplicarCurtidas(dados.curtidasPendentes ?? [])
+
+
         app.innerHTML = `
             <section class="lista-matches lista-matches-recrutador tela-com-transicao">
-                <h1>Matches da minha empresa</h1>
-                <h2>Curtidas aguardando Match</h2>${renderPendentes(pendentes)}
-                <h2>Matches confirmados</h2>${renderMatches(matches)}
+                <h1>Meus Matches</h1>
+                <h2>Minhas Curtidas Aguardando Match</h2>${renderPendentes(pendentes)}
+                <h2>Meus Matches Confirmados</h2>${renderMatches(matches)}
             </section>
         `
     } catch (erro) {
@@ -27,8 +29,10 @@ export async function renderListaMatchesRecrutador(recrutador: RecrutadorSessao)
 
 function deduplicarMatches(matches: Match[]): Match[] {
     const vistos = new Set<string>()
-    return matches.filter(match => {
-        const chave = `${match.candidato?.cpf ?? ''}|${match.empresa?.cnpj ?? ''}|${match.vaga?.id ?? ''}`
+    return matches.filter((match, index) => {
+        const cpf = match.candidato?.cpf ?? `anonimo-${index}`
+        const chave = `${cpf}|${match.empresa?.cnpj ?? ''}|${match.vaga?.id ?? ''}`
+
         if (vistos.has(chave)) return false
         vistos.add(chave)
         return true
@@ -37,8 +41,10 @@ function deduplicarMatches(matches: Match[]): Match[] {
 
 function deduplicarCurtidas(curtidas: Curtida[]): Curtida[] {
     const vistos = new Set<string>()
-    return curtidas.filter(curtida => {
-        const chave = `${curtida.candidato?.cpf ?? ''}|${curtida.empresa?.cnpj ?? ''}|${curtida.vaga?.id ?? ''}`
+    return curtidas.filter((curtida, index) => {
+        const cpf = curtida.candidato?.cpf ?? `anonimo-${index}`
+        const chave = `${cpf}|${curtida.empresa?.cnpj ?? ''}|${curtida.vaga?.id ?? ''}`
+
         if (vistos.has(chave)) return false
         vistos.add(chave)
         return true

@@ -118,6 +118,7 @@ class MatchServlet extends HttpServlet {
         try {
             String cpfParam = req.getParameter("cpf")
             String cnpjParam = req.getParameter("cnpj")
+            String idRecrutadorParam = req.getParameter("idRecrutador") // <-- 1. CAPTURAMOS O ID DO RECRUTADOR AQUI
             String completoParam = req.getParameter("completo")
             Map resultado
 
@@ -127,9 +128,13 @@ class MatchServlet extends HttpServlet {
                 } else {
                     resultado = matchController.listarMatchesCandidato(cpfParam)
                 }
-            } else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
+            }
+            else if (idRecrutadorParam != null && !idRecrutadorParam.trim().isEmpty()) {
+                resultado = matchController.listarMatchesCompletosRecrutador(idRecrutadorParam)
+            }
+            else if (cnpjParam != null && !cnpjParam.trim().isEmpty()) {
                 if ("true".equals(completoParam)) {
-                    resultado = matchController.listarMatchesCompletosEmpresa(cnpjParam) // <-- Adicionado aqui!
+                    resultado = matchController.listarMatchesCompletosEmpresa(cnpjParam)
                 } else {
                     resultado = matchController.listarMatchesEmpresa(cnpjParam)
                 }

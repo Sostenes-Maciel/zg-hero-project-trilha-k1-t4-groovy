@@ -377,4 +377,46 @@ class GerenciadorDePerfisService {
                 curtidasPendentes: pendentesFormatadas
         ]
     }
+    Map listarMatchesCompletosRecrutador(Integer recrutadorId) {
+        def matchesFlat = matchDAO.listarMatchesDoRecrutador(recrutadorId)
+        def pendentesFlat = matchDAO.listarCurtidasPendentesDoRecrutador(recrutadorId)
+
+        def matchesFormatados = matchesFlat.collect { Map item ->
+            [
+                    id_match: item['id_match'],
+                    candidato: [
+                            nome: item['nome_candidato'],
+                            competencias: item['competencias_candidato']
+                    ],
+                    empresa: [
+                            nome: item['nome_empresa']
+                    ],
+                    vaga: [
+                            id: item['id_vaga'],
+                            titulo: item['titulo_vaga'],
+                            pais: item['pais_vaga'],
+                            estado: item['estado_vaga']
+                    ]
+            ]
+        }
+
+        def pendentesFormatadas = pendentesFlat.collect { Map item ->
+            [
+                    candidato: [
+                            competencias: item['competencias_candidato'] ?: []
+                    ],
+                    vaga: [
+                            id: item['id_vaga'],
+                            titulo: item['titulo_vaga'],
+                            pais: item['pais_vaga'],
+                            estado: item['estado_vaga']
+                    ]
+            ]
+        }
+
+        return [
+                matches: matchesFormatados,
+                curtidasPendentes: pendentesFormatadas
+        ]
+    }
 }

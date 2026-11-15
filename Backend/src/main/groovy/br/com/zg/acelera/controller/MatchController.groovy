@@ -161,4 +161,15 @@ class MatchController {
             return [status: 500, mensagem: "Erro: ${e.message}"]
         }
     }
+    Map listarMatchesCompletosRecrutador(String idRecrutadorStr) {
+        try {
+            Integer idRec = idRecrutadorStr.toDouble().toInteger()
+
+            def resultado = perfilService.listarMatchesCompletosRecrutador(idRec)
+
+            return [status: 200, matches: resultado.matches, curtidasPendentes: resultado.curtidasPendentes]
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao buscar matches do recrutador: ${e.message}"]
+        }
+    }
 }
