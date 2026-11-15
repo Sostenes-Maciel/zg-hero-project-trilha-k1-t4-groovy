@@ -7,10 +7,12 @@ import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.CurtidaDAO
 import br.com.zg.acelera.dao.EmpresaDAO
 import br.com.zg.acelera.dao.MatchDAO
+import br.com.zg.acelera.dao.RecrutadorDAO
 import br.com.zg.acelera.dao.VagaDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.service.GerenciadorDeMatchesService
 import br.com.zg.acelera.service.GerenciadorDePerfisService
+import br.com.zg.acelera.service.GerenciadorDeRecrutadoresService
 import br.com.zg.acelera.service.GerenciadorDeVagasService
 import com.google.gson.Gson
 import jakarta.servlet.annotation.WebServlet
@@ -35,8 +37,12 @@ class MatchServlet extends HttpServlet {
         def matchDAO = new MatchDAO(conexao)
         def vagaDAO = new VagaDAO(conexao)
 
-        def gerenciadorDeVagas = new GerenciadorDeVagasService(vagaDAO, competenciaDAO)
+        // 1. FALTAVA INSTANCIAR O DAO DO RECRUTADOR AQUI:
+        def recrutadorDAO = new RecrutadorDAO(conexao)
 
+        def recrutadorService = new GerenciadorDeRecrutadoresService(recrutadorDAO, empresaDAO)
+
+        def gerenciadorDeVagas = new GerenciadorDeVagasService(vagaDAO, competenciaDAO)
         def matchService = new GerenciadorDeMatchesService(matchDAO)
 
         def perfilService = new GerenciadorDePerfisService(
@@ -48,9 +54,14 @@ class MatchServlet extends HttpServlet {
                 gerenciadorDeVagas
         )
 
+        // 2. PASSANDO O RECRUTADOR SERVICE COMO O 4º PARÂMETRO DO CONTROLLER:
+        this.matchController = new MatchController(
+                matchService,
+                perfilService,
+                gerenciadorDeVagas,
+                recrutadorService
+        )
 
-
-        this.matchController = new MatchController(matchService, perfilService, gerenciadorDeVagas)
         this.gson = new Gson()
     }
 
@@ -107,11 +118,11 @@ class MatchServlet extends HttpServlet {
         try {
             String cpfParam = req.getParameter("cpf")
             String cnpjParam = req.getParameter("cnpj")
-            String completoParam = req.getParameter("completo") // Lê o &completo=true da URL
+            String completoParam = req.getParameter("completo")
             Map resultado
 
             if (cpfParam != null && !cpfParam.trim().isEmpty()) {
-                if ("true".equals(completoParam)) {
+                if ("true" == completoParam) {
                     resultado = matchController.listarMatchesCompletosCandidato(cpfParam)
                 } else {
                     resultado = matchController.listarMatchesCandidato(cpfParam)
@@ -179,6 +190,13 @@ class MatchServlet extends HttpServlet {
                         ? payload.idVaga.toString().toDouble().toInteger()
                         : null
                 resultado = matchController.removerCurtidaEmpresa(cnpj, cpf, idVaga)
+
+            } else if (autor == "RECRUTADOR") {
+                String idRecrutador = payload.idRecrutador
+                String cpf = payload.cpfCandidato
+                Integer idVaga = payload.idVaga != null ? payload.idVaga.toString().toDouble().toInteger() : null
+
+                resultado = matchController.removerCurtidaRecrutador(idRecrutador, cpf, idVaga)
 
             } else if (autor == "CANDIDATO") {
                 String cpf = payload.cpfCandidato

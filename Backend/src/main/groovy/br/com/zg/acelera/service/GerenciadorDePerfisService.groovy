@@ -340,6 +340,13 @@ class GerenciadorDePerfisService {
                 curtidasPendentes: pendentesFormatadas
         ]
     }
+    boolean removerCurtidaRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        if (!recrutadorId || !cpfCandidato || !idVaga) {
+            return false
+        }
+        return curtidaDAO.removerCurtidaRecrutador(recrutadorId, cpfCandidato, idVaga)
+    }
     Map listarMatchesCompletosEmpresa(String cnpj) {
         def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
         def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)

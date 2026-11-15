@@ -4,11 +4,12 @@ import type { Vaga } from '../model/Vaga.ts'
 import { calcularAfinidadePorCompetencias } from '../service/CalcularAfinidade.ts'
 import { mostrarAnimacaoMatch } from './AnimacaoMatch.ts'
 
-// 1. Tipagem para a memória de status
+// 1. Tipagem para a memória de status (Adicionado o recrutadorId)
 interface StatusMatch {
     cpfCandidato: string
     idVaga: number
     status: 'curtido' | 'match'
+    recrutadorId?: number
 }
 
 export async function renderListaCandidatosRecrutador(recrutador: RecrutadorSessao): Promise<void> {
@@ -39,12 +40,25 @@ export async function renderListaCandidatosRecrutador(recrutador: RecrutadorSess
 
         const payloadCandidatos = await resCandidatos.json()
         const payloadVagas = await resVagas.json()
-        // Pega o status, se a rota falhar por algum motivo, inicia como array vazio
         const payloadStatus = resStatus.ok ? await resStatus.json() : []
 
         const candidatos: Candidato[] = Array.isArray(payloadCandidatos) ? payloadCandidatos : payloadCandidatos.dados ?? []
         const vagasBrutas: Vaga[] = Array.isArray(payloadVagas) ? payloadVagas : payloadVagas.dados ?? []
-        const statusMatches: StatusMatch[] = Array.isArray(payloadStatus) ? payloadStatus : payloadStatus.dados ?? []
+
+        // =========================================================================
+        // O ESCUDO DE ISOLAMENTO VISUAL
+        // =========================================================================
+        const todasCurtidas: any[] = Array.isArray(payloadStatus) ? payloadStatus : payloadStatus.dados ?? []
+        const idRecrutadorLogado = Number(recrutador.id)
+
+        const statusMatches: StatusMatch[] = todasCurtidas.filter(s => {
+            // Se a vaga já fechou (Match), aparece para todos os recrutadores da empresa
+            if (s.status === 'match') return true;
+
+            // Se for só uma curtida, verifica se foi ESSE recrutador que curtiu
+            return s.recrutadorId !== null && Number(s.recrutadorId) === idRecrutadorLogado;
+        })
+        // =========================================================================
 
         const areaRecrutador = (recrutador.areaAtuacao || '').trim().toLowerCase()
         const vagas = vagasBrutas.filter(v => (v as any).areaAtuacao?.trim().toLowerCase() === areaRecrutador)
@@ -105,9 +119,6 @@ function configurarBotoesCurtir(recrutador: RecrutadorSessao, statusMatches: Sta
         const seletor = linha?.querySelector<HTMLSelectElement>('.select-vaga-curtir')
         const cpfCandidato = botao.dataset.cpf ?? ''
 
-        // =========================================================
-        // EVENTO 1: SELETOR DE VAGAS (Busca na memória)
-        // =========================================================
         seletor?.addEventListener('change', () => {
             const idVagaSelecionada = Number(seletor.value)
 
@@ -147,9 +158,6 @@ function configurarBotoesCurtir(recrutador: RecrutadorSessao, statusMatches: Sta
             }
         })
 
-        // =========================================================
-        // EVENTO 2: CLIQUE NO CORAÇÃO (Grava no banco e atualiza memória)
-        // =========================================================
         botao.addEventListener('click', async (e) => {
             e.preventDefault()
             const idVaga = Number(seletor?.value)
@@ -182,7 +190,6 @@ function configurarBotoesCurtir(recrutador: RecrutadorSessao, statusMatches: Sta
                 })
 
                 if (resposta.ok) {
-                    // ATUALIZA A MEMÓRIA LOCAL PARA NÃO PRECISAR DO F5
                     const indexMemoria = statusMatches.findIndex(s => s.cpfCandidato.replace(/\D/g, '') === cpfCandidato && s.idVaga === idVaga)
 
                     if (jaCurtido) {
@@ -211,7 +218,12 @@ function configurarBotoesCurtir(recrutador: RecrutadorSessao, statusMatches: Sta
                         if (indexMemoria !== -1) {
                             statusMatches[indexMemoria].status = novoStatus
                         } else {
-                            statusMatches.push({ cpfCandidato: cpfCandidato, idVaga: idVaga, status: novoStatus })
+                            statusMatches.push({
+                                cpfCandidato: cpfCandidato,
+                                idVaga: idVaga,
+                                status: novoStatus,
+                                recrutadorId: Number(recrutador.id)
+                            })
                         }
 
                         if (deuMatch) {

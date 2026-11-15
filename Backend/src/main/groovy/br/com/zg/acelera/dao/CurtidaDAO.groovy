@@ -111,6 +111,22 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
+    boolean removerCurtidaRecrutador(Integer recrutadorId, String cpfCandidato, Integer idVaga) {
+        String sqlDeletar = """
+            DELETE FROM curtida c
+            WHERE c.recrutador_id = ? 
+              AND c.cpf_candidato = ? 
+              AND c.id_vaga = ?
+              AND NOT EXISTS (
+                  SELECT 1 FROM match_vaga m
+                  WHERE m.cpf_candidato = c.cpf_candidato
+                    AND m.id_vaga = c.id_vaga
+              )
+        """
+        return executarUpdate(sqlDeletar, [recrutadorId, cpfCandidato, idVaga]) > 0
+    }
+
+    @Override
     List listarStatusCurtidas(String cpf) {
         String sql = """
             SELECT c.id_vaga,
