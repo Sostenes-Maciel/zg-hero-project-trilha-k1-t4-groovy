@@ -81,9 +81,16 @@ class MatchServlet extends HttpServlet {
                         ? payload.idVaga.toString().toDouble().toInteger()
                         : null
 
-                resultado = matchController.curtirCandidato(cnpj, cpf, idVaga)
+            } else if (autor == "RECRUTADOR") {
+                String idRecrutador = payload.idRecrutador
+                String cnpj = payload.cnpjEmpresa
+                String cpf = payload.cpfCandidato
+                Integer idVaga = payload.idVaga != null ? payload.idVaga.toString().toDouble().toInteger() : null
+
+                resultado = matchController.curtirCandidatoPorRecrutador(idRecrutador, cnpj, cpf, idVaga)
+
             } else {
-                resultado = [status: 400, mensagem: "Autor inválido. Informe 'CANDIDATO' ou 'EMPRESA' no JSON."]
+                resultado = [status: 400, mensagem: "Autor inválido. Informe 'CANDIDATO', 'EMPRESA' ou 'RECRUTADOR' no JSON."]
             }
 
             enviarResposta(resp, resultado)
@@ -176,13 +183,23 @@ class MatchServlet extends HttpServlet {
             } else if (autor == "CANDIDATO") {
                 String cpf = payload.cpfCandidato
 
-                // Blindagem: Garante que o ID será um número inteiro perfeito, independente de como o Gson leu
                 Integer idVaga = null
                 if (payload.idVaga != null) {
                     idVaga = payload.idVaga.toString().toDouble().toInteger()
                 }
 
                 resultado = matchController.removerCurtidaCandidato(cpf, idVaga)
+
+            } else if (autor == "EMPRESA" || autor == "RECRUTADOR") {
+                String cnpj = payload.cnpjEmpresa
+                String cpf = payload.cpfCandidato
+                Integer idVaga = null
+                if (payload.idVaga != null) {
+                    idVaga = payload.idVaga.toString().toDouble().toInteger()
+                }
+
+                resultado = matchController.removerCurtidaEmpresa(cnpj, cpf, idVaga)
+
             } else {
                 resultado = [status: 400, mensagem: "Autor inválido."]
             }

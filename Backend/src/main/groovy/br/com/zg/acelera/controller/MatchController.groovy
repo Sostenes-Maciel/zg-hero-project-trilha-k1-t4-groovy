@@ -69,6 +69,27 @@ class MatchController {
         }
     }
 
+    Map curtirCandidatoPorRecrutador(String idRecrutadorStr, String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
+        try {
+
+
+            boolean deuMatch = perfilService.curtirCandidato(cnpjEmpresa, cpfCandidato, idVaga)
+            String msg = deuMatch ? "MATCH ENCONTRADO PELO RECRUTADOR!" : "Candidato curtido com sucesso!"
+
+            Map resposta = [status: 201, mensagem: msg, match: deuMatch]
+
+            if (deuMatch) {
+                def candidato = perfilService.buscarCandidatoPorCpf(cpfCandidato)
+                if (candidato != null) {
+                    resposta.nomeRevelado = candidato.nome
+                }
+            }
+            return resposta
+        } catch (Exception e) {
+            return [status: 500, mensagem: "Erro ao registrar curtida do recrutador: ${e.message}"]
+        }
+    }
+
     Map listarMatchesCandidato(String cpf) {
         try {
             // Agora pegamos a lista perfeitamente formatada
@@ -89,7 +110,6 @@ class MatchController {
     }
     Map removerCurtidaEmpresa(String cnpj, String cpf, Integer idVaga) {
         try {
-            // Repassa para a regra de negócio no Service
             boolean sucesso = perfilService.removerCurtidaEmpresa(cnpj, cpf, idVaga)
 
             if (sucesso) {
