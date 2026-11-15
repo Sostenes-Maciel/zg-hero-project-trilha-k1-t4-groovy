@@ -32,6 +32,7 @@ class GerenciadorDePerfisService {
     }
 
     void cadastrarCandidato(Candidato candidato) {
+        ValidacaoUtils.validarCompetencias(candidato.competencias)
         ValidarCandidatoService.validarNome(candidato.nome)
         ValidarCandidatoService.validarEmail(candidato.email)
         ValidarCandidatoService.validarCpf(candidato.cpf)
@@ -52,6 +53,7 @@ class GerenciadorDePerfisService {
     }
 
     void cadastrarEmpresa(Empresa empresa) {
+        ValidacaoUtils.validarCompetencias(empresa.competencias)
         ValidarEmpresaService.validarNome(empresa.nome)
         ValidarEmpresaService.validarEmail(empresa.email)
         ValidarEmpresaService.validarCnpj(empresa.cnpj)
@@ -223,6 +225,7 @@ class GerenciadorDePerfisService {
         if (vagaCompleta == null) {
             throw new IllegalStateException("Vaga não encontrada com o ID informado.")
         }
+        String cnpjLimpo = ValidacaoUtils.limparFormatacao(vagaCompleta.empresa.cnpj)
 
         if (curtidaDAO.jaCurtiuVaga(cpfCandidato, idVaga)) {
             if (matchDAO.existeMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)) {
@@ -235,11 +238,12 @@ class GerenciadorDePerfisService {
         }
 
         curtidaDAO.registrarCurtidaCandidato(cpfCandidato, idVaga)
-        return processarPossivelMatch(cpfCandidato, vagaCompleta.empresa.cnpj, idVaga)
+        return processarPossivelMatch(cpfCandidato, cnpjLimpo, idVaga)
     }
 
     boolean curtirCandidato(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
         cpfCandidato = ValidacaoUtils.limparFormatacao(cpfCandidato)
+        cnpjEmpresa = ValidacaoUtils.limparFormatacao(cnpjEmpresa)
         if (idVaga == null) {
             throw new IllegalArgumentException("Selecione uma vaga para curtir o candidato.")
         }
@@ -353,27 +357,53 @@ class GerenciadorDePerfisService {
         def matchesReais = matchDAO.listarMatchesDaEmpresa(cnpj)
         def pendentes = matchDAO.listarCurtidasPendentesDaEmpresa(cnpj)
 
-        def pendentesFormatadas = pendentes.collect { item ->
-            Map candidato = item['candidato'] as Map
-            Map vaga = item['vaga'] as Map
+        def empresaReal = buscarEmpresaPorCnpj(cnpj)
+        String nomeDaEmpresaReal = empresaReal != null ? empresaReal.nome : "Empresa"
+
+        def matchesFormatados = matchesReais.collect { item ->
+            String recNome = item['nome_recrutador'] ?: item['recrutador_nome'] ?: (item['recrutador'] instanceof Map ? item['recrutador']['nome'] : null)
 
             [
-                    // A identidade só é liberada em matches reais.
-                    candidato: [competencias: candidato?.competencias ?: []],
+                    id_match: item['id_match'],
+                    candidato: [
+                            cpf: item['cpf_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['cpf'] : null),
+                            nome: item['nome_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['nome'] : null),
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
+                    ],
                     vaga: [
-                            id: vaga?.id,
-                            titulo: vaga?.titulo,
-                            pais: vaga?.pais,
-                            estado: vaga?.estado
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            pais: item['pais_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
                     ],
                     recrutador: [
-                            nome: (item['recrutador'] as Map)?.nome
+                            nome: recNome ?: nomeDaEmpresaReal
+                    ]
+            ]
+        }
+
+        def pendentesFormatadas = pendentes.collect { item ->
+            String recNome = item['nome_recrutador'] ?: item['recrutador_nome'] ?: (item['recrutador'] instanceof Map ? item['recrutador']['nome'] : null)
+
+            [
+                    candidato: [
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
+                    ],
+                    vaga: [
+                            id: item['id_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['id'] : null),
+                            titulo: item['titulo_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['titulo'] : null),
+                            pais: item['pais_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['pais'] : null),
+                            estado: item['estado_vaga'] ?: (item['vaga'] instanceof Map ? item['vaga']['estado'] : null)
+                    ],
+                    recrutador: [
+                            // Injeta o nome real da Empresa também nas curtidas pendentes
+                            nome: recNome ?: nomeDaEmpresaReal
                     ]
             ]
         }
 
         return [
-                matches: matchesReais,
+                matches: matchesFormatados,
                 curtidasPendentes: pendentesFormatadas
         ]
     }
@@ -381,35 +411,39 @@ class GerenciadorDePerfisService {
         def matchesFlat = matchDAO.listarMatchesDoRecrutador(recrutadorId)
         def pendentesFlat = matchDAO.listarCurtidasPendentesDoRecrutador(recrutadorId)
 
+        // 1. MATCH CONFIRMADO
         def matchesFormatados = matchesFlat.collect { Map item ->
             [
                     id_match: item['id_match'],
                     candidato: [
-                            nome: item['nome_candidato'],
-                            competencias: item['competencias_candidato']
+                            // Sem truques e sem falhas de formatação: pegamos o CPF e Nome direto do banco, igual fizemos na Empresa!
+                            cpf: item['cpf_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['cpf'] : item['cpf']),
+                            nome: item['nome_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['nome'] : item['nome']),
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
                     ],
                     empresa: [
-                            nome: item['nome_empresa']
+                            nome: item['nome_empresa'] ?: item['empresa_nome'] ?: item['nome']
                     ],
                     vaga: [
                             id: item['id_vaga'],
-                            titulo: item['titulo_vaga'],
-                            pais: item['pais_vaga'],
-                            estado: item['estado_vaga']
+                            titulo: item['titulo_vaga'] ?: item['titulo'],
+                            pais: item['pais_vaga'] ?: item['pais'],
+                            estado: item['estado_vaga'] ?: item['estado']
                     ]
             ]
         }
 
+        // 2. CURTIDA PENDENTE
         def pendentesFormatadas = pendentesFlat.collect { Map item ->
             [
                     candidato: [
-                            competencias: item['competencias_candidato'] ?: []
+                            competencias: item['competencias_candidato'] ?: (item['candidato'] instanceof Map ? item['candidato']['competencias'] : [])
                     ],
                     vaga: [
                             id: item['id_vaga'],
-                            titulo: item['titulo_vaga'],
-                            pais: item['pais_vaga'],
-                            estado: item['estado_vaga']
+                            titulo: item['titulo_vaga'] ?: item['titulo'],
+                            pais: item['pais_vaga'] ?: item['pais'],
+                            estado: item['estado_vaga'] ?: item['estado']
                     ]
             ]
         }

@@ -94,6 +94,7 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
             WHERE c.cnpj_empresa = ?
               AND c.cpf_candidato = ?
               AND c.id_vaga = ?
+              AND c.recrutador_id IS NULL -- BLINDAGEM: Não toca nas curtidas dos recrutadores
               AND NOT EXISTS (
                   SELECT 1 FROM match_vaga m
                   WHERE m.cnpj_empresa = c.cnpj_empresa

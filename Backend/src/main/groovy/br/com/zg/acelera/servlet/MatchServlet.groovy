@@ -91,6 +91,7 @@ class MatchServlet extends HttpServlet {
                 Integer idVaga = payload.idVaga != null
                         ? payload.idVaga.toString().toDouble().toInteger()
                         : null
+                resultado = matchController.curtirCandidato(cnpj, cpf, idVaga)
 
             } else if (autor == "RECRUTADOR") {
                 String idRecrutador = payload.idRecrutador

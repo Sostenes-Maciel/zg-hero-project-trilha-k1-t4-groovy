@@ -217,6 +217,7 @@ class MatchDAO extends AbstractDAO<Map<String, Object>> implements IMatchDAO {
         String sql = """
         SELECT 
             m.id_match, 
+            m.cpf_candidato,
             m.id_vaga, 
             c.nome AS nome_candidato, 
             e.nome AS nome_empresa, 
