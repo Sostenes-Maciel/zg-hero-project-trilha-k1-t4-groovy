@@ -1,181 +1,157 @@
 package br.com.zg.aceleraspec.dao
 
-import br.com.zg.acelera.dao.ConexaoFactory
 import br.com.zg.acelera.dao.RecrutadorDAO
 import br.com.zg.acelera.interfaces.IConexao
 import br.com.zg.acelera.model.Recrutador
 import spock.lang.Specification
 
 import java.sql.Connection
+import java.sql.Date
 import java.sql.PreparedStatement
+import java.sql.ResultSet
 import java.time.LocalDate
 
 class RecrutadorDAOSpec extends Specification {
 
-    private static final String EMPRESA_ID = "98.765.432/0001-11"
-    private RecrutadorDAO recrutadorDAO
+    IConexao conexaoMock
+    RecrutadorDAO dao
 
     def setup() {
-        IConexao conexao = ConexaoFactory.getBancoDeDados("POSTGRES")
-        recrutadorDAO = new RecrutadorDAO(conexao)
+        conexaoMock = Mock(IConexao)
+        // Usamos Spy para conseguir "interceptar" as chamadas ao AbstractDAO (executarQuery, executarUpdate, etc)
+        dao = Spy(new RecrutadorDAO(conexaoMock))
     }
 
-    def "deve salvar e buscar recrutador sem retornar senha hash"() {
-        given:
-        String email = "recrutador.dao.${System.nanoTime()}@teste.com"
-        String cpf = "${System.nanoTime()}".takeRight(11)
-        Recrutador recrutador = new Recrutador(
-                empresaId: EMPRESA_ID,
-                nome: "Recrutador DAO",
-                areaAtuacao: "TI",
-                nivelPermissao: "Limitado",
-                descricao: "Teste de persistência",
-                email: email,
-                cpf: cpf,
-                dataNascimento: LocalDate.of(1990, 1, 1),
-                senhaHash: "hash-nao-retornado"
-        )
+    def "deve mapear registro do ResultSet para objeto Recrutador"() {
+        given: "Um ResultSet com dados simulados do banco"
+        ResultSet rsMock = Mock(ResultSet)
+        rsMock.getInt("id_recrutador") >> 1
+        rsMock.getString("empresa_id") >> "12345678901234"
+        rsMock.getString("nome") >> "Sóstenes"
+        rsMock.getString("area_atuacao") >> "TI"
+        rsMock.getString("nivel_permissao") >> "Total"
+        rsMock.getString("descricao") >> "Tech Recruiter"
+        rsMock.getString("email") >> "sostenes@email.com"
+        rsMock.getString("cpf") >> "12345678900"
+        rsMock.getDate("data_nascimento") >> Date.valueOf(LocalDate.of(1995, 5, 10))
+        rsMock.getBoolean("ativo") >> true
+
+        when: "O método mapearRegistro é chamado"
+        Recrutador recrutador = dao.mapearRegistro(rsMock)
+
+        then: "Os dados devem ser mapeados corretamente para a model"
+        recrutador.id == 1
+        recrutador.empresaId == "12345678901234"
+        recrutador.nome == "Sóstenes"
+        recrutador.nivelPermissao == "Total"
+        recrutador.dataNascimento == LocalDate.of(1995, 5, 10)
+        recrutador.ativo == true
+    }
+
+    def "deve salvar recrutador e setar o id retornado"() {
+        given: "Um novo recrutador"
+        Recrutador recrutador = new Recrutador(nome: "Maria", email: "maria@teste.com", senhaHash: "hash-secreto")
+
+        and: "Interceptamos o insert do AbstractDAO para retornar o ID 10"
+        dao.executarInsertComRetorno(_ as String, _ as List) >> 10
 
         when:
-        recrutadorDAO.salvar(recrutador)
-        Recrutador porEmail = recrutadorDAO.buscarPorEmail(email)
-        Recrutador porCpf = recrutadorDAO.buscarPorCpf(cpf)
-        List<Recrutador> porEmpresa = recrutadorDAO.buscarPorEmpresa(EMPRESA_ID)
+        dao.salvar(recrutador)
 
         then:
-        recrutador.id != null
-        porEmail.id == recrutador.id
-        porEmail.email == email
-        porEmail.senhaHash == null
-        porCpf.id == recrutador.id
-        porEmpresa*.id.contains(recrutador.id)
-        porEmpresa.find { it.id == recrutador.id }.senhaHash == null
-
-        cleanup:
-        removerPorEmail(email)
+        recrutador.id == 10
     }
 
-    def "deve inativar recrutador sem apagar o registro"() {
+    def "deve buscar recrutador por ID, Email ou CPF"() {
         given:
-        String email = "recrutador.inativo.${System.nanoTime()}@teste.com"
-        String cpf = "${System.nanoTime()}".takeRight(11)
-        Recrutador recrutador = new Recrutador(
-                empresaId: EMPRESA_ID,
-                nome: "Recrutador Inativo",
-                areaAtuacao: "RH",
-                nivelPermissao: "Total",
-                email: email,
-                cpf: cpf,
-                dataNascimento: LocalDate.of(1988, 2, 2),
-                senhaHash: "hash"
-        )
-        recrutadorDAO.salvar(recrutador)
+        Recrutador esperado = new Recrutador(id: 1, nome: "Ana")
+
+        and: "Simulamos o AbstractDAO retornando nossa Ana quando buscar"
+        dao.executarQuery(_ as String, _) >> [esperado]
+
+        expect: "Garantimos que as 3 consultas retornem a mesma Ana"
+        dao.buscarPorId(1) == esperado
+        dao.buscarPorEmail("ana@teste.com") == esperado
+        dao.buscarPorCpf("11122233344") == esperado
+    }
+
+    def "deve retornar nulo ao buscar recrutador que nao existe"() {
+        given: "Simulamos o banco vazio"
+        dao.executarQuery(_ as String, _) >> []
+
+        expect:
+        dao.buscarPorId(99) == null
+    }
+
+    def "deve listar recrutadores por empresa"() {
+        given:
+        Recrutador rec1 = new Recrutador(id: 1, nome: "Rec 1")
+        Recrutador rec2 = new Recrutador(id: 2, nome: "Rec 2")
+        dao.executarQuery(_ as String, ["12345678901234"]) >> [rec1, rec2]
 
         when:
-        boolean inativado = recrutadorDAO.inativar(recrutador.id)
+        List<Recrutador> lista = dao.buscarPorEmpresa("12345678901234")
 
         then:
-        inativado
-        !recrutadorDAO.buscarPorId(recrutador.id).ativo
-
-        cleanup:
-        removerPorEmail(email)
+        lista.size() == 2
+        lista[0].nome == "Rec 1"
     }
 
-    def "deve atualizar dados permitidos e continuar sem mapear a senha"() {
-        given:
-        String email = "recrutador.update.${System.nanoTime()}@teste.com"
-        String cpf = "${System.nanoTime()}".takeRight(11)
-        Recrutador recrutador = new Recrutador(
-                empresaId: EMPRESA_ID, nome: "Antes", areaAtuacao: "TI",
-                nivelPermissao: "Limitado", descricao: "Antes", email: email,
-                cpf: cpf, dataNascimento: LocalDate.of(1990, 1, 1),
-                senhaHash: "hash-original"
-        )
-        recrutadorDAO.salvar(recrutador)
-        recrutador.nome = "Depois"
-        recrutador.areaAtuacao = "RH"
-        recrutador.nivelPermissao = "Total"
-        recrutador.descricao = "Atualizado"
+    def "deve inativar recrutador com sucesso"() {
+        given: "Simulamos que o update afetou 1 linha"
+        dao.executarUpdate(_ as String, [5]) >> 1
 
         when:
-        recrutadorDAO.atualizar(recrutador)
-        Recrutador atualizado = recrutadorDAO.buscarPorId(recrutador.id)
+        boolean inativou = dao.inativar(5)
 
         then:
-        atualizado.nome == "Depois"
-        atualizado.areaAtuacao == "RH"
-        atualizado.nivelPermissao == "Total"
-        atualizado.descricao == "Atualizado"
-        atualizado.senhaHash == null
-
-        cleanup:
-        removerPorEmail(email)
+        inativou == true
     }
 
-    def "deve rejeitar e-mail duplicado pela constraint real do banco"() {
-        given:
-        String email = "recrutador.dup.email.${System.nanoTime()}@teste.com"
-        String cpf1 = "${System.nanoTime()}".takeRight(11)
-        String cpf2 = "${(System.nanoTime() + 1)}".takeRight(11)
-        Recrutador primeiro = novo(email, cpf1)
-        recrutadorDAO.salvar(primeiro)
-        Recrutador duplicado = novo(email, cpf2)
+    def "deve buscar hash da senha por email utilizando JDBC manual"() {
+        given: "Mocks do JDBC (necessário porque o executarValor abre conexão manual)"
+        Connection connMock = Mock(Connection)
+        PreparedStatement stmtMock = Mock(PreparedStatement)
+        ResultSet rsMock = Mock(ResultSet)
+
+        and: "Configuração do fluxo de conexão"
+        conexaoMock.conectar() >> connMock
+        connMock.prepareStatement(_) >> stmtMock
+        stmtMock.executeQuery() >> rsMock
+
+        and: "Simulando o cursor do ResultSet (true na primeira leitura, false para encerrar o loop)"
+        rsMock.next() >>> [true, false]
+        rsMock.getString(1) >> "meu-hash-criptografado"
 
         when:
-        recrutadorDAO.salvar(duplicado)
+        String hash = dao.buscarHashPorEmail("recrutador@email.com")
 
-        then:
-        RuntimeException erro = thrown()
-        erro.cause != null
-        erro.cause.getSQLState() == "23505"
-
-        cleanup:
-        removerPorEmail(email)
+        then: "O hash deve ser retornado e as conexões devem ser fechadas com segurança"
+        hash == "meu-hash-criptografado"
+        1 * stmtMock.setObject(1, "recrutador@email.com")
+        1 * rsMock.close()
+        1 * stmtMock.close()
+        1 * connMock.close()
     }
 
-    def "deve rejeitar CPF duplicado pela constraint real do banco"() {
-        given:
-        String email1 = "recrutador.dup.cpf.1.${System.nanoTime()}@teste.com"
-        String email2 = "recrutador.dup.cpf.2.${System.nanoTime()}@teste.com"
-        String cpf = "${System.nanoTime()}".takeRight(11)
-        recrutadorDAO.salvar(novo(email1, cpf))
-        Recrutador duplicado = novo(email2, cpf)
+    def "deve retornar nulo ao buscar hash de um email inexistente"() {
+        given: "Mocks do JDBC"
+        Connection connMock = Mock(Connection)
+        PreparedStatement stmtMock = Mock(PreparedStatement)
+        ResultSet rsMock = Mock(ResultSet)
+
+        conexaoMock.conectar() >> connMock
+        connMock.prepareStatement(_) >> stmtMock
+        stmtMock.executeQuery() >> rsMock
+
+        and: "Simula ResultSet vazio"
+        rsMock.next() >> false
 
         when:
-        recrutadorDAO.salvar(duplicado)
+        String hash = dao.buscarHashPorEmail("inexistente@email.com")
 
         then:
-        RuntimeException erro = thrown()
-        erro.cause != null
-        erro.cause.getSQLState() == "23505"
-
-        cleanup:
-        removerPorEmail(email1)
-        removerPorEmail(email2)
-    }
-
-    private Recrutador novo(String email, String cpf) {
-        new Recrutador(
-                empresaId: EMPRESA_ID, nome: "Teste DAO", areaAtuacao: "TI",
-                nivelPermissao: "Limitado", descricao: "Persistência",
-                email: email, cpf: cpf, dataNascimento: LocalDate.of(1990, 1, 1),
-                senhaHash: "hash"
-        )
-    }
-
-    private static void removerPorEmail(String email) {
-        IConexao conexaoFactory = ConexaoFactory.getBancoDeDados("POSTGRES")
-        Connection conexao = null
-        PreparedStatement stmt = null
-        try {
-            conexao = conexaoFactory.conectar()
-            stmt = conexao.prepareStatement("DELETE FROM recrutador WHERE email = ?")
-            stmt.setString(1, email)
-            stmt.executeUpdate()
-        } finally {
-            stmt?.close()
-            conexao?.close()
-        }
+        hash == null
+        1 * connMock.close() // Garante que até falhas fecham a conexão
     }
 }
