@@ -59,6 +59,16 @@ class CurtidaDAO extends AbstractDAO<Void> implements ICurtidaDAO {
     }
 
     @Override
+    boolean registrarCurtidaRecrutador(String cpfCandidato, String cnpjEmpresa, Integer idVaga, Integer recrutadorId) {
+        String sqlInserir = """
+            INSERT INTO curtida (cpf_candidato, cnpj_empresa, id_vaga, recrutador_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (cpf_candidato, id_vaga, cnpj_empresa, recrutador_id) DO NOTHING
+        """
+        return executarUpdate(sqlInserir, [cpfCandidato, cnpjEmpresa, idVaga, recrutadorId]) > 0
+    }
+
+    @Override
     boolean verificarMatch(String cpfCandidato, String cnpjEmpresa, Integer idVaga) {
         String sql = """
             SELECT 1

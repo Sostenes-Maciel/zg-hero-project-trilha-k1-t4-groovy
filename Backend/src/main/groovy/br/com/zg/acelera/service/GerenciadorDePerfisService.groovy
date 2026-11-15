@@ -274,10 +274,12 @@ class GerenciadorDePerfisService {
             throw new SecurityException("Vaga fora da área de atuação do recrutador.")
         }
         if (matchDAO.existeMatch(cpfCandidato, recrutador.empresaId, idVaga)) return true
+
         if (!curtidaDAO.jaCurtiuCandidatoPorRecrutador(recrutador.id, cpfCandidato, idVaga)) {
-            curtidaDAO.registrarCurtidaEmpresa(cpfCandidato, recrutador.empresaId, idVaga, recrutador.id)
+            curtidaDAO.registrarCurtidaRecrutador(cpfCandidato, recrutador.empresaId, idVaga, recrutador.id)
         }
-        processarPossivelMatch(cpfCandidato, recrutador.empresaId, idVaga)
+
+        return processarPossivelMatch(cpfCandidato, recrutador.empresaId, idVaga)
     }
 
     boolean removerCurtidaEmpresa(String cnpjEmpresa, String cpfCandidato, Integer idVaga) {
