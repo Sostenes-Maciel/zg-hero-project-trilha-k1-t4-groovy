@@ -15,6 +15,28 @@
 </head>
 
 <body>
+<script>
+  let tempoInativo;
+
+  function realizarLogoutAutomatico() {
+    localStorage.clear();
+    sessionStorage.clear();
+    alert("Sua sessão expirou por inatividade.");
+    window.location.href = '/login';
+  }
+
+  function resetarCronometro() {
+    clearTimeout(tempoInativo);
+    tempoInativo = setTimeout(realizarLogoutAutomatico, 30 * 60 * 1000);
+  }
+
+
+  window.onload = resetarCronometro;
+  document.onmousemove = resetarCronometro;
+  document.onkeypress = resetarCronometro;
+  document.onclick = resetarCronometro;
+  document.onscroll = resetarCronometro;
+</script>
 
 <nav id="menu-principal">
 
@@ -208,3 +230,4 @@
 
 </body>
 </html>
+
