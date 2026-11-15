@@ -49,7 +49,17 @@ class MatchController {
         try {
             boolean deuMatch = perfilService.curtirCandidato(cnpjEmpresa, cpfCandidato, idVaga)
             String msg = deuMatch ? "MATCH ENCONTRADO!" : "Candidato curtido com sucesso!"
-            return [status: 201, mensagem: msg, match: deuMatch]
+
+            Map resposta = [status: 201, mensagem: msg, match: deuMatch]
+
+            if (deuMatch) {
+
+                def candidato = perfilService.buscarCandidatoPorCpf(cpfCandidato)
+                if (candidato != null) {
+                    resposta.nomeRevelado = candidato.nome
+                }
+            }
+            return resposta
         } catch (IllegalArgumentException e) {
             return [status: 400, mensagem: e.message]
         } catch (IllegalStateException e) {

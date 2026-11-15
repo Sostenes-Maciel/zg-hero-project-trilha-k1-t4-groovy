@@ -33,7 +33,7 @@ export async function renderPerfilEmpresa(empresa: Empresa, mensagemSucesso?: st
 
     renderizarGraficoCompetencias(candidatosDoBanco)
     renderizarTabelaCandidatos(empresa, candidatosDoBanco, statusMatches, vagasDaEmpresa)
-    configurarEventos(empresa, statusMatches, candidatosDoBanco)
+    configurarEventos(empresa, statusMatches)
 }
 
 function renderizarTemplatePerfil(app: HTMLDivElement, empresa: Empresa, mensagemSucesso?: string, animarTransicao: boolean = true): void {
@@ -302,12 +302,12 @@ function renderizarTabelaCandidatos(empresa: Empresa, candidatos: Candidato[], s
     })
 }
 
-function configurarEventos(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
-    configurarBotoesCurtirCandidato(empresa, statusMatches, candidatos)
+function configurarEventos(empresa: Empresa, statusMatches: StatusMatch[]): void {
+    configurarBotoesCurtirCandidato(empresa, statusMatches)
     configurarFiltroCompetencia()
 }
 
-function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: StatusMatch[], candidatos: Candidato[]): void {
+function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: StatusMatch[]): void {
     const botoesCurtir = document.querySelectorAll<HTMLButtonElement>('.btn-curtir-candidato')
 
     botoesCurtir.forEach(botao => {
@@ -369,11 +369,12 @@ function configurarBotoesCurtirCandidato(empresa: Empresa, statusMatches: Status
                     }
                     if (deuMatch) {
                         mostrarAnimacaoMatch()
-                        const candidato = candidatos.find(item =>
-                            item.cpf.replace(/\D/g, '') === cpfCandidato.replace(/\D/g, '')
-                        )
                         const celulaNome = botao.closest('tr')?.querySelector<HTMLTableCellElement>('.coluna-candidato')
-                        if (celulaNome && candidato) celulaNome.textContent = candidato.nome
+
+                        // Pega o nome real diretamente do backend!
+                        if (celulaNome && resultado.nomeRevelado) {
+                            celulaNome.textContent = resultado.nomeRevelado
+                        }
                     }
                 } else {
                     const resultado = await resposta.json()
