@@ -422,6 +422,26 @@ Inicie o frontend pelo procedimento habitual, garantindo que sua origem seja a c
 
 Na validação manual da integração, os cadastros de candidato e empresa foram enviados pelo frontend ao serviço e confirmados com sucesso. A edição de perfis continua no backend original. A integração é experimental e local; para outros ambientes, ajuste os endereços/portas e a origem CORS.
 
+### Atualização - Validações Regex nos Formulários de Cadastro (Frontend)
+
+Foi implementada validação com expressões regulares (Regex) em TypeScript nos formulários de cadastro de **candidato** e **empresa**, garantindo maior qualidade dos dados antes do envio ao servidor.
+
+**Campos validados:**
+- Nome: apenas letras e espaços, mínimo 2 caracteres
+- E-mail: formato padrão com `@` e domínio
+- CPF: exatamente 11 dígitos (aceita máscara)
+- CNPJ: exatamente 14 dígitos (aceita máscara)
+- Idade: número inteiro entre 18 e 120
+- Estado e País: apenas letras e espaços
+- Descrição: texto com pontuação básica, máximo 500 caracteres
+- Competências/Tags: 1 a 10 itens, letras, números, espaços, hífens e ponto
+- CEP: 8 dígitos (Brasil) ou formato genérico internacional
+
+**Validação em tempo real:** os erros são exibidos abaixo de cada campo ao sair dele (blur) e limpos ao digitar novamente (input), com destaque visual na borda do campo.
+
+**Campos preservados:** CEP (auto-completar ViaCEP/Correios), País e Estado (biblioteca `@countrystatecity/countries-browser`) mantêm seu comportamento original sem interferência da validação inline.
+
+---
 
 👤 Autor
 

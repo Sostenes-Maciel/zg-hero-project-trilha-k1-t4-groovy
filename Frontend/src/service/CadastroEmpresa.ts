@@ -1,5 +1,5 @@
 import type { Empresa } from '../model/Empresa.ts'
-import { ValidarEmpresa } from './ValidarEmpresa.ts'
+import { ValidarEmpresa } from './ValidarEmpresa'
 import { configurarAutocompletarCep } from './ConsultaCep.ts'
 import { mostrarNotificacaoSucesso } from '../components/Notificacao.ts'
 import {
@@ -28,22 +28,26 @@ function renderizarFormulario(app: HTMLDivElement, modoEdicao: boolean): void {
                 <div>
                     <label for="nome">Nome</label>
                     <input type="text" id="nome" name="nome" required>
+                    <p id="erro-nome" class="erro-campo"></p>
                 </div>
 
                 <div>
                     <label for="email">E-mail</label>
                     <input type="email" id="email" name="email" required>
+                    <p id="erro-email" class="erro-campo"></p>
                 </div>
 
                 <div>
                     <label for="cnpj">CNPJ</label>
                     <input type="text" id="cnpj" name="cnpj" required>
+                    <p id="erro-cnpj" class="erro-campo"></p>
                 </div>
 
                 <div class="campo-codigo-postal">
                     <label for="codigoPostal">Código Postal</label>
                     <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex.: 55299-300" required>
                     <p id="mensagem-cep" aria-live="polite"></p>
+                    <p id="erro-codigoPostal" class="erro-campo"></p>
                 </div>
 
                 <div>
@@ -51,6 +55,7 @@ function renderizarFormulario(app: HTMLDivElement, modoEdicao: boolean): void {
                     <select id="pais" name="pais" required>
                         <option value="">Selecione um país</option>
                     </select>
+                    <p id="erro-pais" class="erro-campo"></p>
                 </div>
 
                 <div>
@@ -58,6 +63,7 @@ function renderizarFormulario(app: HTMLDivElement, modoEdicao: boolean): void {
                     <select id="estado" name="estado" required disabled>
                         <option value="">Selecione um país primeiro</option>
                     </select>
+                    <p id="erro-estado" class="erro-campo"></p>
                 </div>
 
                 <div>
@@ -78,11 +84,13 @@ function renderizarFormulario(app: HTMLDivElement, modoEdicao: boolean): void {
                 <div>
                     <label for="descricao">Descrição</label>
                     <textarea id="descricao" name="descricao" required></textarea>
+                    <p id="erro-descricao" class="erro-campo"></p>
                 </div>
 
                 <div>
                     <label for="competencias">Competências</label>
                     <input type="text" id="competencias" name="competencias" placeholder="Ex.: Java, Angular, TypeScript" required>
+                    <p id="erro-competencias" class="erro-campo"></p>
                 </div>
 
                 <button type="submit">${modoEdicao ? 'Salvar alterações' : 'Cadastrar'}</button>
@@ -194,6 +202,51 @@ function configurarEventosFormulario(validarCep: () => Promise<void>, empresaEmE
         evento.preventDefault()
         await processarSubmissao(formulario, validarCep, empresaEmEdicao)
     })
+
+    // Validação em tempo real: ao sair do campo (blur) e ao digitar (input)
+    // CEP, País e Estado são gerenciados pelo auto-completar dos Correios e biblioteca de países
+    configurarValidacaoPorCampo('nome', (valor) => ValidarEmpresa.validarNome(valor))
+    configurarValidacaoPorCampo('email', (valor) => ValidarEmpresa.validarEmail(valor))
+    configurarValidacaoPorCampo('cnpj', (valor) => ValidarEmpresa.validarCnpj(valor))
+    configurarValidacaoPorCampo('descricao', (valor) => ValidarEmpresa.validarDescricao(valor))
+    configurarValidacaoPorCampo('competencias', (valor) => {
+        const competencias = valor.split(',').map(c => c.trim()).filter(c => c.length > 0)
+        ValidarEmpresa.validarCompetencias(competencias)
+    })
+}
+
+function configurarValidacaoPorCampo(campoId: string, validar: (valor: string) => void): void {
+    const campo = document.getElementById(campoId) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null
+    const erro = document.getElementById(`erro-${campoId}`) as HTMLParagraphElement | null
+
+    if (!campo || !erro) return
+
+    // Ao sair do campo: validar
+    campo.addEventListener('blur', () => {
+        limparErroCampo(campo, erro)
+        try {
+            validar(campo.value)
+        } catch (erroValidacao) {
+            mostrarErroCampo(campo, erro, erroValidacao instanceof Error ? erroValidacao.message : 'Campo inválido.')
+        }
+    })
+
+    // Ao digitar novamente: limpar erro
+    campo.addEventListener('input', () => {
+        limparErroCampo(campo, erro)
+    })
+}
+
+function mostrarErroCampo(campo: HTMLElement, erro: HTMLParagraphElement, mensagem: string): void {
+    campo.classList.add('input-erro')
+    erro.textContent = mensagem
+    erro.classList.add('ativo')
+}
+
+function limparErroCampo(campo: HTMLElement, erro: HTMLParagraphElement): void {
+    campo.classList.remove('input-erro')
+    erro.textContent = ''
+    erro.classList.remove('ativo')
 }
 
 async function processarSubmissao(formulario: HTMLFormElement, validarCep: () => Promise<void>, empresaEmEdicao?: Empresa): Promise<void> {

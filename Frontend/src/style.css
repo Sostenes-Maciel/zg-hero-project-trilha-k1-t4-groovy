@@ -2762,3 +2762,35 @@ textarea:focus {
         transform: translateY(-8px);
     }
 }
+
+/* Validação por campo - erros inline */
+.erro-campo {
+    display: none;
+    color: var(--danger);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    margin-left: 2px;
+    font-weight: 500;
+}
+
+.erro-campo.ativo {
+    display: block;
+    animation: aparecer-erro 0.2s ease-out;
+}
+
+.input-erro {
+    border-color: var(--danger) !important;
+    outline-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+@keyframes aparecer-erro {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
